@@ -135,6 +135,16 @@ function itemDifficulty(cefr: Cefr, idx: number): number {
   return Number((base - 0.2 + idx * 0.1).toFixed(2));
 }
 
+/** Car ladder anchors (§3.2 of the spec) — brand-agnostic shipped names (D4). */
+const CAR_LADDER: { tier: number; className: string; baseSpeed: number; baseHandling: number; unlockCefr: Cefr }[] = [
+  { tier: 0, className: "City Hatch", baseSpeed: 1.0, baseHandling: 1.0, unlockCefr: "A1" },
+  { tier: 1, className: "Hot Hatch", baseSpeed: 1.4, baseHandling: 1.3, unlockCefr: "A2" },
+  { tier: 2, className: "Sports Sedan", baseSpeed: 2.0, baseHandling: 1.7, unlockCefr: "B1" },
+  { tier: 3, className: "Sports Coupe", baseSpeed: 2.8, baseHandling: 2.4, unlockCefr: "B2" },
+  { tier: 4, className: "Supercar", baseSpeed: 3.8, baseHandling: 3.2, unlockCefr: "C1" },
+  { tier: 5, className: "Hypercar", baseSpeed: 5.0, baseHandling: 4.0, unlockCefr: "C2" },
+];
+
 async function main() {
   // Languages
   for (const [code, name] of [
@@ -142,6 +152,11 @@ async function main() {
     ["es", "Spanish"],
   ] as const) {
     await prisma.language.upsert({ where: { code }, update: { name }, create: { code, name } });
+  }
+
+  // Car catalog (Phase 1) — static anchors, read-only at runtime.
+  for (const car of CAR_LADDER) {
+    await prisma.carCatalog.upsert({ where: { tier: car.tier }, update: car, create: car });
   }
 
   // Pair de -> es (deterministic id)

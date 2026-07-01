@@ -1,21 +1,23 @@
-# lingo-cars — Phase 0 (learning loop)
+# lingo-cars — Phases 0 + 1 (learning loop + car projection)
 
 [![CI](https://github.com/giorgijv/lingo-cars/actions/workflows/ci.yml/badge.svg)](https://github.com/giorgijv/lingo-cars/actions/workflows/ci.yml)
 
 > **🏎️ Live demo:** <https://giorgijv.github.io/lingo-cars/> — a standalone,
-> in-browser illustration of the car-progression concept (placement test → MCQ
-> study → the car levels up City Hatch → Hypercar). It runs entirely
-> client-side and is separate from the Phase 0 API below. *(Requires GitHub
-> Pages to be enabled for the repo — Settings → Pages → Source: GitHub Actions.)*
+> in-browser illustration of the car-progression concept: pick a language pair
+> (de→es, en→es, de→ka, en→ka), take a placement test, study MCQs, and watch
+> the car level up City Hatch → Hypercar with milestone cosmetics along the
+> way. It runs entirely client-side and is separate from the API below.
 
-Backend for a gamified language-learning app. **This branch implements Phase 0 only:**
-validating the *learning loop* — schema, adaptive placement, one exercise type
-(multiple-choice), an FSRS spaced-repetition engine, and rolling CEFR promotion.
+Backend for a gamified language-learning app.
 
-> **No gamification yet.** There is deliberately **no car system, no points
-> economy, no cosmetics** (Phase 1+), and only the **de→es** pair (German →
-> Spanish). See [`CLAUDE.md`](./CLAUDE.md) for the full product spec and the
-> reasoning behind each decision.
+- **Phase 0 — the learning loop:** schema, adaptive placement, one exercise
+  type (multiple-choice), an FSRS spaced-repetition engine, and rolling CEFR
+  promotion.
+- **Phase 1 — the motivation loop:** the car as a **pure read-only projection**
+  of proficiency — a static `CarCatalog` ladder, stat interpolation within a
+  tier, and intra-tier micro-milestones. No points economy, no market, no race
+  (Phase 3+). Backend content is still **de→es**; the extra pairs exist in the
+  demo only. See [`CLAUDE.md`](./CLAUDE.md) for the full spec and rationale.
 
 ## Non-negotiable guardrails (enforced here)
 
@@ -107,8 +109,9 @@ npm test           # vitest — pure unit tests always run;
 | `POST /placement/finalize` | `{ userId, pairId, state }` → `{ cefr, confidence, inTierProgress, … }`; seeds enrollment. |
 | `GET /lessons/:id` | Lesson + exercises (no `correctIndex`). |
 | `GET /queue?userId&pairId` | Due reviews + new tier items. |
-| `POST /attempts` | `{ userId, exerciseId, selectedIndex, latencyMs }` → grades, schedules FSRS, rolls up proficiency, evaluates promotion — one transaction. |
+| `POST /attempts` | `{ userId, exerciseId, selectedIndex, latencyMs }` → grades, schedules FSRS, rolls up proficiency, evaluates promotion — one transaction. Response includes the updated car projection. |
 | `GET /proficiency?userId&pairId` | Current CEFR + proficiency state. |
+| `GET /car?userId&pairId` | **Phase 1.** The car as a pure projection: tier/class from `currentCefr`, speed & handling interpolated by `inTierProgress` toward the next class's base stats, plus micro-milestones (0.25/0.5/0.75). Computed on read — never stored (D5). |
 
 Grading is **server-authoritative**: clients send the selected option index and
 never receive `correctIndex`.
@@ -123,9 +126,13 @@ never receive `correctIndex`.
   with coverage; C1→C2 held for a checkpoint; silent gated demotion (D6) below
   0.60 with hysteresis. `applyTierDecision` applies it.
 - **`placement.ts`** — logistic staircase; ability → CEFR + confidence + low seed.
+- **`car.ts`** — Phase 1: `projectCar` (pure — cefr + inTierProgress + catalog →
+  class, interpolated stats, micro-milestones) and the read-only `getCar` loader.
+  Tier moves only via CEFR (D3); nothing is ever written (D5).
 
-## Not in Phase 0
+## Not built yet (later phases)
 
-Car/vehicle state, points/economy, cosmetics, Georgian (`ka`), English source,
-speaking/listening exercises, and any C-level checkpoint (`assessments` table).
-These arrive in later phases per [`CLAUDE.md`](./CLAUDE.md) §8.
+Points economy & allocation choices, cosmetic market, race minigame, Georgian
+(`ka`) backend content, English-source backend content, speaking/listening
+exercises, and any C-level checkpoint (`assessments` table).
+Per [`CLAUDE.md`](./CLAUDE.md) §8.
