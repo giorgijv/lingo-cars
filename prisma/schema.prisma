@@ -1,0 +1,208 @@
+// Phase 0 — learning loop only. NO car system, points, cosmetics, or Georgian.
+// Derived state (ReviewState, ProficiencyState) is a pure projection of the
+// immutable Attempt log (Rule 4). Nothing here models car state (D5) or couples
+// a non-CEFR signal to tier access (D3).
+
+generator client {
+  provider      = "prisma-client-js"
+  binaryTargets = ["native", "debian-openssl-3.0.x"]
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+// ─────────────────────────── Enums ───────────────────────────
+
+enum Cefr {
+  A1
+  A2
+  B1
+  B2
+  C1
+  C2
+}
+
+enum UiLanguage {
+  en
+  de
+}
+
+enum ExerciseType {
+  mcq // only type built in Phase 0; enum leaves room for fill/listen/match/speak
+}
+
+enum SessionType {
+  placement // adaptive placement bet — excluded from FSRS study scheduling & mastery
+  study // first-time lesson attempts
+  review // spaced-repetition reviews
+}
+
+enum FsrsState {
+  new
+  learning
+  review
+  relearning
+}
+
+// ─────────────────────────── Catalog ───────────────────────────
+
+model Language {
+  code String @id // ISO 639-1: "de", "es" (Georgian "ka" arrives Phase 2)
+  name String
+
+  pairsAsSource LanguagePair[] @relation("PairSource")
+  pairsAsTarget LanguagePair[] @relation("PairTarget")
+}
+
+model LanguagePair {
+  id         String @id @default(cuid())
+  sourceCode String
+  targetCode String
+
+  source Language @relation("PairSource", fields: [sourceCode], references: [code])
+  target Language @relation("PairTarget", fields: [targetCode], references: [code])
+
+  enrollments       Enrollment[]
+  skills            Skill[]
+  proficiencyStates ProficiencyState[]
+
+  @@unique([sourceCode, targetCode])
+}
+
+// ─────────────────────────── Users & enrollment ───────────────────────────
+
+model User {
+  id         String     @id @default(cuid())
+  email      String     @unique
+  uiLanguage UiLanguage @default(en)
+  createdAt  DateTime   @default(now())
+
+  enrollments       Enrollment[]
+  attempts          Attempt[]
+  reviewStates      ReviewState[]
+  proficiencyStates ProficiencyState[]
+}
+
+model Enrollment {
+  id                   String    @id @default(cuid())
+  userId               String
+  pairId               String
+  currentCefr          Cefr      @default(A1) // seeded by placement, then moved by evaluateTier
+  placementResultJson  Json? // raw adaptive-test transcript + ability estimate + confidence
+  placementCompletedAt DateTime?
+  createdAt            DateTime  @default(now())
+
+  user User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  pair LanguagePair @relation(fields: [pairId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, pairId])
+}
+
+// ─────────────────────────── Content ───────────────────────────
+
+model Skill {
+  id       String @id @default(cuid())
+  pairId   String
+  cefr     Cefr
+  name     String
+  orderIdx Int
+
+  pair    LanguagePair @relation(fields: [pairId], references: [id], onDelete: Cascade)
+  lessons Lesson[]
+
+  @@unique([pairId, cefr, orderIdx])
+  @@index([pairId, cefr])
+}
+
+model Lesson {
+  id       String @id @default(cuid())
+  skillId  String
+  orderIdx Int
+
+  skill     Skill      @relation(fields: [skillId], references: [id], onDelete: Cascade)
+  exercises Exercise[]
+
+  @@unique([skillId, orderIdx])
+}
+
+model Exercise {
+  id          String       @id @default(cuid())
+  lessonId    String
+  type        ExerciseType @default(mcq)
+  payloadJson Json // { stem, options: string[], correctIndex } — zod-validated at API boundary
+  difficulty  Float        @default(0) // CEFR-calibrated item difficulty; also drives placement
+  createdAt   DateTime     @default(now())
+
+  lesson       Lesson        @relation(fields: [lessonId], references: [id], onDelete: Cascade)
+  attempts     Attempt[]
+  reviewStates ReviewState[]
+
+  @@index([lessonId])
+}
+
+// ─────────────── IMMUTABLE EVENT LOG (append-only, Rule 4) ───────────────
+// No update/delete code paths. Physically enforced by a DB trigger + revoked
+// grants in the SQL migration (Step 3). All derived state replays from this.
+
+model Attempt {
+  id          String      @id @default(cuid())
+  userId      String
+  exerciseId  String
+  correct     Boolean
+  latencyMs   Int
+  sessionType SessionType @default(study)
+  createdAt   DateTime    @default(now())
+
+  user     User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  exercise Exercise @relation(fields: [exerciseId], references: [id], onDelete: Cascade)
+
+  @@index([userId, createdAt])
+  @@index([userId, exerciseId, createdAt])
+}
+
+// ─────────────── DERIVED: per-card FSRS state (replayable) ───────────────
+
+model ReviewState {
+  id                String    @id @default(cuid())
+  userId            String
+  exerciseId        String
+  stability         Float
+  difficulty        Float
+  due               DateTime
+  lastReview        DateTime?
+  reps              Int       @default(0)
+  lapses            Int       @default(0)
+  state             FsrsState @default(new)
+  fsrsParamsVersion Int
+  updatedAt         DateTime  @updatedAt
+
+  user     User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  exercise Exercise @relation(fields: [exerciseId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, exerciseId])
+  @@index([userId, due]) // "what's due now" queue
+}
+
+// ─────────────── DERIVED: per-(user,pair) rollup (replayable) ───────────────
+
+model ProficiencyState {
+  id                  String    @id @default(cuid())
+  userId              String
+  pairId              String
+  perSkillMasteryJson Json // { [skillId]: { retrievability, reps, lapses, coverage } }
+  tierMastery         Float     @default(0) // 0..1 coverage-weighted mastery of current tier
+  inTierProgress      Float     @default(0) // min(1, tierMastery/threshold); Phase-1 car reads THIS
+  xp                  Int       @default(0)
+  streakDays          Int       @default(0)
+  lastActive          DateTime?
+  fsrsParamsVersion   Int
+  recomputedAt        DateTime  @updatedAt
+
+  user User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  pair LanguagePair @relation(fields: [pairId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, pairId])
+}
