@@ -1,0 +1,62 @@
+name: CI
+
+on:
+  push:
+    branches: [main, "claude/**"]
+  pull_request:
+    branches: [main]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: lingo_cars
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+
+    env:
+      # Runtime role (restricted; no UPDATE/DELETE on Attempt)
+      DATABASE_URL: postgresql://app_role:app_pass@localhost:5432/lingo_cars?schema=public
+      # Owner role for migrations — must differ from app_role so the
+      # append-only REVOKE is enforceable (owners bypass GRANT/REVOKE).
+      DIRECT_URL: postgresql://postgres:postgres@localhost:5432/lingo_cars?schema=public
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Create restricted app_role (non-owner)
+        run: |
+          PGPASSWORD=postgres psql -h localhost -U postgres -d lingo_cars \
+            -c "CREATE ROLE app_role LOGIN PASSWORD 'app_pass';" \
+            -c "GRANT CONNECT ON DATABASE lingo_cars TO app_role;"
+
+      - name: Apply migrations (tables + append-only trigger/grants)
+        run: npx prisma migrate deploy
+
+      - name: Seed content
+        run: npm run seed
+
+      - name: Typecheck
+        run: npm run typecheck
+
+      - name: Tests (unit + integration + e2e)
+        run: npm test

@@ -1,0 +1,25 @@
+# Zero-config Postgres for local dev. The container owns the schema as the
+# `postgres` role (used by DIRECT_URL for migrations); the app connects as the
+# restricted `app_role` (DATABASE_URL) created by docker/init/01-app-role.sql.
+# The role split is what makes the append-only REVOKE on Attempt effective.
+services:
+  db:
+    image: postgres:16-alpine
+    container_name: lingo-cars-db
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: lingo_cars
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+      - ./docker/init:/docker-entrypoint-initdb.d:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d lingo_cars"]
+      interval: 3s
+      timeout: 3s
+      retries: 20
+
+volumes:
+  pgdata:
