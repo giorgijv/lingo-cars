@@ -42,18 +42,35 @@ Derived tables (`ReviewState`, `ProficiencyState`) are pure projections of the
 
 ## Setup
 
-Requires Node ≥ 20 and Postgres ≥ 14.
+Requires Node ≥ 20. Choose Docker (zero-config) or an existing Postgres ≥ 14.
+
+### Option A — Docker (recommended)
+
+```bash
+npm install
+cp .env.example .env    # defaults already match docker-compose
+npm run setup           # starts Postgres, applies migrations, seeds content
+npm test                # 38 tests, incl. DB integration + e2e
+npm run dev             # http://localhost:3000
+```
+
+`npm run setup` = `db:up` (Docker Postgres + healthcheck) → `prisma:deploy`
+→ `seed`. The compose init script creates the restricted `app_role`; the
+migration then applies its grants and the append-only trigger. Tear down with
+`npm run db:down` (keep data) or `npm run db:reset` (wipe volume).
+
+### Option B — existing Postgres
 
 ```bash
 npm install
 
-# Postgres: create the app role (must NOT own tables) + database.
+# Create the app role (must NOT own tables) + database:
 #   CREATE ROLE app_role LOGIN PASSWORD 'app_pass';
 #   CREATE DATABASE lingo_cars OWNER postgres;
-cp .env.example .env        # then edit DATABASE_URL (app_role) + DIRECT_URL (owner)
+cp .env.example .env    # edit DATABASE_URL (app_role) + DIRECT_URL (owner)
 
-npm run prisma:deploy       # apply migrations (creates tables + append-only trigger/grants)
-npm run seed                # de/es, de->es pair, A1/A2 skills -> lessons -> MCQ exercises
+npm run prisma:deploy   # tables + append-only trigger/grants
+npm run seed            # de/es, de->es, A1/A2 skills -> lessons -> MCQ exercises
 ```
 
 `DATABASE_URL` uses the **restricted** `app_role`; `DIRECT_URL` uses the table
