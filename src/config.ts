@@ -31,6 +31,21 @@ export const PROMOTION = {
 export const CEFR_ORDER = ["A1", "A2", "B1", "B2", "C1", "C2"] as const;
 export type Cefr = (typeof CEFR_ORDER)[number];
 
+/** Numeric difficulty anchor per CEFR band — drives item calibration & placement mapping. */
+export const CEFR_DIFFICULTY: Record<Cefr, number> = {
+  A1: 1,
+  A2: 2,
+  B1: 3,
+  B2: 4,
+  C1: 5,
+  C2: 6,
+};
+
+/** Zero-based index of a CEFR level in the ladder. */
+export function cefrIndex(c: Cefr): number {
+  return CEFR_ORDER.indexOf(c);
+}
+
 /** Placement test budget. */
 export const PLACEMENT = {
   maxItems: 24,

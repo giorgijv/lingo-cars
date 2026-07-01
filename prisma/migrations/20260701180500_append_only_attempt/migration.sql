@@ -11,6 +11,10 @@
 
 -- ─────────────── Layer 1: least-privilege grants for app_role ───────────────
 
+-- Schema access. Kept here (not as an out-of-band grant) so it survives
+-- `prisma migrate reset`, which drops & recreates the public schema.
+GRANT USAGE ON SCHEMA public TO app_role;
+
 -- Start from a clean slate on every table.
 REVOKE ALL ON ALL TABLES IN SCHEMA public FROM app_role;
 
