@@ -1,5 +1,13 @@
 # lingo-cars — Phase 0 (learning loop)
 
+[![CI](https://github.com/giorgijv/lingo-cars/actions/workflows/ci.yml/badge.svg)](https://github.com/giorgijv/lingo-cars/actions/workflows/ci.yml)
+
+> **🏎️ Live demo:** <https://giorgijv.github.io/lingo-cars/> — a standalone,
+> in-browser illustration of the car-progression concept (placement test → MCQ
+> study → the car levels up City Hatch → Hypercar). It runs entirely
+> client-side and is separate from the Phase 0 API below. *(Requires GitHub
+> Pages to be enabled for the repo — Settings → Pages → Source: GitHub Actions.)*
+
 Backend for a gamified language-learning app. **This branch implements Phase 0 only:**
 validating the *learning loop* — schema, adaptive placement, one exercise type
 (multiple-choice), an FSRS spaced-repetition engine, and rolling CEFR promotion.
