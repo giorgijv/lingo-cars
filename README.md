@@ -10,12 +10,16 @@
 > client-side and is separate from the API below.
 >
 > **Placement and study draw from separate pools.** The demo's placement test
-> (`BANKS`, ~40 items/language) and study mode (`STUDY_BANKS`, **100 items per
-> target language**, A1–C2) are disjoint arrays with zero item overlap, so a
-> learner never sees the exact same question in both modes back to back.
-> Study items also carry a bilingual `why` explanation, shown under the
-> feedback line whenever an answer is wrong. Georgian study content above A2
-> is, like the rest of this build's `ka` content, not yet reviewed by a
+> (`BANKS`, ~45–50 items/language, including dedicated grammar items —
+> ser/estar, gender agreement, the Georgian case system, ergative/dative/
+> instrumental marking) and study mode (`STUDY_BANKS`, **200 items per
+> target language**, A1–C2, roughly half vocabulary/phrases and half verb
+> conjugation, agreement, and case-system grammar drills) are disjoint arrays
+> with zero item overlap, so a learner never sees the exact same question in
+> both modes back to back. Study items also carry a bilingual `why`
+> explanation, shown under the feedback line whenever an answer is wrong.
+> Georgian study content above A2 is, like the rest of this build's `ka`
+> content, not yet reviewed by a
 > native speaker.
 
 Backend for a gamified language-learning app.
