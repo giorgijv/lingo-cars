@@ -56,10 +56,11 @@ export const PLACEMENT = {
   startDifficulty: 1.2,
   /** low in-tier progress seeded after placement */
   seedInTierProgress: 0.1,
-  /** Soft staging (see plans/placement-modalities.md M1): the first N items
-   *  are a fast receptive (mcq) ability read; after that, `fill` items get a
-   *  selection bonus so the productive check runs once ability is roughly
-   *  located, without a hard multi-stage state machine. */
+  /** Soft staging (see plans/placement-modalities.md M1/M2): the first N
+   *  items are a fast receptive (mcq) ability read; after that, non-mcq
+   *  items (`fill`, `listen`) get a selection bonus so the productive/
+   *  listening checks run once ability is roughly located, without a hard
+   *  multi-stage state machine. */
   mcqStageItems: 6,
   fillPreferenceBonus: 0.4,
 } as const;

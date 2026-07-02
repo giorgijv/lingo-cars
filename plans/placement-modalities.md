@@ -1,6 +1,6 @@
 # Plan: Multi-modal placement (writing, listening, speaking)
 
-> Status: **M1 (write text) SHIPPED.** M2 (listen) and M3 (speak) remain
+> Status: **M1 (write text) and M2 (listen) SHIPPED.** M3 (speak) remains
 > planned below. Approved direction: make the placement test measure more
 > than receptive recognition by adding items where the taker must
 > **write text**, **hear and understand audio**, and **pronounce/read text
@@ -25,6 +25,39 @@
 > - Content: `fill` items authored across A1–B2 for both `es` and `ka` (9 + 7
 >   items), reusing the existing `answers`-vs-`options` structural distinction
 >   in the content-bank schema (no separate `type` field needed there either).
+>
+> **What M2 actually built** (a real deviation from the plan's §2b sketch,
+> not a cosmetic one — read this before trusting `listen` for anything
+> psychometrically load-bearing):
+> - **No TTS account, no object storage, no `content:audio` build step.**
+>   None of that infra is provisioned in this environment. Instead, `transcript`
+>   is sent to the client as plain text and synthesized **on-device** via the
+>   browser's Web Speech API (`speechSynthesis`) — zero new infra, works today.
+> - **Consequence (disclosed, not hidden):** because the client needs the raw
+>   text to call `speechSynthesis.speak()`, `publicExercise()` exposes
+>   `transcript` in the API response *before* the learner answers. A network-
+>   inspecting user could read the answer directly instead of listening. The
+>   on-screen UI never renders it as visible text (only the multiple-choice
+>   options, one of which happens to equal the transcript — same exposure
+>   surface as any mcq's options), so normal use is unaffected; this is a
+>   ceiling on how tamper-resistant `listen` can be without the real
+>   server-rendered-audio pipeline in §2b.
+> - **Voice coverage is exactly the risk §2b flagged for real TTS, unchanged**:
+>   Spanish (`es-ES`) has broad browser voice support; Georgian (`ka-GE`)
+>   support is inconsistent across browsers/OS and unverified by a native
+>   speaker here — the UI discloses this next to the play button.
+> - Content: 3 `listen` items per bank (`es`, `ka`) at A1/A2, added to the
+>   existing greetings/travel/food skills. `transcript` is schema-enforced to
+>   equal `options[correctIndex]` verbatim (`bank.ts` `superRefine`).
+> - Discovered and fixed along the way: all three content-exercise schemas
+>   (`mcq`/`fill`/`listen`) needed `.strict()` — without it, zod silently
+>   accepts unrecognized keys, so a malformed `listen` item (failing its own
+>   cross-field check) could fall through the union and validate as a
+>   "valid" bare mcq instead of being rejected. Caught by a test that
+>   asserted the rejection and initially failed.
+> - **Real M2 (pre-generated audio + storage/CDN) remains future work** if a
+>   tamper-resistant, higher-quality listening item is ever required — this
+>   build should be read as "M2 lite," not the full milestone.
 
 ## 1. Why (and what it fixes)
 
@@ -150,7 +183,8 @@ preserved because grading inputs are stored on the immutable attempt.
 | M | Scope | Size | New infra |
 |---|---|---|---|
 | **M1** | ✅ **Shipped** — `fill` type end-to-end (payloads, grading, content, soft placement staging, demo text input) | S–M | none |
-| **M2** | `listen` type + `content:audio` build step + storage/CDN | M | TTS account, object storage |
+| **M2** | ✅ **Shipped as "M2 lite"** — `listen` type via on-device browser TTS (no `content:audio`/storage/CDN — see the note above) | S | none |
+| **M2-full** | Real pre-generated audio pipeline (`content:audio`, TTS account, object storage/CDN) — upgrade path if tamper-resistance/voice-quality matters | M | TTS account, object storage |
 | **M3** | `speak` type + ASR microservice (Python/Whisper) + consent flow | L | GPU/CPU inference host |
 | **M4** | hard-staged placement + per-modality sub-scores + C-checkpoint groundwork | M | — |
 

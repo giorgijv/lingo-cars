@@ -24,12 +24,17 @@ const optionsSchema = z.union([
   z.object({ de: optionsArraySchema, en: optionsArraySchema }),
 ]);
 
+// .strict() on all three exercise schemas matters: without it, an object with
+// stray keys from another branch (e.g. a broken `listen` item that also has
+// `options`+`correctIndex`) would silently validate as a *different* type
+// instead of failing — zod object schemas ignore unrecognized keys by default.
 const mcqExerciseSchema = z
   .object({
     stem: stemsSchema,
     options: optionsSchema,
     correctIndex: z.number().int().nonnegative(),
   })
+  .strict()
   .superRefine((ex, ctx) => {
     const lengths = Array.isArray(ex.options)
       ? [ex.options.length]
@@ -48,15 +53,46 @@ const mcqExerciseSchema = z
  *  which occasionally need per-source sets for meaning-questions). Content
  *  authors mark these with `answers` (mcq items use `options` instead) — no
  *  separate `type` field needed, the two shapes are structurally exclusive. */
-const fillExerciseSchema = z.object({
-  stem: stemsSchema,
-  answers: z.array(z.string().min(1)).min(1).max(6),
-  tolerance: z.number().int().min(0).max(3).default(1),
-});
+const fillExerciseSchema = z
+  .object({
+    stem: stemsSchema,
+    answers: z.array(z.string().min(1)).min(1).max(6),
+    tolerance: z.number().int().min(0).max(3).default(1),
+  })
+  .strict();
 
-// Mutually exclusive by required key (`answers` vs `options`), so a union
-// unambiguously routes each item to the right branch.
-const exerciseSchema = z.union([fillExerciseSchema, mcqExerciseSchema]);
+/** `listen` — hear target-language audio, pick which option matches
+ *  (plans/placement-modalities.md §2b). `transcript` is the exact text
+ *  synthesized aloud client-side (no pre-generated audio pipeline in this
+ *  build — see the M2 note at the top of the plan) and must equal
+ *  `options[correctIndex]` verbatim. Options are always a plain array (no
+ *  per-source variant — these are candidate spoken sentences, not
+ *  source-language meaning explanations, so nothing to translate). */
+const listenExerciseSchema = z
+  .object({
+    stem: stemsSchema,
+    transcript: z.string().min(1),
+    options: optionsArraySchema,
+    correctIndex: z.number().int().nonnegative(),
+  })
+  .strict()
+  .superRefine((ex, ctx) => {
+    if (ex.correctIndex >= ex.options.length) {
+      ctx.addIssue({ code: z.ZodIssueCode.custom, message: "correctIndex out of range", path: ["correctIndex"] });
+      return;
+    }
+    if (ex.options[ex.correctIndex] !== ex.transcript) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: "transcript must equal options[correctIndex] verbatim (it's what gets spoken)",
+        path: ["transcript"],
+      });
+    }
+  });
+
+// Mutually exclusive by required key (`answers` / `transcript` / plain mcq),
+// so a union unambiguously routes each item to the right branch.
+const exerciseSchema = z.union([fillExerciseSchema, listenExerciseSchema, mcqExerciseSchema]);
 
 const skillSchema = z.object({
   key: z.string().regex(/^[a-z0-9-]+$/, "kebab-case key"),
@@ -82,11 +118,17 @@ export type ContentBank = z.infer<typeof bankSchema>;
 export type ContentSkill = ContentBank["skills"][number];
 export type ContentExercise = ContentSkill["lessons"][number]["exercises"][number];
 export type ContentFillExercise = z.infer<typeof fillExerciseSchema>;
+export type ContentListenExercise = z.infer<typeof listenExerciseSchema>;
 export type ContentMcqExercise = z.infer<typeof mcqExerciseSchema>;
 
 /** Type guard: content-bank exercises are mcq unless they carry `answers`. */
 export function isFillExercise(ex: ContentExercise): ex is ContentFillExercise {
   return "answers" in ex;
+}
+
+/** Type guard: `listen` items carry `transcript` (fill/mcq never do). */
+export function isListenExercise(ex: ContentExercise): ex is ContentListenExercise {
+  return "transcript" in ex;
 }
 
 const CONTENT_DIR = join(dirname(fileURLToPath(import.meta.url)), "..", "..", "content");
@@ -111,13 +153,24 @@ export function bankStats(bank: ContentBank) {
   let lessons = 0;
   let mcqCount = 0;
   let fillCount = 0;
+  let listenCount = 0;
   for (const s of bank.skills) {
     for (const l of s.lessons) {
       lessons++;
       exercises += l.exercises.length;
       perCefr[s.cefr] = (perCefr[s.cefr] ?? 0) + l.exercises.length;
-      for (const ex of l.exercises) (isFillExercise(ex) ? fillCount++ : mcqCount++);
+      for (const ex of l.exercises) {
+        if (isFillExercise(ex)) fillCount++;
+        else if (isListenExercise(ex)) listenCount++;
+        else mcqCount++;
+      }
     }
   }
-  return { skills: bank.skills.length, lessons, exercises, perCefr, perType: { mcq: mcqCount, fill: fillCount } };
+  return {
+    skills: bank.skills.length,
+    lessons,
+    exercises,
+    perCefr,
+    perType: { mcq: mcqCount, fill: fillCount, listen: listenCount },
+  };
 }

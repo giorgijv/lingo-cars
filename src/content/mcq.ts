@@ -42,9 +42,33 @@ export const fillPayloadSchema = z.object({
 
 export type FillPayload = z.infer<typeof fillPayloadSchema>;
 
-export type ExercisePayload = McqPayload | FillPayload;
+/**
+ * `listen` — hear target-language audio, pick which option matches. No
+ * pre-generated audio file/CDN in this build (see plans/placement-
+ * modalities.md M2 note): `transcript` is the exact text to synthesize via
+ * the client's on-device speech synthesis, and MUST equal `options[correctIndex]`
+ * (enforced by the content-bank schema). Grading is selectedIndex-based,
+ * identical to mcq — no new FSRS grade path needed.
+ */
+export const listenPayloadSchema = z
+  .object({
+    stem: z.string().min(1),
+    transcript: z.string().min(1),
+    options: z.array(z.string().min(1)).min(2).max(6),
+    correctIndex: z.number().int().nonnegative(),
+  })
+  .refine((p) => p.correctIndex < p.options.length, {
+    message: "correctIndex out of range",
+    path: ["correctIndex"],
+  });
+
+export type ListenPayload = z.infer<typeof listenPayloadSchema>;
+
+export type ExercisePayload = McqPayload | FillPayload | ListenPayload;
 
 /** Parse payloadJson using the exercise's own `type` column as the discriminator. */
 export function parseExercisePayload(type: ExerciseType, raw: unknown): ExercisePayload {
-  return type === "fill" ? fillPayloadSchema.parse(raw) : mcqPayloadSchema.parse(raw);
+  if (type === "fill") return fillPayloadSchema.parse(raw);
+  if (type === "listen") return listenPayloadSchema.parse(raw);
+  return mcqPayloadSchema.parse(raw);
 }

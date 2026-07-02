@@ -18,7 +18,7 @@ import { CEFR_ORDER, PLACEMENT } from "../config.js";
 export interface PlacementItem {
   id: string;
   difficulty: number;
-  type: "mcq" | "fill";
+  type: "mcq" | "fill" | "listen";
 }
 
 export interface PlacementResponse {
@@ -63,11 +63,12 @@ export function startPlacement(): PlacementState {
  * (maximum information), and mark it asked. Deterministic tie-break by
  * difficulty then id. Returns null when the pool is exhausted.
  *
- * Soft staging (plans/placement-modalities.md M1): once `mcqStageItems`
- * responses are in — a fast receptive ability read — `fill` candidates get a
- * selection bonus (effectively treated as closer to `ability` than they are)
- * so the productive check runs, without a hard stage boundary that could
- * strand the test if the pool lacks a fill item at the right difficulty.
+ * Soft staging (plans/placement-modalities.md M1/M2): once `mcqStageItems`
+ * responses are in — a fast receptive ability read — non-mcq candidates
+ * (`fill`, `listen`) get a selection bonus (effectively treated as closer to
+ * `ability` than they are) so the productive/listening checks run, without a
+ * hard stage boundary that could strand the test if the pool lacks one at
+ * the right difficulty.
  */
 export function serveNext(
   state: PlacementState,
@@ -81,7 +82,7 @@ export function serveNext(
   const pastStage = state.responses.length >= cfg.mcqStageItems;
   const effectiveDistance = (p: PlacementItem) => {
     const raw = Math.abs(p.difficulty - state.ability);
-    return pastStage && p.type === "fill" ? Math.max(0, raw - cfg.fillPreferenceBonus) : raw;
+    return pastStage && p.type !== "mcq" ? Math.max(0, raw - cfg.fillPreferenceBonus) : raw;
   };
 
   candidates.sort((a, b) => {

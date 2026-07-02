@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { bankSchema, bankStats, isFillExercise, loadBank, optionsFor } from "./bank.js";
+import { bankSchema, bankStats, isFillExercise, isListenExercise, loadBank, optionsFor } from "./bank.js";
 
 describe("content pipeline", () => {
   it("both target banks load and validate", () => {
@@ -88,7 +88,42 @@ describe("content pipeline", () => {
 
   it("bankStats reports a per-type breakdown that sums to the exercise total", () => {
     const stats = bankStats(loadBank("es"));
-    expect(stats.perType.mcq + stats.perType.fill).toBe(stats.exercises);
+    expect(stats.perType.mcq + stats.perType.fill + stats.perType.listen).toBe(stats.exercises);
     expect(stats.perType.fill).toBeGreaterThan(0);
+    expect(stats.perType.listen).toBeGreaterThan(0);
+  });
+
+  it("accepts a valid listen exercise whose transcript matches options[correctIndex]", () => {
+    const ok = {
+      target: "es",
+      skills: [{ key: "k", cefr: "A1", name: { de: "n", en: "n" }, lessons: [{ exercises: [{ stem: { de: "s", en: "s" }, transcript: "hola", options: ["hola", "adiós"], correctIndex: 0 }] }] }],
+    };
+    const parsed = bankSchema.parse(ok);
+    const ex = parsed.skills[0]!.lessons[0]!.exercises[0]!;
+    expect(isListenExercise(ex)).toBe(true);
+  });
+
+  it("rejects a listen exercise whose transcript doesn't match options[correctIndex]", () => {
+    const bad = {
+      target: "es",
+      skills: [{ key: "k", cefr: "A1", name: { de: "n", en: "n" }, lessons: [{ exercises: [{ stem: { de: "s", en: "s" }, transcript: "hola", options: ["adiós", "gracias"], correctIndex: 0 }] }] }],
+    };
+    expect(() => bankSchema.parse(bad)).toThrow();
+  });
+
+  it("rejects a listen exercise with an out-of-range correctIndex", () => {
+    const bad = {
+      target: "es",
+      skills: [{ key: "k", cefr: "A1", name: { de: "n", en: "n" }, lessons: [{ exercises: [{ stem: { de: "s", en: "s" }, transcript: "hola", options: ["hola", "adiós"], correctIndex: 5 }] }] }],
+    };
+    expect(() => bankSchema.parse(bad)).toThrow();
+  });
+
+  it("isListenExercise distinguishes listen from mcq/fill in the real banks", () => {
+    const es = loadBank("es");
+    const skill = es.skills.find((s) => s.key === "greetings")!;
+    const kinds = skill.lessons.flatMap((l) => l.exercises.map((ex) => (isListenExercise(ex) ? "listen" : isFillExercise(ex) ? "fill" : "mcq")));
+    expect(kinds).toContain("listen");
+    expect(kinds).toContain("mcq");
   });
 });

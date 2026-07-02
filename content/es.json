@@ -151,6 +151,24 @@
               ]
             }
           ]
+        },
+        {
+          "exercises": [
+            {
+              "stem": {
+                "de": "Was hast du gehört?",
+                "en": "What did you hear?"
+              },
+              "transcript": "Hola, ¿cómo estás?",
+              "options": [
+                "Hola, ¿cómo estás?",
+                "Adiós, hasta luego.",
+                "Gracias por todo.",
+                "Buenas noches."
+              ],
+              "correctIndex": 0
+            }
+          ]
         }
       ]
     },
@@ -495,6 +513,24 @@
               ]
             }
           ]
+        },
+        {
+          "exercises": [
+            {
+              "stem": {
+                "de": "Was hast du gehört?",
+                "en": "What did you hear?"
+              },
+              "transcript": "Quisiera un café, por favor.",
+              "options": [
+                "Quisiera un café, por favor.",
+                "Quisiera un té, por favor.",
+                "Quisiera la cuenta, por favor.",
+                "Quisiera agua, por favor."
+              ],
+              "correctIndex": 0
+            }
+          ]
         }
       ]
     },
@@ -615,6 +651,24 @@
                 "el barco"
               ],
               "correctIndex": 2
+            }
+          ]
+        },
+        {
+          "exercises": [
+            {
+              "stem": {
+                "de": "Was hast du gehört?",
+                "en": "What did you hear?"
+              },
+              "transcript": "¿Dónde está la estación?",
+              "options": [
+                "¿Dónde está el baño?",
+                "¿Dónde está la estación?",
+                "¿Cuánto cuesta esto?",
+                "¿Qué hora es?"
+              ],
+              "correctIndex": 1
             }
           ]
         }

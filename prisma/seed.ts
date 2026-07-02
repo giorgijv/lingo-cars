@@ -1,7 +1,7 @@
 import { PrismaClient, type Cefr, type ExerciseType } from "@prisma/client";
 import { CEFR_DIFFICULTY } from "../src/config.js";
-import { fillPayloadSchema, mcqPayloadSchema } from "../src/content/mcq.js";
-import { isFillExercise, loadBank, optionsFor, type SourceLang, type TargetLang } from "../src/content/bank.js";
+import { fillPayloadSchema, listenPayloadSchema, mcqPayloadSchema } from "../src/content/mcq.js";
+import { isFillExercise, isListenExercise, loadBank, optionsFor, type SourceLang, type TargetLang } from "../src/content/bank.js";
 
 /**
  * Seed: languages, all four pairs, the car catalog, the cosmetics catalog,
@@ -121,11 +121,13 @@ export async function main() {
         const exercises = skill.lessons[l]!.exercises;
         for (let e = 0; e < exercises.length; e++) {
           const ex = exercises[e]!;
-          const type: ExerciseType = isFillExercise(ex) ? "fill" : "mcq";
+          const type: ExerciseType = isFillExercise(ex) ? "fill" : isListenExercise(ex) ? "listen" : "mcq";
           const payload = isFillExercise(ex)
             ? fillPayloadSchema.parse({ stem: ex.stem[src], answers: ex.answers, tolerance: ex.tolerance })
-            : mcqPayloadSchema.parse({ stem: ex.stem[src], options: optionsFor(ex, src), correctIndex: ex.correctIndex });
-          // integrity gate (both branches validated above)
+            : isListenExercise(ex)
+              ? listenPayloadSchema.parse({ stem: ex.stem[src], transcript: ex.transcript, options: ex.options, correctIndex: ex.correctIndex })
+              : mcqPayloadSchema.parse({ stem: ex.stem[src], options: optionsFor(ex, src), correctIndex: ex.correctIndex });
+          // integrity gate (all branches validated above)
           const exerciseId = `ex-${src}-${tgt}-${skill.key}-${l}-${e}`;
           await prisma.exercise.upsert({
             where: { id: exerciseId },
