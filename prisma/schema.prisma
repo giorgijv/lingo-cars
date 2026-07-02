@@ -47,6 +47,18 @@ enum FsrsState {
   relearning
 }
 
+enum CosmeticKind {
+  wheels
+  spoiler
+  paint
+  decal
+}
+
+enum PurchaseAction {
+  buy
+  sell
+}
+
 // ─────────────────────────── Catalog ───────────────────────────
 
 model Language {
@@ -68,6 +80,7 @@ model LanguagePair {
   enrollments       Enrollment[]
   skills            Skill[]
   proficiencyStates ProficiencyState[]
+  purchases         Purchase[]
 
   @@unique([sourceCode, targetCode])
 }
@@ -84,6 +97,7 @@ model User {
   attempts          Attempt[]
   reviewStates      ReviewState[]
   proficiencyStates ProficiencyState[]
+  purchases         Purchase[]
 }
 
 model Enrollment {
@@ -197,6 +211,42 @@ model CarCatalog {
   baseSpeed    Float
   baseHandling Float
   unlockCefr   Cefr   @unique
+}
+
+// ─────────────── CATALOG: cosmetics (Phase 3 economy) ───────────────
+// Purely visual items (D3: buying NEVER unlocks a higher model — `tier` is the
+// minimum ALREADY-UNLOCKED tier required to buy; it gates availability, not
+// progression). Stats are untouched by ownership (D5).
+
+model CosmeticsCatalog {
+  id         String       @id // e.g. "paint-crimson"
+  tier       Int // minimum unlocked car tier required to purchase (0..5)
+  name       String
+  costPoints Int
+  kind       CosmeticKind
+
+  purchases Purchase[]
+}
+
+// ─────────────── IMMUTABLE LEDGER: purchases (Phase 3, append-only) ───────────────
+// Same Rule-4 treatment as Attempt: SELECT+INSERT only for app_role, plus a DB
+// trigger blocking UPDATE/DELETE/TRUNCATE for every role. Points balance and
+// owned cosmetics are PROJECTIONS: balance = xp − Σbuy + Σsell; owned = net>0.
+
+model Purchase {
+  id         String         @id @default(cuid())
+  userId     String
+  pairId     String
+  cosmeticId String
+  action     PurchaseAction
+  points     Int // points moved: cost on buy, refund on sell
+  createdAt  DateTime       @default(now())
+
+  user     User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  pair     LanguagePair     @relation(fields: [pairId], references: [id], onDelete: Cascade)
+  cosmetic CosmeticsCatalog @relation(fields: [cosmeticId], references: [id])
+
+  @@index([userId, pairId, createdAt])
 }
 
 // ─────────────── DERIVED: per-(user,pair) rollup (replayable) ───────────────

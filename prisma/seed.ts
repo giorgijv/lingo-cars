@@ -33,6 +33,21 @@ const CAR_LADDER: { tier: number; className: string; baseSpeed: number; baseHand
   { tier: 5, className: "Hypercar", baseSpeed: 5.0, baseHandling: 4.0, unlockCefr: "C2" },
 ];
 
+/** Cosmetics (Phase 3) — purely visual; `tier` gates purchase to already-
+ *  unlocked models (D3: buying never advances a tier; D5: stats untouched). */
+const COSMETICS: { id: string; tier: number; name: string; costPoints: number; kind: "wheels" | "spoiler" | "paint" | "decal" }[] = [
+  { id: "paint-crimson", tier: 0, name: "Crimson paint", costPoints: 40, kind: "paint" },
+  { id: "paint-ocean", tier: 0, name: "Ocean paint", costPoints: 40, kind: "paint" },
+  { id: "decal-stripes", tier: 0, name: "Twin stripes decal", costPoints: 60, kind: "decal" },
+  { id: "wheels-sport", tier: 0, name: "Sport wheels", costPoints: 80, kind: "wheels" },
+  { id: "paint-sunburst", tier: 1, name: "Sunburst paint", costPoints: 90, kind: "paint" },
+  { id: "wheels-gold", tier: 1, name: "Gold wheels", costPoints: 120, kind: "wheels" },
+  { id: "decal-flames", tier: 2, name: "Flame decal", costPoints: 150, kind: "decal" },
+  { id: "spoiler-carbon", tier: 2, name: "Carbon spoiler", costPoints: 180, kind: "spoiler" },
+  { id: "paint-midnight", tier: 3, name: "Midnight paint", costPoints: 220, kind: "paint" },
+  { id: "paint-chrome", tier: 4, name: "Chrome paint", costPoints: 300, kind: "paint" },
+];
+
 /** Spread exercise difficulty slightly around the skill's CEFR anchor for placement variety. */
 function itemDifficulty(cefr: Cefr, idx: number): number {
   const base = CEFR_DIFFICULTY[cefr];
@@ -53,6 +68,11 @@ export async function main() {
   // Car catalog (Phase 1) — static anchors, read-only at runtime.
   for (const car of CAR_LADDER) {
     await prisma.carCatalog.upsert({ where: { tier: car.tier }, update: car, create: car });
+  }
+
+  // Cosmetics catalog (Phase 3) — read-only at runtime.
+  for (const c of COSMETICS) {
+    await prisma.cosmeticsCatalog.upsert({ where: { id: c.id }, update: c, create: c });
   }
 
   const banks = {
