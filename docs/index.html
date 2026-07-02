@@ -71,6 +71,12 @@
   .fillInput.correct{border-color:var(--good)}
   .fillInput.wrong{border-color:var(--bad)}
   .fillHint{color:var(--muted);font-size:12px;margin-top:6px}
+  .playRow{display:flex;align-items:center;gap:12px;margin-bottom:16px}
+  .playBtn{background:var(--accent);color:#08111f;border:none;border-radius:999px;width:56px;height:56px;font-size:22px;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:transform .15s}
+  .playBtn:active{transform:scale(.93)}
+  .playBtn.playing{animation:pulse 1s ease-in-out infinite}
+  @keyframes pulse{0%,100%{box-shadow:0 0 0 0 rgba(90,167,255,.5)}50%{box-shadow:0 0 0 10px rgba(90,167,255,0)}}
+  .playMeta{color:var(--muted);font-size:13px}
   .row{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-top:16px}
   .btn{background:var(--accent);color:#08111f;border:none;border-radius:12px;padding:12px 18px;font-weight:800;font-size:15px;cursor:pointer;font-family:inherit}
   .btn.secondary{background:#1b2431;color:var(--ink);border:1px solid var(--line)}
@@ -259,6 +265,10 @@ const BANKS = {
     {c:2,type:"fill",s:{de:"Übersetze: 'Ich möchte einen Kaffee.'",en:"Translate: 'I would like a coffee.'"},answers:["quiero un café","quisiera un café"],tolerance:2},
     {c:3,type:"fill",s:{de:"Übersetze: 'Ich hätte gern ein Zimmer.'",en:"Translate: 'I would like a room.'"},answers:["quisiera una habitación","querría una habitación"],tolerance:2},
     {c:4,type:"fill",s:{de:"Übersetze: 'Ich stimme dir nicht zu.'",en:"Translate: \"I don't agree with you.\""},answers:["no estoy de acuerdo contigo","no estoy de acuerdo"],tolerance:2},
+    // listen items — transcript is spoken via the browser's speechSynthesis; o/a work exactly like mcq
+    {c:1,type:"listen",s:{de:"Was hast du gehört?",en:"What did you hear?"},transcript:"Hola, ¿cómo estás?",o:["Hola, ¿cómo estás?","Adiós, hasta luego.","Gracias por todo.","Buenas noches."],a:0},
+    {c:2,type:"listen",s:{de:"Was hast du gehört?",en:"What did you hear?"},transcript:"¿Dónde está la estación?",o:["¿Dónde está el baño?","¿Dónde está la estación?","¿Cuánto cuesta esto?","¿Qué hora es?"],a:1},
+    {c:2,type:"listen",s:{de:"Was hast du gehört?",en:"What did you hear?"},transcript:"Quisiera un café, por favor.",o:["Quisiera un café, por favor.","Quisiera un té, por favor.","Quisiera la cuenta, por favor.","Quisiera agua, por favor."],a:0},
   ],
   ka: [
     {c:1,s:{de:"Wie sagt man 'Hallo'?",en:"How do you say 'hello'?"},o:["გამარჯობა","ნახვამდის","მადლობა","კი"],a:0},
@@ -297,6 +307,10 @@ const BANKS = {
     {c:2,type:"fill",s:{de:"Übersetze: 'das Brot'",en:"Translate: 'the bread'"},answers:["პური"]},
     {c:2,type:"fill",s:{de:"Übersetze: 'Ich möchte einen Kaffee.'",en:"Translate: 'I want a coffee.'"},answers:["ყავა მინდა"],tolerance:2},
     {c:3,type:"fill",s:{de:"Übersetze: 'Ich lerne Georgisch.'",en:"Translate: 'I am learning Georgian.'"},answers:["ქართულს ვსწავლობ","ვსწავლობ ქართულს"],tolerance:2},
+    // listen items — transcript is spoken via the browser's speechSynthesis; o/a work exactly like mcq
+    {c:1,type:"listen",s:{de:"Was hast du gehört?",en:"What did you hear?"},transcript:"გამარჯობა, როგორ ხარ?",o:["გამარჯობა, როგორ ხარ?","ნახვამდის, კარგად იყავი.","მადლობა ყველაფრისთვის.","ღამე მშვიდობისა."],a:0},
+    {c:2,type:"listen",s:{de:"Was hast du gehört?",en:"What did you hear?"},transcript:"სად არის სადგური?",o:["სად არის ტუალეტი?","სად არის სადგური?","რა ღირს ეს?","რომელი საათია?"],a:1},
+    {c:2,type:"listen",s:{de:"Was hast du gehört?",en:"What did you hear?"},transcript:"ყავა მინდა, თუ შეიძლება.",o:["ყავა მინდა, თუ შეიძლება.","ჩაი მინდა, თუ შეიძლება.","ანგარიში მინდა, თუ შეიძლება.","წყალი მინდა, თუ შეიძლება."],a:0},
   ],
 };
 const bankFor = pair => BANKS[pair.split("-")[1]];
@@ -455,7 +469,10 @@ for(const p of PAIRS){ const st=S.pairs[p]; if(!st.owned){ st.owned=[]; st.spent
 if(!PAIRS.includes(S.pair)) S.pair = "de-es";
 function P(){ return S.pairs[S.pair]; }
 function save(){ localStorage.setItem(KEY, JSON.stringify(S)); }
-function keyOf(q){ return q.c+"|"+(q.s.de||q.s.en); }
+// Stem text alone isn't always unique (listen items share a generic "What did
+// you hear?" stem across several transcripts) — disambiguate with whichever
+// content field actually varies per item.
+function keyOf(q){ return q.c+"|"+(q.s.de||q.s.en)+"|"+(q.transcript||(q.answers&&q.answers[0])||""); }
 
 function tierItems(tier){ return byCefr(S.pair, tier+1); }
 function tierMastery(tier){
@@ -688,12 +705,62 @@ function gradeFill(response, answers, tolerance){
   return {correct:false, score:0};
 }
 
+/* ============================ Listen (M2, browser TTS) ============================ */
+/* No pre-generated audio/CDN in this build (see plans/placement-modalities.md
+   M2 note) — the transcript is synthesized on-device via the Web Speech API.
+   Voice availability varies by browser/OS; Georgian (ka-GE) support is the
+   known moat risk the plan already flags for real TTS generally. */
+const TTS_LANG = { es: "es-ES", ka: "ka-GE" };
+function speak(text, pair, onEnd){
+  const lang = TTS_LANG[pair.split("-")[1]];
+  if(!("speechSynthesis" in window)){ onEnd && onEnd(); return; }
+  window.speechSynthesis.cancel(); // stop any previous utterance
+  const u = new SpeechSynthesisUtterance(text);
+  u.lang = lang; u.rate = 0.92;
+  if(onEnd){ u.onend = onEnd; u.onerror = onEnd; }
+  window.speechSynthesis.speak(u);
+}
+
 /* ============================ Shared question UI ============================ */
 function renderQuestion(q, onAnswered){
   $("stem").textContent = stemOf(q, S.pair);
   $("feedback").textContent=""; $("feedback").className="feedback";
   $("nextBtn").classList.add("hide");
   const box=$("opts"); box.innerHTML="";
+
+  if(q.type==="listen"){
+    box.innerHTML = `<div class="playRow">
+        <button class="playBtn" id="playBtn" aria-label="Play audio">🔊</button>
+        <span class="playMeta">Tap to listen (uses your browser's text-to-speech — voice quality, especially Georgian, depends on your device).</span>
+      </div>
+      <div class="opts" id="listenOpts"></div>`;
+    const playBtn=$("playBtn");
+    const playIt=()=>{
+      playBtn.classList.add("playing");
+      speak(q.transcript, S.pair, ()=>playBtn.classList.remove("playing"));
+    };
+    playBtn.onclick = playIt;
+    playIt(); // auto-play once on render
+
+    const optBox=$("listenOpts");
+    q.o.forEach((opt,i)=>{
+      const b=document.createElement("button");
+      b.className="opt"; b.textContent=opt;
+      b.onclick=()=>{
+        const correct = i===q.a;
+        [...optBox.children].forEach((el,j)=>{ el.disabled=true;
+          if(j===q.a) el.classList.add("correct");
+          if(j===i && !correct) el.classList.add("wrong"); });
+        const fb=$("feedback");
+        fb.textContent = correct ? "Correct! 🎉" : `You heard: "${q.transcript}"`;
+        fb.className = "feedback "+(correct?"good":"bad");
+        onAnswered(correct);
+        $("nextBtn").classList.remove("hide");
+      };
+      optBox.appendChild(b);
+    });
+    return;
+  }
 
   if(q.type==="fill"){
     box.innerHTML = `<div class="fillWrap">

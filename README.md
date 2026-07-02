@@ -36,14 +36,23 @@ Backend for a gamified language-learning app.
   projection) and shift skill only realizes 50–100% of it — a zero-skill
   Hypercar beats a perfect City Hatch. Racing appends to an immutable
   `RaceResult` log and awards nothing (no points/xp/CEFR).
-- **Multi-modal placement — M1 shipped:** a second exercise type, `fill`
-  (typed free-text answer), graded server-side by edit-distance +
-  accent-insensitive matching (`src/content/grading.ts`), feeding both FSRS
-  (score-based grade quality) and the adaptive placement staircase (a soft
-  preference surfaces `fill` items once ability is roughly located — the
-  "productive check" that corrects over-placement from pure MCQ recognition).
-  `listen`/`speak` (M2/M3 — TTS audio, ASR) remain planned in
-  [`plans/placement-modalities.md`](./plans/placement-modalities.md).
+- **Multi-modal placement — M1 + M2 shipped:**
+  - **M1 — `fill`** (typed free-text answer), graded server-side by
+    edit-distance + accent-insensitive matching (`src/content/grading.ts`),
+    feeding both FSRS (score-based grade quality) and the adaptive placement
+    staircase.
+  - **M2 — `listen`** (hear target-language audio, pick what was said).
+    Deviates from the plan's original sketch: no TTS account or object
+    storage is provisioned in this build, so audio is synthesized **on-device**
+    via the browser's Web Speech API from a stored `transcript`, not served
+    as a pre-generated file. Grading is selectedIndex-based, identical to mcq.
+  - Both types get a **soft placement-staging bonus**: once ability is
+    roughly located (past `mcqStageItems`), non-mcq items surface preferentially
+    — the "productive/listening check" that corrects over-placement from pure
+    MCQ recognition.
+  - `speak` (M3 — ASR) remains planned in
+    [`plans/placement-modalities.md`](./plans/placement-modalities.md), which
+    also documents the M2 TTS deviation and its consequences in full.
   See [`CLAUDE.md`](./CLAUDE.md) for the spec.
 
 ## Non-negotiable guardrails (enforced here)
@@ -132,7 +141,7 @@ npm test           # vitest — pure unit tests always run;
 | `POST /users` | Create a user `{ email, uiLanguage }`. |
 | `POST /enrollments` | Enroll `{ userId, pairId }`. |
 | `POST /placement/start` | Begin adaptive placement `{ pairId }` → `{ state, exercise }`. |
-| `POST /placement/answer` | Answer `{ pairId, state, exerciseId, selectedIndex \| response, latencyMs }` (mcq XOR fill, by the exercise's own type) → next item or `done`. |
+| `POST /placement/answer` | Answer `{ pairId, state, exerciseId, selectedIndex \| response, latencyMs }` (`selectedIndex` for mcq/listen, `response` for fill — by the exercise's own type) → next item or `done`. |
 | `POST /placement/finalize` | `{ userId, pairId, state }` → `{ cefr, confidence, inTierProgress, … }`; seeds enrollment. |
 | `GET /lessons/:id` | Lesson + exercises (no `correctIndex`/`answers`). |
 | `GET /queue?userId&pairId` | Due reviews + new tier items. |

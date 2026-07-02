@@ -32,8 +32,9 @@ enum UiLanguage {
 
 enum ExerciseType {
   mcq // multiple-choice, receptive (Phase 0)
-  fill // typed free-text answer, productive (Phase "M1" — see plans/placement-modalities.md)
-  // enum leaves room for listen/match/speak (M2/M3 of the same plan)
+  fill // typed free-text answer, productive (M1 — see plans/placement-modalities.md)
+  listen // hear target-language audio, pick what was said, receptive (M2)
+  // enum leaves room for speak (M3 of the same plan)
 }
 
 enum SessionType {

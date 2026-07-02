@@ -2,7 +2,7 @@ import { Router } from "express";
 import { z } from "zod";
 import type { Exercise, PrismaClient } from "@prisma/client";
 import { asyncHandler, parse } from "./http/validate.js";
-import { fillPayloadSchema, mcqPayloadSchema } from "./content/mcq.js";
+import { fillPayloadSchema, listenPayloadSchema, mcqPayloadSchema } from "./content/mcq.js";
 import { gradeFillAnswer } from "./content/grading.js";
 import { applyAttempt } from "./engine/fsrs.js";
 import { recomputeProficiency } from "./engine/proficiency.js";
@@ -16,12 +16,24 @@ import {
   startPlacementSession,
 } from "./services/placement.js";
 
-/** Exercise as exposed to clients — never leaks correctIndex/answers (grading is server-side). */
+/**
+ * Exercise as exposed to clients — never leaks correctIndex/answers (grading
+ * is server-side). `listen` DOES expose `transcript`: with no server-rendered
+ * audio pipeline in this build (M2 note, plans/placement-modalities.md), the
+ * client needs the raw text to synthesize speech on-device. That means a
+ * technically curious client could read the answer directly out of the
+ * response instead of listening — a real, disclosed limitation of the
+ * browser-TTS approach; the UI itself never renders it as visible text.
+ */
 function publicExercise(ex: Exercise) {
   const base = { id: ex.id, type: ex.type, difficulty: ex.difficulty, lessonId: ex.lessonId };
   if (ex.type === "fill") {
     const p = fillPayloadSchema.parse(ex.payloadJson);
     return { ...base, stem: p.stem };
+  }
+  if (ex.type === "listen") {
+    const p = listenPayloadSchema.parse(ex.payloadJson);
+    return { ...base, stem: p.stem, options: p.options, transcript: p.transcript };
   }
   const p = mcqPayloadSchema.parse(ex.payloadJson);
   return { ...base, stem: p.stem, options: p.options };
@@ -48,7 +60,8 @@ async function grade(db: PrismaClient, exerciseId: string, input: { selectedInde
     return { correct: graded.correct, score: graded.score, correctIndex: null, correctAnswers: payload.answers, exercise: ex };
   }
 
-  const payload = mcqPayloadSchema.parse(ex.payloadJson);
+  // listen and mcq share the selectedIndex mechanic exactly.
+  const payload = ex.type === "listen" ? listenPayloadSchema.parse(ex.payloadJson) : mcqPayloadSchema.parse(ex.payloadJson);
   const selectedIndex = requireSelectedIndex.parse(input.selectedIndex);
   const correct = selectedIndex === payload.correctIndex;
   return { correct, score: null as number | null, correctIndex: payload.correctIndex, correctAnswers: null as string[] | null, exercise: ex };

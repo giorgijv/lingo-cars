@@ -350,6 +350,43 @@ describe.skipIf(!RUN)("Phase 0 API integration", () => {
     expect((await request(app).post("/races").send({ userId: racer.id, pairId, shiftAccuracies: [2] })).status).toBe(400);
   });
 
+  it("runs a listen (M2) exercise: exposes transcript for on-device TTS, hides correctIndex, grades like mcq", async () => {
+    const { body: listener } = await request(app)
+      .post("/users")
+      .send({ email: `listen-${Date.now()}@test.dev`, uiLanguage: "de" });
+    await request(app).post("/enrollments").send({ userId: listener.id, pairId });
+
+    const lesson = await request(app).get("/lessons/lesson-de-es-greetings-3");
+    expect(lesson.status).toBe(200);
+    const [target] = lesson.body.exercises;
+    expect(target.type).toBe("listen");
+    expect(target).toHaveProperty("transcript"); // needed client-side for speechSynthesis
+    expect(target).toHaveProperty("options");
+    expect(target).not.toHaveProperty("correctIndex");
+
+    // The transcript IS the correct option's text (by content-schema construction).
+    const correctIndex = target.options.indexOf(target.transcript);
+    expect(correctIndex).toBeGreaterThanOrEqual(0);
+
+    const wrong = await request(app)
+      .post("/attempts")
+      .send({ userId: listener.id, exerciseId: target.id, selectedIndex: (correctIndex + 1) % target.options.length, latencyMs: 2000 });
+    expect(wrong.body.correct).toBe(false);
+    expect(wrong.body.correctIndex).toBe(correctIndex);
+    expect(wrong.body.score).toBeNull(); // listen grades like mcq: binary, no score bucket
+
+    const right = await request(app)
+      .post("/attempts")
+      .send({ userId: listener.id, exerciseId: target.id, selectedIndex: correctIndex, latencyMs: 2000 });
+    expect(right.body.correct).toBe(true);
+    expect(right.body.sessionType).toBe("review");
+    expect(new Date(right.body.due).getTime()).toBeGreaterThan(Date.now());
+
+    // Missing selectedIndex -> clean 400, not a crash.
+    const missing = await request(app).post("/attempts").send({ userId: listener.id, exerciseId: target.id, latencyMs: 2000 });
+    expect(missing.status).toBe(400);
+  });
+
   it("validates input and maps errors", async () => {
     expect((await request(app).post("/users").send({ email: "not-an-email" })).status).toBe(400);
     expect((await request(app).get("/queue").query({ userId })).status).toBe(400);

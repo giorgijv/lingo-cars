@@ -114,6 +114,16 @@ describe("serveNext — soft staging prefers fill items after the mcq stage (M1)
     const { item } = serveNext(state, pool);
     expect(item).toEqual({ id: "mcq-close", difficulty: 4, type: "mcq" });
   });
+
+  it("the bonus applies to listen items too (any non-mcq type), not just fill", () => {
+    const pool: PlacementItem[] = [
+      { id: "0-mcq-3", difficulty: 3, type: "mcq" },
+      { id: "9-listen-3", difficulty: 3, type: "listen" },
+    ];
+    const state: PlacementState = { ability: 3.2, askedExerciseIds: [], responses: pastStageResponses };
+    const { item } = serveNext(state, pool);
+    expect(item).toEqual({ id: "9-listen-3", difficulty: 3, type: "listen" });
+  });
 });
 
 describe("placement result mapping", () => {
