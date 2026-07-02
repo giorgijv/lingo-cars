@@ -55,6 +55,9 @@ jobs:
       - name: Seed content
         run: npm run seed
 
+      - name: Validate content pipeline
+        run: npm run content:check
+
       - name: Typecheck
         run: npm run typecheck
 
