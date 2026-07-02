@@ -140,6 +140,18 @@ describe.skipIf(!RUN)("Phase 0 API integration", () => {
     expect(profKa.status).toBe(200);
   });
 
+  it("has a full A1..C2 difficulty ladder in every pair's placement pool", async () => {
+    for (const pairId of ["pair-de-es", "pair-en-es", "pair-de-ka", "pair-en-ka"]) {
+      const range = await db.exercise.aggregate({
+        where: { lesson: { skill: { pairId } } },
+        _min: { difficulty: true },
+        _max: { difficulty: true },
+      });
+      expect(range._min.difficulty!).toBeLessThanOrEqual(1); // A1 anchor
+      expect(range._max.difficulty!).toBeGreaterThanOrEqual(5.5); // C2 anchor
+    }
+  });
+
   it("runs a placement with at least 15 items", async () => {
     let start = await request(app).post("/placement/start").send({ pairId: "pair-de-ka" });
     let state = start.body.state;

@@ -10,10 +10,12 @@ import {
 } from "./placement.js";
 import { PLACEMENT } from "../config.js";
 
-// A pool spanning all CEFR difficulties (1..6), several items each.
+// A pool spanning all CEFR difficulties (1..6), several items each. 8 per
+// level so a weak taker can fill minItems without exhausting the easy bands
+// (mirrors the real seed, which has 16+ A-level items per pair).
 const pool: PlacementItem[] = [];
 for (let d = 1; d <= 6; d++) {
-  for (let i = 0; i < 6; i++) pool.push({ id: `d${d}-${i}`, difficulty: d + i * 0.05 });
+  for (let i = 0; i < 8; i++) pool.push({ id: `d${d}-${i}`, difficulty: d + i * 0.05 });
 }
 
 /** Simulate a full test where the taker's true ability decides correctness. */
@@ -51,6 +53,25 @@ describe("placement staircase", () => {
     const state = simulate(6); // all correct -> runs long
     expect(state.responses.length).toBeLessThanOrEqual(PLACEMENT.maxItems);
     expect(state.responses.length).toBeGreaterThanOrEqual(PLACEMENT.minItems);
+  });
+});
+
+describe("placement difficulty ramp", () => {
+  it("starts easy and increases in difficulty while answers stay correct", () => {
+    const state = simulate(6); // taker who answers everything correctly
+    const difficulties = state.responses.map((r) => r.difficulty);
+    expect(difficulties[0]!).toBeLessThanOrEqual(1.5); // begins near A1
+    expect(difficulties[difficulties.length - 1]!).toBeGreaterThanOrEqual(4.5); // ends near C-level
+    // Monotone ramp (small pool-granularity dips allowed).
+    for (let i = 1; i < difficulties.length; i++) {
+      expect(difficulties[i]!).toBeGreaterThanOrEqual(difficulties[i - 1]! - 0.3);
+    }
+  });
+
+  it("stays low for a weak taker — difficulty tracks demonstrated ability", () => {
+    const state = simulate(1.1);
+    const difficulties = state.responses.map((r) => r.difficulty);
+    expect(Math.max(...difficulties)).toBeLessThanOrEqual(3);
   });
 });
 

@@ -50,8 +50,10 @@ export function cefrIndex(c: Cefr): number {
 export const PLACEMENT = {
   maxItems: 24,
   minItems: 15,
-  /** starting difficulty on the A2/B1 boundary */
-  startDifficulty: 2.5,
+  /** Start EASY (A1) and let the staircase climb — the test ramps up in
+   *  difficulty as answers stay correct, measuring proficiency by how far
+   *  up the ladder the taker holds on. */
+  startDifficulty: 1.2,
   /** low in-tier progress seeded after placement */
   seedInTierProgress: 0.1,
 } as const;
