@@ -1,4 +1,4 @@
-# lingo-cars — Phases 0 + 1 (learning loop + car projection)
+# lingo-cars — Phases 0–3 (learning loop, car projection, content pipeline, economy)
 
 [![CI](https://github.com/giorgijv/lingo-cars/actions/workflows/ci.yml/badge.svg)](https://github.com/giorgijv/lingo-cars/actions/workflows/ci.yml)
 
@@ -17,10 +17,20 @@ Backend for a gamified language-learning app.
   of proficiency — a static `CarCatalog` ladder, stat interpolation within a
   tier, and intra-tier micro-milestones. No points economy, no market, no race
   (Phase 3+).
-- **Language pairs:** all four pairs are seeded with A1/A2 MCQ content —
-  **de→es, en→es, de→ka, en→ka** — generated from two target-language banks
-  (Spanish + Georgian/Mkhedruli) with per-source stems. The engine is
-  byte-identical across pairs. See [`CLAUDE.md`](./CLAUDE.md) for the spec.
+- **Language pairs:** all four pairs — **de→es, en→es, de→ka, en→ka** — served
+  from two target-language banks with per-source stems. The engine is
+  byte-identical across pairs.
+- **Phase 2 — content pipeline + Georgian depth:** course content lives as
+  validated data in [`content/`](./content) (zod-gated by
+  `src/content/bank.ts`; `npm run content:check` runs in CI). The Georgian
+  bank carries real curriculum depth: Mkhedruli script recognition, the
+  nominative/ergative/dative case system, and verb person/tense morphology.
+- **Phase 3 — economy & agency:** points (earned from answering) can be
+  **spent** on visual cosmetics, **saved**, or items **sold back** at 50%
+  (secondary-market MVP). `Purchase` is an immutable ledger like `Attempt`;
+  balance and ownership are pure projections. **D3 holds:** cosmetics are
+  gated to already-unlocked tiers and never advance one; **D5 holds:** stats
+  are untouched by ownership. See [`CLAUDE.md`](./CLAUDE.md) for the spec.
 
 ## Non-negotiable guardrails (enforced here)
 
@@ -115,6 +125,8 @@ npm test           # vitest — pure unit tests always run;
 | `POST /attempts` | `{ userId, exerciseId, selectedIndex, latencyMs }` → grades, schedules FSRS, rolls up proficiency, evaluates promotion — one transaction. Response includes the updated car projection. |
 | `GET /proficiency?userId&pairId` | Current CEFR + proficiency state. |
 | `GET /car?userId&pairId` | **Phase 1.** The car as a pure projection: tier/class from `currentCefr`, speed & handling interpolated by `inTierProgress` toward the next class's base stats, plus micro-milestones (0.25/0.5/0.75). Computed on read — never stored (D5). |
+| `GET /economy?userId&pairId` | **Phase 3.** Balance (= xp − buys + sells), owned cosmetics, and the catalog with unlocked/affordable flags — all projections of xp + the `Purchase` ledger. |
+| `POST /purchases` | **Phase 3.** `{ userId, pairId, cosmeticId, action: buy\|sell }` — appends one immutable ledger row (serializable tx). Buy requires the item's tier to be already unlocked (403 otherwise — D3), sufficient balance, and non-ownership; sell refunds 50%. |
 
 Grading is **server-authoritative**: clients send the selected option index and
 never receive `correctIndex`.

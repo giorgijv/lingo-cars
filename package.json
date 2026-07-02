@@ -21,7 +21,8 @@
     "db:up": "docker compose up -d --wait",
     "db:down": "docker compose down",
     "db:reset": "docker compose down -v && npm run db:up",
-    "setup": "npm run db:up && npm run prisma:deploy && npm run seed"
+    "setup": "npm run db:up && npm run prisma:deploy && npm run seed",
+    "content:check": "tsx scripts/check-content.ts"
   },
   "prisma": {
     "seed": "tsx prisma/seed.ts"

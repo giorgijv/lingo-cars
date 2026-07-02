@@ -1,0 +1,1255 @@
+{
+  "target": "ka",
+  "skills": [
+    {
+      "key": "greetings",
+      "cefr": "A1",
+      "name": {
+        "de": "Begrüßungen",
+        "en": "Greetings"
+      },
+      "lessons": [
+        {
+          "exercises": [
+            {
+              "stem": {
+                "de": "Wie sagt man 'Hallo' auf Georgisch?",
+                "en": "How do you say 'hello' in Georgian?"
+              },
+              "options": [
+                "გამარჯობა",
+                "ნახვამდის",
+                "მადლობა",
+                "კი"
+              ],
+              "correctIndex": 0
+            },
+            {
+              "stem": {
+                "de": "Wie sagt man 'Danke' auf Georgisch?",
+                "en": "How do you say 'thank you' in Georgian?"
+              },
+              "options": [
+                "გთხოვთ",
+                "მადლობა",
+                "არა",
+                "კარგი"
+              ],
+              "correctIndex": 1
+            },
+            {
+              "stem": {
+                "de": "Wie sagt man 'Tschüss' auf Georgisch?",
+                "en": "How do you say 'bye' in Georgian?"
+              },
+              "options": [
+                "დილა მშვიდობისა",
+                "გამარჯობა",
+                "ნახვამდის",
+                "კარგად"
+              ],
+              "correctIndex": 2
+            },
+            {
+              "stem": {
+                "de": "Wie sagt man 'Bitte' auf Georgisch?",
+                "en": "How do you say 'please' in Georgian?"
+              },
+              "options": [
+                "მადლობა",
+                "გთხოვთ",
+                "ნახვამდის",
+                "არა"
+              ],
+              "correctIndex": 1
+            }
+          ]
+        },
+        {
+          "exercises": [
+            {
+              "stem": {
+                "de": "Wie sagt man 'Guten Morgen' auf Georgisch?",
+                "en": "How do you say 'good morning' in Georgian?"
+              },
+              "options": [
+                "საღამო მშვიდობისა",
+                "დილა მშვიდობისა",
+                "ღამე მშვიდობისა",
+                "გამარჯობა"
+              ],
+              "correctIndex": 1
+            },
+            {
+              "stem": {
+                "de": "Wie sagt man 'ja' auf Georgisch?",
+                "en": "How do you say 'yes' in Georgian?"
+              },
+              "options": [
+                "არა",
+                "კი",
+                "იქნებ",
+                "არასდროს"
+              ],
+              "correctIndex": 1
+            },
+            {
+              "stem": {
+                "de": "Wie sagt man 'nein' auf Georgisch?",
+                "en": "How do you say 'no' in Georgian?"
+              },
+              "options": [
+                "კი",
+                "კარგი",
+                "არა",
+                "ეხლა"
+              ],
+              "correctIndex": 2
+            },
+            {
+              "stem": {
+                "de": "Wie sagt man 'Entschuldigung' auf Georgisch?",
+                "en": "How do you say 'excuse me' in Georgian?"
+              },
+              "options": [
+                "უკაცრავად",
+                "მადლობა",
+                "გამარჯობა",
+                "ნახვამდის"
+              ],
+              "correctIndex": 0
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "key": "numbers",
+      "cefr": "A1",
+      "name": {
+        "de": "Zahlen",
+        "en": "Numbers"
+      },
+      "lessons": [
+        {
+          "exercises": [
+            {
+              "stem": {
+                "de": "Wie sagt man 'eins' auf Georgisch?",
+                "en": "How do you say 'one' in Georgian?"
+              },
+              "options": [
+                "ორი",
+                "ერთი",
+                "სამი",
+                "ნული"
+              ],
+              "correctIndex": 1
+            },
+            {
+              "stem": {
+                "de": "Wie sagt man 'zwei' auf Georgisch?",
+                "en": "How do you say 'two' in Georgian?"
+              },
+              "options": [
+                "ორი",
+                "ათი",
+                "რვა",
+                "ექვსი"
+              ],
+              "correctIndex": 0
+            },
+            {
+              "stem": {
+                "de": "Wie sagt man 'drei' auf Georgisch?",
+                "en": "How do you say 'three' in Georgian?"
+              },
+              "options": [
+                "ხუთი",
+                "ოთხი",
+                "სამი",
+                "ცხრა"
+              ],
+              "correctIndex": 2
+            },
+            {
+              "stem": {
+                "de": "Wie sagt man 'zehn' auf Georgisch?",
+                "en": "How do you say 'ten' in Georgian?"
+              },
+              "options": [
+                "ათი",
+                "თორმეტი",
+                "ორი",
+                "თერთმეტი"
+              ],
+              "correctIndex": 0
+            }
+          ]
+        },
+        {
+          "exercises": [
+            {
+              "stem": {
+                "de": "Wie sagt man 'fünf' auf Georgisch?",
+                "en": "How do you say 'five' in Georgian?"
+              },
+              "options": [
+                "ექვსი",
+                "ოთხი",
+                "ხუთი",
+                "შვიდი"
+              ],
+              "correctIndex": 2
+            },
+            {
+              "stem": {
+                "de": "Wie sagt man 'acht' auf Georgisch?",
+                "en": "How do you say 'eight' in Georgian?"
+              },
+              "options": [
+                "რვა",
+                "ცხრა",
+                "ექვსი",
+                "ოთხი"
+              ],
+              "correctIndex": 0
+            },
+            {
+              "stem": {
+                "de": "Wie sagt man 'null' auf Georgisch?",
+                "en": "How do you say 'zero' in Georgian?"
+              },
+              "options": [
+                "ერთი",
+                "ნული",
+                "ათი",
+                "ორი"
+              ],
+              "correctIndex": 1
+            },
+            {
+              "stem": {
+                "de": "Wie sagt man 'sieben' auf Georgisch?",
+                "en": "How do you say 'seven' in Georgian?"
+              },
+              "options": [
+                "ექვსი",
+                "რვა",
+                "შვიდი",
+                "ცხრა"
+              ],
+              "correctIndex": 2
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "key": "colors",
+      "cefr": "A1",
+      "name": {
+        "de": "Farben",
+        "en": "Colors"
+      },
+      "lessons": [
+        {
+          "exercises": [
+            {
+              "stem": {
+                "de": "Wie sagt man 'rot' auf Georgisch?",
+                "en": "How do you say 'red' in Georgian?"
+              },
+              "options": [
+                "ლურჯი",
+                "წითელი",
+                "მწვანე",
+                "შავი"
+              ],
+              "correctIndex": 1
+            },
+            {
+              "stem": {
+                "de": "Wie sagt man 'blau' auf Georgisch?",
+                "en": "How do you say 'blue' in Georgian?"
+              },
+              "options": [
+                "ლურჯი",
+                "ყვითელი",
+                "თეთრი",
+                "წითელი"
+              ],
+              "correctIndex": 0
+            },
+            {
+              "stem": {
+                "de": "Wie sagt man 'grün' auf Georgisch?",
+                "en": "How do you say 'green' in Georgian?"
+              },
+              "options": [
+                "ნაცრისფერი",
+                "მწვანე",
+                "ვარდისფერი",
+                "ყავისფერი"
+              ],
+              "correctIndex": 1
+            },
+            {
+              "stem": {
+                "de": "Wie sagt man 'schwarz' auf Georgisch?",
+                "en": "How do you say 'black' in Georgian?"
+              },
+              "options": [
+                "თეთრი",
+                "შავი",
+                "ლურჯი",
+                "მწვანე"
+              ],
+              "correctIndex": 1
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "key": "alphabet",
+      "cefr": "A1",
+      "name": {
+        "de": "Alphabet (Mchedruli)",
+        "en": "Alphabet (Mkhedruli)"
+      },
+      "lessons": [
+        {
+          "exercises": [
+            {
+              "stem": {
+                "de": "Welcher Buchstabe ist 'b'?",
+                "en": "Which letter is 'b'?"
+              },
+              "options": [
+                "ბ",
+                "დ",
+                "გ",
+                "ა"
+              ],
+              "correctIndex": 0
+            },
+            {
+              "stem": {
+                "de": "Welcher Buchstabe ist 'g'?",
+                "en": "Which letter is 'g'?"
+              },
+              "options": [
+                "დ",
+                "გ",
+                "ვ",
+                "ზ"
+              ],
+              "correctIndex": 1
+            },
+            {
+              "stem": {
+                "de": "Welcher Buchstabe ist 'm'?",
+                "en": "Which letter is 'm'?"
+              },
+              "options": [
+                "ნ",
+                "შ",
+                "მ",
+                "ო"
+              ],
+              "correctIndex": 2
+            },
+            {
+              "stem": {
+                "de": "Welcher Buchstabe ist 'i'?",
+                "en": "Which letter is 'i'?"
+              },
+              "options": [
+                "ი",
+                "ა",
+                "ე",
+                "უ"
+              ],
+              "correctIndex": 0
+            }
+          ]
+        },
+        {
+          "exercises": [
+            {
+              "stem": {
+                "de": "Wie liest man 'ღ'?",
+                "en": "How is 'ღ' read?"
+              },
+              "options": [
+                "gh",
+                "g",
+                "kh",
+                "q"
+              ],
+              "correctIndex": 0
+            },
+            {
+              "stem": {
+                "de": "Wie liest man 'ხ'?",
+                "en": "How is 'ხ' read?"
+              },
+              "options": [
+                "h",
+                "kh",
+                "k",
+                "gh"
+              ],
+              "correctIndex": 1
+            },
+            {
+              "stem": {
+                "de": "Wie liest man 'ჯ'?",
+                "en": "How is 'ჯ' read?"
+              },
+              "options": [
+                "zh",
+                "ch",
+                "j",
+                "ts"
+              ],
+              "correctIndex": 2
+            },
+            {
+              "stem": {
+                "de": "Welches Wort liest man 'kata' (Katze)?",
+                "en": "Which word reads 'kata' (cat)?"
+              },
+              "options": [
+                "კატა",
+                "ქათამი",
+                "კარი",
+                "ქატო"
+              ],
+              "correctIndex": 0
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "key": "food",
+      "cefr": "A2",
+      "name": {
+        "de": "Essen",
+        "en": "Food"
+      },
+      "lessons": [
+        {
+          "exercises": [
+            {
+              "stem": {
+                "de": "Wie sagt man 'das Brot' auf Georgisch?",
+                "en": "How do you say 'bread' in Georgian?"
+              },
+              "options": [
+                "პური",
+                "რძე",
+                "წყალი",
+                "ყველი"
+              ],
+              "correctIndex": 0
+            },
+            {
+              "stem": {
+                "de": "Wie sagt man 'der Apfel' auf Georgisch?",
+                "en": "How do you say 'apple' in Georgian?"
+              },
+              "options": [
+                "ფორთოხალი",
+                "ვაშლი",
+                "ბანანი",
+                "მსხალი"
+              ],
+              "correctIndex": 1
+            },
+            {
+              "stem": {
+                "de": "Wie sagt man 'das Wasser' auf Georgisch?",
+                "en": "How do you say 'water' in Georgian?"
+              },
+              "options": [
+                "ღვინო",
+                "ლუდი",
+                "წყალი",
+                "წვენი"
+              ],
+              "correctIndex": 2
+            },
+            {
+              "stem": {
+                "de": "Wie sagt man 'der Käse' auf Georgisch?",
+                "en": "How do you say 'cheese' in Georgian?"
+              },
+              "options": [
+                "ყველი",
+                "ლორი",
+                "კვერცხი",
+                "მარილი"
+              ],
+              "correctIndex": 0
+            }
+          ]
+        },
+        {
+          "exercises": [
+            {
+              "stem": {
+                "de": "Was bedeutet 'Ich möchte einen Kaffee' auf Georgisch?",
+                "en": "How do you say 'I would like a coffee' in Georgian?"
+              },
+              "options": [
+                "ჩაი მინდა",
+                "ყავა მინდა",
+                "ყავა მაქვს",
+                "წყალს ვსვამ"
+              ],
+              "correctIndex": 1
+            },
+            {
+              "stem": {
+                "de": "Wie sagt man 'das Frühstück' auf Georgisch?",
+                "en": "How do you say 'breakfast' in Georgian?"
+              },
+              "options": [
+                "ვახშამი",
+                "სადილი",
+                "საუზმე",
+                "წახემსება"
+              ],
+              "correctIndex": 2
+            },
+            {
+              "stem": {
+                "de": "Wie sagt man 'lecker' auf Georgisch?",
+                "en": "How do you say 'tasty' in Georgian?"
+              },
+              "options": [
+                "გემრიელი",
+                "ძვირი",
+                "ცივი",
+                "ცუდი"
+              ],
+              "correctIndex": 0
+            },
+            {
+              "stem": {
+                "de": "Wie sagt man 'die Rechnung' (im Restaurant) auf Georgisch?",
+                "en": "How do you say 'the bill' (restaurant) in Georgian?"
+              },
+              "options": [
+                "მაგიდა",
+                "ანგარიში",
+                "მენიუ",
+                "თანხა"
+              ],
+              "correctIndex": 1
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "key": "travel",
+      "cefr": "A2",
+      "name": {
+        "de": "Reisen",
+        "en": "Travel"
+      },
+      "lessons": [
+        {
+          "exercises": [
+            {
+              "stem": {
+                "de": "Wie sagt man 'der Bahnhof' auf Georgisch?",
+                "en": "How do you say 'train station' in Georgian?"
+              },
+              "options": [
+                "აეროპორტი",
+                "სადგური",
+                "გაჩერება",
+                "ნავსადგური"
+              ],
+              "correctIndex": 1
+            },
+            {
+              "stem": {
+                "de": "Was bedeutet 'Wo ist das Hotel?' auf Georgisch?",
+                "en": "How do you say 'Where is the hotel?' in Georgian?"
+              },
+              "options": [
+                "როგორ არის სასტუმრო?",
+                "სად არის სასტუმრო?",
+                "რა არის სასტუმრო?",
+                "როდის არის სასტუმრო?"
+              ],
+              "correctIndex": 1
+            },
+            {
+              "stem": {
+                "de": "Wie sagt man 'die Fahrkarte' auf Georgisch?",
+                "en": "How do you say 'ticket' in Georgian?"
+              },
+              "options": [
+                "ბილეთი",
+                "ჩემოდანი",
+                "ადგილი",
+                "გასაღები"
+              ],
+              "correctIndex": 0
+            },
+            {
+              "stem": {
+                "de": "Wie sagt man 'links' auf Georgisch?",
+                "en": "How do you say 'left' in Georgian?"
+              },
+              "options": [
+                "მარჯვნივ",
+                "პირდაპირ",
+                "მარცხნივ",
+                "ახლოს"
+              ],
+              "correctIndex": 2
+            }
+          ]
+        },
+        {
+          "exercises": [
+            {
+              "stem": {
+                "de": "Was bedeutet 'Ich hätte gern ein Zimmer' auf Georgisch?",
+                "en": "How do you say 'I would like a room' in Georgian?"
+              },
+              "options": [
+                "სახლს ვეძებ",
+                "ოთახი მინდა",
+                "გასაღები მაქვს",
+                "პლაჟზე მივდივარ"
+              ],
+              "correctIndex": 1
+            },
+            {
+              "stem": {
+                "de": "Wie sagt man 'das Gepäck' auf Georgisch?",
+                "en": "How do you say 'luggage' in Georgian?"
+              },
+              "options": [
+                "ბარგი",
+                "მოგზაურობა",
+                "რუკა",
+                "ფრენა"
+              ],
+              "correctIndex": 0
+            },
+            {
+              "stem": {
+                "de": "Wie sagt man 'geradeaus' auf Georgisch?",
+                "en": "How do you say 'straight ahead' in Georgian?"
+              },
+              "options": [
+                "მარცხნივ",
+                "პირდაპირ",
+                "მარჯვნივ",
+                "უკან"
+              ],
+              "correctIndex": 1
+            },
+            {
+              "stem": {
+                "de": "Wie sagt man 'der Flug' auf Georgisch?",
+                "en": "How do you say 'flight' in Georgian?"
+              },
+              "options": [
+                "მატარებელი",
+                "მანქანა",
+                "ფრენა",
+                "გემი"
+              ],
+              "correctIndex": 2
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "key": "b1-structures",
+      "cefr": "B1",
+      "name": {
+        "de": "Satzbau & Ausdruck",
+        "en": "Structures & expression"
+      },
+      "lessons": [
+        {
+          "exercises": [
+            {
+              "stem": {
+                "de": "Wie sagt man 'gestern' auf Georgisch?",
+                "en": "How do you say 'yesterday' in Georgian?"
+              },
+              "options": [
+                "ხვალ",
+                "დღეს",
+                "გუშინ",
+                "ეხლა"
+              ],
+              "correctIndex": 2
+            },
+            {
+              "stem": {
+                "de": "Wie sagt man 'morgen' auf Georgisch?",
+                "en": "How do you say 'tomorrow' in Georgian?"
+              },
+              "options": [
+                "ხვალ",
+                "გუშინ",
+                "დღეს",
+                "მალე"
+              ],
+              "correctIndex": 0
+            },
+            {
+              "stem": {
+                "de": "Wie sagt man 'Freund' auf Georgisch?",
+                "en": "How do you say 'friend' in Georgian?"
+              },
+              "options": [
+                "მეზობელი",
+                "მეგობარი",
+                "მასწავლებელი",
+                "სტუმარი"
+              ],
+              "correctIndex": 1
+            },
+            {
+              "stem": {
+                "de": "'Ich lerne seit zwei Jahren Georgisch.'",
+                "en": "'I have been learning Georgian for two years.'"
+              },
+              "options": [
+                "ორი წელია ქართულს ვსწავლობ",
+                "ორი დღეა ქართულს ვსწავლობ",
+                "ქართული ორი წელი იყო",
+                "მე ქართული მინდა"
+              ],
+              "correctIndex": 0
+            },
+            {
+              "stem": {
+                "de": "'Es gefällt mir.'",
+                "en": "'I like it.'"
+              },
+              "options": [
+                "მინდა",
+                "მომწონს",
+                "მაქვს",
+                "ვიცი"
+              ],
+              "correctIndex": 1
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "key": "cases",
+      "cefr": "B1",
+      "name": {
+        "de": "Fälle I (Ergativ & Dativ)",
+        "en": "Cases I (ergative & dative)"
+      },
+      "lessons": [
+        {
+          "exercises": [
+            {
+              "stem": {
+                "de": "Präsens: 'Der Junge schreibt einen Brief.' — Subjektform: ___ წერს წერილს",
+                "en": "Present: 'The boy writes a letter.' — subject form: ___ წერს წერილს"
+              },
+              "options": [
+                "ბიჭი",
+                "ბიჭმა",
+                "ბიჭს",
+                "ბიჭის"
+              ],
+              "correctIndex": 0
+            },
+            {
+              "stem": {
+                "de": "Aorist: 'Der Junge schrieb einen Brief.' — Subjektform: ___ დაწერა წერილი",
+                "en": "Aorist: 'The boy wrote a letter.' — subject form: ___ დაწერა წერილი"
+              },
+              "options": [
+                "ბიჭმა",
+                "ბიჭი",
+                "ბიჭს",
+                "ბიჭზე"
+              ],
+              "correctIndex": 0
+            },
+            {
+              "stem": {
+                "de": "Dativkonstruktion: 'Ich liebe dieses Buch.' — მე ___ ეს წიგნი",
+                "en": "Dative construction: 'I love this book.' — მე ___ ეს წიგნი"
+              },
+              "options": [
+                "მიყვარს",
+                "ვუყვარვარ",
+                "უყვარს",
+                "გიყვარს"
+              ],
+              "correctIndex": 0
+            },
+            {
+              "stem": {
+                "de": "Genitiv: 'die Farbe der Katze' = ___ ფერი",
+                "en": "Genitive: 'the cat's color' = ___ ფერი"
+              },
+              "options": [
+                "კატის",
+                "კატა",
+                "კატამ",
+                "კატას"
+              ],
+              "correctIndex": 0
+            }
+          ]
+        },
+        {
+          "exercises": [
+            {
+              "stem": {
+                "de": "'in Tbilissi' =",
+                "en": "'in Tbilisi' ="
+              },
+              "options": [
+                "თბილისში",
+                "თბილისზე",
+                "თბილისით",
+                "თბილისის"
+              ],
+              "correctIndex": 0
+            },
+            {
+              "stem": {
+                "de": "'auf dem Tisch' =",
+                "en": "'on the table' ="
+              },
+              "options": [
+                "მაგიდაზე",
+                "მაგიდაში",
+                "მაგიდით",
+                "მაგიდის"
+              ],
+              "correctIndex": 0
+            },
+            {
+              "stem": {
+                "de": "Instrumental: 'mit dem Stift schreiben' = ___ წერა",
+                "en": "Instrumental: 'to write with a pen' = ___ წერა"
+              },
+              "options": [
+                "კალმით",
+                "კალამი",
+                "კალამზე",
+                "კალმის"
+              ],
+              "correctIndex": 0
+            },
+            {
+              "stem": {
+                "de": "Plural: 'Bücher' =",
+                "en": "Plural: 'books' ="
+              },
+              "options": [
+                "წიგნები",
+                "წიგნმა",
+                "წიგნით",
+                "წიგნზე"
+              ],
+              "correctIndex": 0
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "key": "verbs",
+      "cefr": "B1",
+      "name": {
+        "de": "Verbformen & Personen",
+        "en": "Verb forms & persons"
+      },
+      "lessons": [
+        {
+          "exercises": [
+            {
+              "stem": {
+                "de": "'ich schreibe' =",
+                "en": "'I write' ="
+              },
+              "options": [
+                "ვწერ",
+                "წერს",
+                "წერთ",
+                "წერენ"
+              ],
+              "correctIndex": 0
+            },
+            {
+              "stem": {
+                "de": "'er/sie schreibt' =",
+                "en": "'he/she writes' ="
+              },
+              "options": [
+                "წერს",
+                "ვწერ",
+                "წერენ",
+                "ვწერთ"
+              ],
+              "correctIndex": 0
+            },
+            {
+              "stem": {
+                "de": "'wir schreiben' =",
+                "en": "'we write' ="
+              },
+              "options": [
+                "ვწერთ",
+                "წერენ",
+                "ვწერ",
+                "წერთ"
+              ],
+              "correctIndex": 0
+            },
+            {
+              "stem": {
+                "de": "'sie (Pl.) schreiben' =",
+                "en": "'they write' ="
+              },
+              "options": [
+                "წერენ",
+                "წერს",
+                "ვწერთ",
+                "წერთ"
+              ],
+              "correctIndex": 0
+            }
+          ]
+        },
+        {
+          "exercises": [
+            {
+              "stem": {
+                "de": "Aorist: 'ich schrieb' =",
+                "en": "Aorist: 'I wrote' ="
+              },
+              "options": [
+                "დავწერე",
+                "დაწერა",
+                "დავწერ",
+                "ვწერდი"
+              ],
+              "correctIndex": 0
+            },
+            {
+              "stem": {
+                "de": "Aorist: 'er/sie schrieb' =",
+                "en": "Aorist: 'he/she wrote' ="
+              },
+              "options": [
+                "დაწერა",
+                "დავწერე",
+                "დაწერს",
+                "წერდა"
+              ],
+              "correctIndex": 0
+            },
+            {
+              "stem": {
+                "de": "Futur: 'ich werde schreiben' =",
+                "en": "Future: 'I will write' ="
+              },
+              "options": [
+                "დავწერ",
+                "ვწერ",
+                "დავწერე",
+                "დაწერს"
+              ],
+              "correctIndex": 0
+            },
+            {
+              "stem": {
+                "de": "Vergangenheit von 'მაქვს': 'ich hatte' =",
+                "en": "Past of 'მაქვს': 'I had' ="
+              },
+              "options": [
+                "მქონდა",
+                "მაქვს",
+                "მექნება",
+                "ჰქონდა"
+              ],
+              "correctIndex": 0
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "key": "b2-nuance",
+      "cefr": "B2",
+      "name": {
+        "de": "Feinheiten & Konnektoren",
+        "en": "Nuance & connectors"
+      },
+      "lessons": [
+        {
+          "exercises": [
+            {
+              "stem": {
+                "de": "Wie sagt man 'obwohl' auf Georgisch?",
+                "en": "How do you say 'although' in Georgian?"
+              },
+              "options": [
+                "იმიტომ, რომ",
+                "მიუხედავად იმისა, რომ",
+                "მას შემდეგ, რაც",
+                "თუ"
+              ],
+              "correctIndex": 1
+            },
+            {
+              "stem": {
+                "de": "'Die Rechnung, bitte.' (höflich)",
+                "en": "'The bill, please.' (polite)"
+              },
+              "options": [
+                "მენიუ, თუ შეიძლება",
+                "ანგარიში, თუ შეიძლება",
+                "მაგიდა, თუ შეიძლება",
+                "წყალი, თუ შეიძლება"
+              ],
+              "correctIndex": 1
+            },
+            {
+              "stem": {
+                "de": "Formell: 'ich möchte' →",
+                "en": "Formal: 'I would like' →"
+              },
+              "options": [
+                "მინდა",
+                "მსურს",
+                "მაქვს",
+                "ვიღებ"
+              ],
+              "correctIndex": 1
+            },
+            {
+              "stem": {
+                "de": "Evidential 'offenbar / wie sich herausstellt' →",
+                "en": "Evidential 'apparently / it turns out' →"
+              },
+              "options": [
+                "თურმე",
+                "ვითომ",
+                "ალბათ",
+                "იქნებ"
+              ],
+              "correctIndex": 0
+            },
+            {
+              "stem": {
+                "de": "'Ich stimme dir zu.'",
+                "en": "'I agree with you.'"
+              },
+              "options": [
+                "გეთანხმები",
+                "ვწუხვარ",
+                "გელოდები",
+                "ვფიქრობ"
+              ],
+              "correctIndex": 0
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "key": "c1-idiom",
+      "cefr": "C1",
+      "name": {
+        "de": "Idiomatik & Register",
+        "en": "Idiom & register"
+      },
+      "lessons": [
+        {
+          "exercises": [
+            {
+              "stem": {
+                "de": "Was bedeutet 'ვითომ'?",
+                "en": "What does 'ვითომ' mean?"
+              },
+              "options": {
+                "de": [
+                  "angeblich / als ob",
+                  "deshalb",
+                  "sofort",
+                  "vielleicht"
+                ],
+                "en": [
+                  "as if / pretending",
+                  "therefore",
+                  "immediately",
+                  "maybe"
+                ]
+              },
+              "correctIndex": 0
+            },
+            {
+              "stem": {
+                "de": "Idiom: 'გული გამისკდა' bedeutet…",
+                "en": "Idiom: 'გული გამისკდა' means…"
+              },
+              "options": {
+                "de": [
+                  "ich bin furchtbar erschrocken",
+                  "ich habe mich verliebt",
+                  "ich bin eingeschlafen",
+                  "ich habe gewonnen"
+                ],
+                "en": [
+                  "I was terrified / startled",
+                  "I fell in love",
+                  "I fell asleep",
+                  "I won"
+                ]
+              },
+              "correctIndex": 0
+            },
+            {
+              "stem": {
+                "de": "Was bedeutet 'თავი დამანებე'?",
+                "en": "What does 'თავი დამანებე' mean?"
+              },
+              "options": {
+                "de": [
+                  "lass mich in Ruhe",
+                  "hilf mir",
+                  "komm mit",
+                  "ich bin müde"
+                ],
+                "en": [
+                  "leave me alone",
+                  "help me",
+                  "come along",
+                  "I am tired"
+                ]
+              },
+              "correctIndex": 0
+            },
+            {
+              "stem": {
+                "de": "'Wenn ich es gewusst hätte, wäre ich gekommen.'",
+                "en": "'Had I known, I would have come.'"
+              },
+              "options": [
+                "რომ მცოდნოდა, მოვიდოდი",
+                "რომ ვიცი, მოვდივარ",
+                "როცა ვიცოდი, მოვედი",
+                "თუ ვიცი, მოვალ"
+              ],
+              "correctIndex": 0
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "key": "c2-mastery",
+      "cefr": "C2",
+      "name": {
+        "de": "Meisterschaft",
+        "en": "Mastery"
+      },
+      "lessons": [
+        {
+          "exercises": [
+            {
+              "stem": {
+                "de": "Register: das formellste Verb für 'sagen'.",
+                "en": "Register: the most formal verb for 'to say'."
+              },
+              "options": [
+                "თქვა",
+                "აღნიშნა",
+                "უთხრა",
+                "ლაპარაკობს"
+              ],
+              "correctIndex": 1
+            },
+            {
+              "stem": {
+                "de": "'წიგნს ___ ვკითხულობ' (nicht mehr)",
+                "en": "'წიგნს ___ ვკითხულობ' (no longer)"
+              },
+              "options": [
+                "არ",
+                "აღარ",
+                "ვერ",
+                "ნუ"
+              ],
+              "correctIndex": 1
+            },
+            {
+              "stem": {
+                "de": "Höflichkeitsform: 'ბრძანდებით' bedeutet…",
+                "en": "Polite register: 'ბრძანდებით' means…"
+              },
+              "options": {
+                "de": [
+                  "Sie sind / Sie befinden sich (höflich)",
+                  "du bist",
+                  "ich bin",
+                  "sie waren"
+                ],
+                "en": [
+                  "you are (formal/honorific)",
+                  "you are (casual)",
+                  "I am",
+                  "they were"
+                ]
+              },
+              "correctIndex": 0
+            },
+            {
+              "stem": {
+                "de": "Was bedeutet 'აღმოჩნდა'?",
+                "en": "What does 'აღმოჩნდა' mean?"
+              },
+              "options": {
+                "de": [
+                  "es stellte sich heraus",
+                  "es verschwand",
+                  "es begann",
+                  "es endete"
+                ],
+                "en": [
+                  "it turned out",
+                  "it disappeared",
+                  "it began",
+                  "it ended"
+                ]
+              },
+              "correctIndex": 0
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

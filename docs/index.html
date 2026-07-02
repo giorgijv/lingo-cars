@@ -74,6 +74,15 @@
   .lead{color:var(--muted);font-size:15px;line-height:1.5;margin:8px 0 0}
   .kpis{display:flex;gap:18px;justify-content:center;margin-top:14px;color:var(--muted);font-size:13px;flex-wrap:wrap}
   .kpis b{color:var(--ink);font-size:16px}
+  .shop{display:grid;grid-template-columns:repeat(auto-fill,minmax(185px,1fr));gap:10px;margin-top:4px}
+  .shopitem{background:#0f1620;border:1px solid var(--line);border-radius:12px;padding:12px;display:flex;flex-direction:column;gap:6px}
+  .shopitem .nm{font-weight:800;font-size:14px}
+  .shopitem .meta{color:var(--muted);font-size:12px}
+  .shopitem.owned{border-color:var(--good)}
+  .shopitem.locked{opacity:.55}
+  .shopbtn{background:var(--accent);color:#08111f;border:none;border-radius:9px;padding:8px 10px;font-weight:800;font-size:13px;cursor:pointer;font-family:inherit}
+  .shopbtn.sell{background:#1b2431;color:var(--ink);border:1px solid var(--line)}
+  .shopbtn:disabled{opacity:.45;cursor:default}
   .toast{position:fixed;left:50%;top:20px;transform:translateX(-50%);background:#0d1420;border:1px solid var(--good);color:#c8f4e0;padding:12px 18px;border-radius:12px;font-weight:800;box-shadow:0 10px 40px rgba(0,0,0,.5);opacity:0;transition:opacity .3s, transform .3s;pointer-events:none;z-index:50}
   .toast.show{opacity:1;transform:translateX(-50%) translateY(6px)}
   footer{color:var(--muted);font-size:12px;text-align:center;margin-top:26px;line-height:1.6}
@@ -142,6 +151,17 @@
       <button class="btn hide" id="nextBtn" style="margin-left:auto">Next</button>
     </div>
     <div class="kpis" id="quizKpis"></div>
+  </section>
+
+  <!-- GARAGE SHOP (Phase 3 economy) -->
+  <section class="card panel" id="shopPanel">
+    <div class="qmeta">
+      <span class="badge">🛠️ Garage shop</span>
+      <span id="shopBalance">⭐ 0 points</span>
+    </div>
+    <div class="shop" id="shopItems"></div>
+    <p class="lead" style="font-size:12px;margin-top:12px">Earn points by answering questions. Spend them, save them, or sell items back at 50%.
+      Cosmetics are visual only — <b>new car classes unlock through mastery, never purchases.</b></p>
   </section>
 
   <!-- PLACEMENT RESULT -->
@@ -271,6 +291,22 @@ const CARS = [
    wheels:[{x:124,r:31},{x:386,r:31}], wing:1, splitter:1, nose:{x:452,y:132}, tail:{x:44,y:130}, rearTop:{x:90,y:114}, seam:266},
 ];
 const SPD_MAX = 5.6, HND_MAX = 4.4;
+
+/* Phase 3 shop — mirrors the backend cosmetics catalog. `tier` = minimum
+   UNLOCKED class required to buy (gating only — never progression). */
+const SHOP = [
+  {id:"paint-crimson",  tier:0, cost:40,  kind:"paint",   name:"Crimson paint",  paint:{c1:"#d9534f", c2:"#8a1f1c", ac:"#ffd6d4"}},
+  {id:"paint-ocean",    tier:0, cost:40,  kind:"paint",   name:"Ocean paint",    paint:{c1:"#3d9be9", c2:"#175a92", ac:"#d2ecff"}},
+  {id:"decal-stripes",  tier:0, cost:60,  kind:"decal",   name:"Twin stripes"},
+  {id:"wheels-gold",    tier:1, cost:120, kind:"wheels",  name:"Gold wheels"},
+  {id:"paint-sunburst", tier:1, cost:90,  kind:"paint",   name:"Sunburst paint", paint:{c1:"#f4b13e", c2:"#a3691a", ac:"#ffe9c2"}},
+  {id:"decal-flames",   tier:2, cost:150, kind:"decal",   name:"Flame decal"},
+  {id:"spoiler-carbon", tier:2, cost:180, kind:"spoiler", name:"Carbon spoiler"},
+  {id:"paint-midnight", tier:3, cost:220, kind:"paint",   name:"Midnight paint", paint:{c1:"#3b4a63", c2:"#141b28", ac:"#b9c7dd"}},
+];
+const KIND_ICON = {paint:"🎨", wheels:"🛞", decal:"🏁", spoiler:"🪽"};
+const shopItem = id => SHOP.find(s=>s.id===id);
+
 const MILESTONES = [
   {p:0.25, kind:"wheels",  label:"🛞 Sport wheels"},
   {p:0.50, kind:"decal",   label:"🏁 Racing stripe"},
@@ -292,25 +328,31 @@ function wheelSVG(w, tier, sporty, accent){
     <circle cx="${w.x}" cy="152" r="4" fill="${sporty?accent:"#55647c"}"/>`;
 }
 
-function carSVG(tier, p){
-  const c = CARS[tier];
-  const gid = "g"+tier;
+function carSVG(tier, p, cos={}){
+  const base = CARS[tier];
+  const c = cos.paint ? Object.assign({}, base, cos.paint) : base;
+  const gid = "g"+tier+(cos.paint?"-cp":"");
   const has = kind => MILESTONES.some(m=>m.kind===kind && p>=m.p);
-  const sportWheels = has("wheels"), stripe = has("decal"), aero = has("spoiler");
+  const sportWheels = has("wheels") || cos.goldWheels;
+  const stripe = has("decal") || cos.stripes || cos.flames;
+  const aero = has("spoiler") || cos.carbonSpoiler;
+  const wheelAccent = cos.goldWheels ? "#f5c542" : c.ac;
+  const stripeColor = cos.flames ? "#ff7a1a" : (cos.stripes ? "#ffffff" : c.ac);
+  const spoilerFill = cos.carbonSpoiler ? "#15181d" : c.c2;
 
-  const wheels = c.wheels.map(w=>wheelSVG(w, tier, sportWheels, c.ac)).join("");
+  const wheels = c.wheels.map(w=>wheelSVG(w, tier, sportWheels, wheelAccent)).join("");
 
   // Standing wing for the top classes; earned ducktail / skirt via the aero milestone.
   const wing = c.wing ? `<rect x="${c.wheels[0].x-70}" y="${tier===5?96:104}" width="46" height="7" rx="3" fill="${c.c2}"/>
     <rect x="${c.wheels[0].x-30}" y="${tier===5?96:104}" width="6" height="18" fill="${c.c2}"/>`:"";
   const aeroKit = !aero ? "" : (c.wing
-    ? `<rect data-cosmetic="spoiler" x="${c.wheels[0].x+c.wheels[0].r+6}" y="147" width="${c.wheels[1].x-c.wheels[0].x-2*c.wheels[0].r-12}" height="5" rx="2.5" fill="${c.c2}"/>`
-    : `<path data-cosmetic="spoiler" d="M${c.rearTop.x-16} ${c.rearTop.y} q14 -10 34 -6 l0 6 q-18 -3 -34 4 Z" fill="${c.c2}"/>`);
+    ? `<rect data-cosmetic="spoiler" x="${c.wheels[0].x+c.wheels[0].r+6}" y="147" width="${c.wheels[1].x-c.wheels[0].x-2*c.wheels[0].r-12}" height="5" rx="2.5" fill="${spoilerFill}"/>`
+    : `<path data-cosmetic="spoiler" d="M${c.rearTop.x-16} ${c.rearTop.y} q14 -10 34 -6 l0 6 q-18 -3 -34 4 Z" fill="${spoilerFill}"/>`);
   const splitter = c.splitter ? `<rect x="${c.wheels[1].x-8}" y="146" width="70" height="6" rx="3" fill="#0c0f14"/>`:"";
   const stripeEl = !stripe ? "" : `
     <g data-cosmetic="decal" clip-path="url(#${gid}clip)">
-      <rect x="30" y="121" width="440" height="7" fill="${c.ac}" opacity="0.85"/>
-      <rect x="30" y="131" width="440" height="3" fill="${c.ac}" opacity="0.55"/>
+      <rect x="30" y="121" width="440" height="7" fill="${stripeColor}" opacity="0.85"/>
+      <rect x="30" y="131" width="440" height="3" fill="${stripeColor}" opacity="0.55"/>
     </g>`;
   const speedIntensity = Math.min(1, (CARS[tier].spd/5) + p*0.3);
 
@@ -364,10 +406,11 @@ function carSVG(tier, p){
 const PROMOTE_AT = 0.85, MIN_COVERAGE = 0.6;
 const KEY = "lingocars.v2";
 
-function mkPairState(){ return { tier:0, strength:{}, xp:0, answered:0, correct:0, placed:false }; }
+function mkPairState(){ return { tier:0, strength:{}, xp:0, answered:0, correct:0, placed:false, owned:[], spent:0, refunded:0 }; }
 function load(){ try{ const s=JSON.parse(localStorage.getItem(KEY)); if(s && s.pairs) return s; }catch(e){} return null; }
 let S = load() || { pair:"de-es", pairs:{} };
 for(const p of PAIRS) if(!S.pairs[p]) S.pairs[p] = mkPairState();
+for(const p of PAIRS){ const st=S.pairs[p]; if(!st.owned){ st.owned=[]; st.spent=0; st.refunded=0; } }
 if(!PAIRS.includes(S.pair)) S.pair = "de-es";
 function P(){ return S.pairs[S.pair]; }
 function save(){ localStorage.setItem(KEY, JSON.stringify(S)); }
@@ -404,10 +447,59 @@ const $ = id => document.getElementById(id);
 function lerp(a,b,t){ return a + (b-a)*t; }
 let lastMilestoneCount = -1;
 
+/* ── Phase 3 economy helpers (demo mirror of the backend projections) ── */
+function balance(){ const st=P(); return st.xp - st.spent + st.refunded; }
+function cosmeticsOf(st){
+  const cos = {};
+  for(const id of st.owned){
+    const item = shopItem(id); if(!item) continue;
+    if(item.kind==="paint") cos.paint = item.paint;          // last-bought paint wins
+    if(id==="wheels-gold") cos.goldWheels = true;
+    if(id==="decal-stripes") cos.stripes = true;
+    if(id==="decal-flames"){ cos.flames = true; cos.stripes = false; }
+    if(id==="spoiler-carbon") cos.carbonSpoiler = true;
+  }
+  return cos;
+}
+function buyItem(id){
+  const st=P(); const item=shopItem(id);
+  if(!item || st.owned.includes(id) || st.tier<item.tier || balance()<item.cost) return;
+  st.owned.push(id); st.spent += item.cost; save();
+  toast(`${KIND_ICON[item.kind]} ${item.name} installed!`);
+  renderGarage(false); if(!$("quizPanel").classList.contains("hide")) updateQuizKpis();
+}
+function sellItem(id){
+  const st=P(); const item=shopItem(id);
+  const i = st.owned.indexOf(id); if(i<0 || !item) return;
+  st.owned.splice(i,1); st.refunded += Math.floor(item.cost/2); save();
+  toast(`Sold ${item.name} (+${Math.floor(item.cost/2)} ⭐)`);
+  renderGarage(false);
+}
+function renderShop(){
+  const st=P(); const bal=balance();
+  $("shopBalance").textContent = `⭐ ${bal} points`;
+  $("shopItems").innerHTML = SHOP.map(item=>{
+    const owned = st.owned.includes(item.id);
+    const locked = st.tier < item.tier;
+    const cls = "shopitem"+(owned?" owned":"")+(locked?" locked":"");
+    const btn = owned
+      ? `<button class="shopbtn sell" data-sell="${item.id}">Sell +${Math.floor(item.cost/2)} ⭐</button>`
+      : locked
+        ? `<button class="shopbtn" disabled>🔒 ${CARS[item.tier].name}</button>`
+        : `<button class="shopbtn" data-buy="${item.id}" ${bal<item.cost?"disabled":""}>Buy · ${item.cost} ⭐</button>`;
+    return `<div class="${cls}">
+      <span class="nm">${KIND_ICON[item.kind]} ${item.name}</span>
+      <span class="meta">${owned?"Installed":locked?`Unlocks with the ${CARS[item.tier].name}`:item.kind}</span>
+      ${btn}</div>`;
+  }).join("");
+  $("shopItems").querySelectorAll("[data-buy]").forEach(b=>b.onclick=()=>buyItem(b.dataset.buy));
+  $("shopItems").querySelectorAll("[data-sell]").forEach(b=>b.onclick=()=>sellItem(b.dataset.sell));
+}
+
 function renderGarage(animate){
   const st = P(); const t = st.tier, p = inTierProgress(t);
   const c = CARS[t], next = CARS[Math.min(t+1,CARS.length-1)];
-  $("carStage").innerHTML = carSVG(t, p);
+  $("carStage").innerHTML = carSVG(t, p, cosmeticsOf(st));
   if(animate){
     const stage=$("carStage"); stage.classList.remove("drive"); void stage.offsetWidth; stage.classList.add("drive");
     stage.addEventListener("animationend",()=>stage.classList.remove("drive"),{once:true});
@@ -429,6 +521,7 @@ function renderGarage(animate){
     (t===4 ? "C1 · C2 unlocks via a checkpoint" : "Progress to "+CARS[t+1].name);
   $("mstones").innerHTML = MILESTONES.map(m=>
     `<span class="chip ${p>=m.p?"on":""}">${m.label}</span>`).join("");
+  renderShop();
 }
 
 function toast(msg){

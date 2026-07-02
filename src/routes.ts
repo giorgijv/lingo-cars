@@ -7,6 +7,7 @@ import { applyAttempt } from "./engine/fsrs.js";
 import { recomputeProficiency } from "./engine/proficiency.js";
 import { applyTierDecision } from "./engine/mastery.js";
 import { getCar } from "./engine/car.js";
+import { EconomyError, getEconomy, tradeCosmetic } from "./engine/economy.js";
 import {
   answerPlacement,
   finalizePlacement,
@@ -193,6 +194,37 @@ export function createRouter(db: PrismaClient): Router {
   r.get("/car", asyncHandler(async (req, res) => {
     const { userId, pairId } = parse(userPairQuery, req.query);
     res.json(await getCar(db, userId, pairId));
+  }));
+
+  // ── Economy (Phase 3) — balance/ownership are projections of xp + the
+  //    immutable Purchase ledger. Buying is gated to unlocked tiers (D3). ──
+  r.get("/economy", asyncHandler(async (req, res) => {
+    const { userId, pairId } = parse(userPairQuery, req.query);
+    res.json(await getEconomy(db, userId, pairId));
+  }));
+
+  const tradeSchema = z.object({
+    userId: z.string(),
+    pairId: z.string(),
+    cosmeticId: z.string(),
+    action: z.enum(["buy", "sell"]),
+  });
+  r.post("/purchases", asyncHandler(async (req, res) => {
+    const { userId, pairId, cosmeticId, action } = parse(tradeSchema, req.body);
+    try {
+      // Serialized so concurrent trades can't double-spend a balance check.
+      const economy = await db.$transaction(
+        (tx) => tradeCosmetic(tx, userId, pairId, cosmeticId, action),
+        { isolationLevel: "Serializable" },
+      );
+      res.status(201).json(economy);
+    } catch (err) {
+      if (err instanceof EconomyError) {
+        const status = err.code === "unknown_cosmetic" ? 404 : err.code === "tier_locked" ? 403 : 409;
+        return res.status(status).json({ error: err.code, message: err.message });
+      }
+      throw err;
+    }
   }));
 
   // ── Proficiency read ──

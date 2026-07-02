@@ -179,6 +179,70 @@ describe.skipIf(!RUN)("Phase 0 API integration", () => {
     }
   });
 
+  it("runs the Phase 3 economy: earn → buy → tier-lock → sell, all as projections", async () => {
+    // Fresh A1 user with no placement: tier 0, zero points.
+    const { body: shopper } = await request(app)
+      .post("/users")
+      .send({ email: `shop-${Date.now()}@test.dev`, uiLanguage: "de" });
+    await request(app).post("/enrollments").send({ userId: shopper.id, pairId });
+
+    const eco0 = await request(app).get("/economy").query({ userId: shopper.id, pairId });
+    expect(eco0.body.balance).toBe(0);
+    expect(eco0.body.owned).toEqual([]);
+
+    // Earn 50 points via 5 correct answers (10 xp each).
+    const a1 = await db.exercise.findMany({
+      where: { lesson: { skill: { pairId, cefr: "A1" } } },
+      take: 5,
+      orderBy: { id: "asc" },
+    });
+    for (const ex of a1) {
+      const payload = mcqPayloadSchema.parse(ex.payloadJson);
+      await request(app)
+        .post("/attempts")
+        .send({ userId: shopper.id, exerciseId: ex.id, selectedIndex: payload.correctIndex, latencyMs: 1500 });
+    }
+    const eco1 = await request(app).get("/economy").query({ userId: shopper.id, pairId });
+    expect(eco1.body.balance).toBe(50);
+
+    // Buy a tier-0 paint (40): balance drops, item owned.
+    const buy = await request(app)
+      .post("/purchases")
+      .send({ userId: shopper.id, pairId, cosmeticId: "paint-crimson", action: "buy" });
+    expect(buy.status).toBe(201);
+    expect(buy.body.balance).toBe(10);
+    expect(buy.body.owned).toContain("paint-crimson");
+
+    // Re-buy owned → 409; unaffordable → 409; tier-locked → 403 (D3).
+    expect((await request(app).post("/purchases").send({ userId: shopper.id, pairId, cosmeticId: "paint-crimson", action: "buy" })).status).toBe(409);
+    expect((await request(app).post("/purchases").send({ userId: shopper.id, pairId, cosmeticId: "paint-ocean", action: "buy" })).status).toBe(409);
+    const locked = await request(app)
+      .post("/purchases")
+      .send({ userId: shopper.id, pairId, cosmeticId: "wheels-gold", action: "buy" });
+    expect(locked.status).toBe(403);
+    expect(locked.body.error).toBe("tier_locked");
+
+    // D3 invariant: no purchase attempt moved the tier.
+    const prof = await request(app).get("/proficiency").query({ userId: shopper.id, pairId });
+    expect(prof.body.currentCefr).toBe("A1");
+    const car = await request(app).get("/car").query({ userId: shopper.id, pairId });
+    expect(car.body.tier).toBe(0);
+
+    // Sell back at 50%: refund 20, ownership gone (secondary-market MVP).
+    const sell = await request(app)
+      .post("/purchases")
+      .send({ userId: shopper.id, pairId, cosmeticId: "paint-crimson", action: "sell" });
+    expect(sell.status).toBe(201);
+    expect(sell.body.balance).toBe(30);
+    expect(sell.body.owned).not.toContain("paint-crimson");
+    expect((await request(app).post("/purchases").send({ userId: shopper.id, pairId, cosmeticId: "paint-crimson", action: "sell" })).status).toBe(409);
+
+    // Rule 4: the purchase ledger is append-only at the DB level.
+    await expect(
+      db.$executeRawUnsafe(`UPDATE "Purchase" SET points = 0 WHERE "userId" = $1`, shopper.id),
+    ).rejects.toThrow();
+  });
+
   it("validates input and maps errors", async () => {
     expect((await request(app).post("/users").send({ email: "not-an-email" })).status).toBe(400);
     expect((await request(app).get("/queue").query({ userId })).status).toBe(400);
