@@ -19,7 +19,10 @@ const prisma = new PrismaClient({
 });
 
 type Stems = { de: string; en: string };
-type SeedExercise = { stem: Stems; options: string[]; correctIndex: number };
+/** Options are usually in the target language (one array serves both sources);
+ *  meaning-questions ("was bedeutet …?") carry per-source option sets. */
+type SeedOptions = string[] | { de: string[]; en: string[] };
+type SeedExercise = { stem: Stems; options: SeedOptions; correctIndex: number };
 type SeedLesson = { exercises: SeedExercise[] };
 type SeedSkill = { key: string; cefr: Cefr; name: Stems; lessons: SeedLesson[] };
 
@@ -150,6 +153,73 @@ const ES_SKILLS: SeedSkill[] = [
       },
     ],
   },
+  // ── B1..C2: one skill per level. Primary role in Phase 0/1 is to give the
+  //    adaptive placement a full difficulty ladder up to C2; they are ordinary
+  //    lesson content too, so nothing special-cases them. ──
+  {
+    key: "b1-structures",
+    cefr: "B1",
+    name: { de: "Satzbau & Ausdruck", en: "Structures & expression" },
+    lessons: [
+      {
+        exercises: [
+          { stem: { de: "'Wenn ich Zeit hätte, würde ich reisen.'", en: "'If I had time, I would travel.'" }, options: ["Si tengo tiempo, viajo", "Si tuviera tiempo, viajaría", "Cuando viajo, tengo tiempo", "Viajaré si tengo tiempo"], correctIndex: 1 },
+          { stem: { de: "Wähle das Synonym für 'contento'.", en: "Pick the synonym of 'contento'." }, options: ["triste", "feliz", "cansado", "enfadado"], correctIndex: 1 },
+          { stem: { de: "'Llevo dos años ___ español.'", en: "'Llevo dos años ___ español.'" }, options: ["estudiar", "estudiando", "estudiado", "estudio"], correctIndex: 1 },
+          { stem: { de: "Wie sagt man 'kündigen' (Job) auf Spanisch?", en: "How do you say 'to resign' (job) in Spanish?" }, options: ["dimitir", "contratar", "ascender", "cobrar"], correctIndex: 0 },
+          { stem: { de: "'Me arrepiento ___ no haber ido.'", en: "'Me arrepiento ___ no haber ido.'" }, options: ["de", "en", "por", "con"], correctIndex: 0 },
+        ],
+      },
+    ],
+  },
+  {
+    key: "b2-nuance",
+    cefr: "B2",
+    name: { de: "Feinheiten & Konnektoren", en: "Nuance & connectors" },
+    lessons: [
+      {
+        exercises: [
+          { stem: { de: "'Espero que ___ pronto.' (venir, du)", en: "'Espero que ___ pronto.' (venir, you)" }, options: ["vienes", "vengas", "vendrás", "viniste"], correctIndex: 1 },
+          { stem: { de: "Was bedeutet 'a pesar de'?", en: "What does 'a pesar de' mean?" }, options: { de: ["dank", "trotz", "wegen", "statt"], en: ["thanks to", "despite", "because of", "instead of"] }, correctIndex: 1 },
+          { stem: { de: "Wähle das formellste Wort für 'aber'.", en: "Pick the most formal word for 'but'." }, options: ["pero", "sin embargo", "y", "o"], correctIndex: 1 },
+          { stem: { de: "'No creo que ___ razón.' (tener, er)", en: "'No creo que ___ razón.' (tener, he)" }, options: ["tiene", "tenga", "tendrá", "tuvo"], correctIndex: 1 },
+          { stem: { de: "'Se lo dije para que lo ___.' (saber)", en: "'Se lo dije para que lo ___.' (saber)" }, options: ["sabe", "supiera", "sabrá", "sabía"], correctIndex: 1 },
+        ],
+      },
+    ],
+  },
+  {
+    key: "c1-idiom",
+    cefr: "C1",
+    name: { de: "Idiomatik & Register", en: "Idiom & register" },
+    lessons: [
+      {
+        exercises: [
+          { stem: { de: "'Por más que lo ___, no lo entiendo.' (intentar)", en: "'Por más que lo ___, no lo entiendo.' (intentar)" }, options: ["intento", "intente", "intentaré", "intentaba"], correctIndex: 1 },
+          { stem: { de: "Idiom: 'estar en las nubes' bedeutet…", en: "Idiom: 'estar en las nubes' means…" }, options: { de: ["glücklich sein", "träumen / abwesend sein", "reich sein", "krank sein"], en: ["to be happy", "to daydream / be absent-minded", "to be rich", "to be ill"] }, correctIndex: 1 },
+          { stem: { de: "Wähle den Konnektor: '___ lo dicho, seguimos.'", en: "Pick the connector: '___ lo dicho, seguimos.'" }, options: ["No obstante", "Dado que", "A fin de", "Con tal de"], correctIndex: 0 },
+          { stem: { de: "'Ojalá ___ venido antes.' (haber, du)", en: "'Ojalá ___ venido antes.' (haber, you)" }, options: ["has", "hubieras", "habrás", "habías"], correctIndex: 1 },
+          { stem: { de: "'De haberlo sabido, no ___ ido.' (haber)", en: "'De haberlo sabido, no ___ ido.' (haber)" }, options: ["habría", "habré", "había", "haya"], correctIndex: 0 },
+        ],
+      },
+    ],
+  },
+  {
+    key: "c2-mastery",
+    cefr: "C2",
+    name: { de: "Meisterschaft", en: "Mastery" },
+    lessons: [
+      {
+        exercises: [
+          { stem: { de: "Register: das gehobenste Verb für 'sagen'.", en: "Register: the most elevated verb for 'to say'." }, options: ["decir", "manifestar", "contar", "hablar"], correctIndex: 1 },
+          { stem: { de: "'Como si ___ un experto.' (ser)", en: "'Como si ___ un experto.' (ser)" }, options: ["es", "fuera", "será", "era"], correctIndex: 1 },
+          { stem: { de: "Was bedeutet 'a la sazón'?", en: "What does 'a la sazón' mean?" }, options: { de: ["damals / zu jener Zeit", "zum Glück", "im Gegenteil", "auf einmal"], en: ["at that time", "luckily", "on the contrary", "suddenly"] }, correctIndex: 0 },
+          { stem: { de: "Rektion: 'hacer caso ___ alguien'.", en: "Case usage: 'hacer caso ___ alguien'." }, options: ["a", "de", "en", "con"], correctIndex: 0 },
+          { stem: { de: "Formell für 'verzichten': 'sich ___ von Kommentaren'.", en: "Formal for 'to refrain': '___ de hacer comentarios'." }, options: ["abstenerse", "dejarse", "pararse", "quitarse"], correctIndex: 0 },
+        ],
+      },
+    ],
+  },
 ];
 
 /* ─────────────────────────── Georgian target bank ───────────────────────────
@@ -263,6 +333,69 @@ const KA_SKILLS: SeedSkill[] = [
       },
     ],
   },
+  // ── B1..C2 ladder (same role as the Spanish one: full placement range). ──
+  {
+    key: "b1-structures",
+    cefr: "B1",
+    name: { de: "Satzbau & Ausdruck", en: "Structures & expression" },
+    lessons: [
+      {
+        exercises: [
+          { stem: { de: "Wie sagt man 'gestern' auf Georgisch?", en: "How do you say 'yesterday' in Georgian?" }, options: ["ხვალ", "დღეს", "გუშინ", "ეხლა"], correctIndex: 2 },
+          { stem: { de: "Wie sagt man 'morgen' auf Georgisch?", en: "How do you say 'tomorrow' in Georgian?" }, options: ["ხვალ", "გუშინ", "დღეს", "მალე"], correctIndex: 0 },
+          { stem: { de: "Wie sagt man 'Freund' auf Georgisch?", en: "How do you say 'friend' in Georgian?" }, options: ["მეზობელი", "მეგობარი", "მასწავლებელი", "სტუმარი"], correctIndex: 1 },
+          { stem: { de: "'Ich lerne seit zwei Jahren Georgisch.'", en: "'I have been learning Georgian for two years.'" }, options: ["ორი წელია ქართულს ვსწავლობ", "ორი დღეა ქართულს ვსწავლობ", "ქართული ორი წელი იყო", "მე ქართული მინდა"], correctIndex: 0 },
+          { stem: { de: "'Es gefällt mir.'", en: "'I like it.'" }, options: ["მინდა", "მომწონს", "მაქვს", "ვიცი"], correctIndex: 1 },
+        ],
+      },
+    ],
+  },
+  {
+    key: "b2-nuance",
+    cefr: "B2",
+    name: { de: "Feinheiten & Konnektoren", en: "Nuance & connectors" },
+    lessons: [
+      {
+        exercises: [
+          { stem: { de: "Wie sagt man 'obwohl' auf Georgisch?", en: "How do you say 'although' in Georgian?" }, options: ["იმიტომ, რომ", "მიუხედავად იმისა, რომ", "მას შემდეგ, რაც", "თუ"], correctIndex: 1 },
+          { stem: { de: "'Die Rechnung, bitte.' (höflich)", en: "'The bill, please.' (polite)" }, options: ["მენიუ, თუ შეიძლება", "ანგარიში, თუ შეიძლება", "მაგიდა, თუ შეიძლება", "წყალი, თუ შეიძლება"], correctIndex: 1 },
+          { stem: { de: "Formell: 'ich möchte' →", en: "Formal: 'I would like' →" }, options: ["მინდა", "მსურს", "მაქვს", "ვიღებ"], correctIndex: 1 },
+          { stem: { de: "Evidential 'offenbar / wie sich herausstellt' →", en: "Evidential 'apparently / it turns out' →" }, options: ["თურმე", "ვითომ", "ალბათ", "იქნებ"], correctIndex: 0 },
+          { stem: { de: "'Ich stimme dir zu.'", en: "'I agree with you.'" }, options: ["გეთანხმები", "ვწუხვარ", "გელოდები", "ვფიქრობ"], correctIndex: 0 },
+        ],
+      },
+    ],
+  },
+  {
+    key: "c1-idiom",
+    cefr: "C1",
+    name: { de: "Idiomatik & Register", en: "Idiom & register" },
+    lessons: [
+      {
+        exercises: [
+          { stem: { de: "Was bedeutet 'ვითომ'?", en: "What does 'ვითომ' mean?" }, options: { de: ["angeblich / als ob", "deshalb", "sofort", "vielleicht"], en: ["as if / pretending", "therefore", "immediately", "maybe"] }, correctIndex: 0 },
+          { stem: { de: "Idiom: 'გული გამისკდა' bedeutet…", en: "Idiom: 'გული გამისკდა' means…" }, options: { de: ["ich bin furchtbar erschrocken", "ich habe mich verliebt", "ich bin eingeschlafen", "ich habe gewonnen"], en: ["I was terrified / startled", "I fell in love", "I fell asleep", "I won"] }, correctIndex: 0 },
+          { stem: { de: "Was bedeutet 'თავი დამანებე'?", en: "What does 'თავი დამანებე' mean?" }, options: { de: ["lass mich in Ruhe", "hilf mir", "komm mit", "ich bin müde"], en: ["leave me alone", "help me", "come along", "I am tired"] }, correctIndex: 0 },
+          { stem: { de: "'Wenn ich es gewusst hätte, wäre ich gekommen.'", en: "'Had I known, I would have come.'" }, options: ["რომ მცოდნოდა, მოვიდოდი", "რომ ვიცი, მოვდივარ", "როცა ვიცოდი, მოვედი", "თუ ვიცი, მოვალ"], correctIndex: 0 },
+        ],
+      },
+    ],
+  },
+  {
+    key: "c2-mastery",
+    cefr: "C2",
+    name: { de: "Meisterschaft", en: "Mastery" },
+    lessons: [
+      {
+        exercises: [
+          { stem: { de: "Register: das formellste Verb für 'sagen'.", en: "Register: the most formal verb for 'to say'." }, options: ["თქვა", "აღნიშნა", "უთხრა", "ლაპარაკობს"], correctIndex: 1 },
+          { stem: { de: "'წიგნს ___ ვკითხულობ' (nicht mehr)", en: "'წიგნს ___ ვკითხულობ' (no longer)" }, options: ["არ", "აღარ", "ვერ", "ნუ"], correctIndex: 1 },
+          { stem: { de: "Höflichkeitsform: 'ბრძანდებით' bedeutet…", en: "Polite register: 'ბრძანდებით' means…" }, options: { de: ["Sie sind / Sie befinden sich (höflich)", "du bist", "ich bin", "sie waren"], en: ["you are (formal/honorific)", "you are (casual)", "I am", "they were"] }, correctIndex: 0 },
+          { stem: { de: "Was bedeutet 'აღმოჩნდა'?", en: "What does 'აღმოჩნდა' mean?" }, options: { de: ["es stellte sich heraus", "es verschwand", "es begann", "es endete"], en: ["it turned out", "it disappeared", "it began", "it ended"] }, correctIndex: 0 },
+        ],
+      },
+    ],
+  },
 ];
 
 const TARGET_BANKS: Record<"es" | "ka", SeedSkill[]> = { es: ES_SKILLS, ka: KA_SKILLS };
@@ -328,7 +461,7 @@ async function main() {
           const ex = exercises[e]!;
           const payload: McqPayload = mcqPayloadSchema.parse({
             stem: ex.stem[src],
-            options: ex.options,
+            options: Array.isArray(ex.options) ? ex.options : ex.options[src],
             correctIndex: ex.correctIndex,
           }); // integrity gate
           const exerciseId = `ex-${src}-${tgt}-${skill.key}-${l}-${e}`;

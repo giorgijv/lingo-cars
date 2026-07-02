@@ -446,7 +446,9 @@ function checkMilestoneToast(){
 /* ============================ Placement ============================ */
 let placement=null;
 function startPlacement(){
-  placement = { ability:2.5, i:0, n:15, asked:new Set() };
+  // Start easy (A1) — the adaptive staircase ramps difficulty up while
+  // answers stay correct, so the test visibly increases in difficulty.
+  placement = { ability:1.2, i:0, n:15, asked:new Set() };
   $("introPanel").classList.add("hide");
   $("resultPanel").classList.add("hide");
   $("quizPanel").classList.remove("hide");
