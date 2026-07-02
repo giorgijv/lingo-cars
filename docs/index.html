@@ -77,6 +77,11 @@
   .playBtn.playing{animation:pulse 1s ease-in-out infinite}
   @keyframes pulse{0%,100%{box-shadow:0 0 0 0 rgba(90,167,255,.5)}50%{box-shadow:0 0 0 10px rgba(90,167,255,0)}}
   .playMeta{color:var(--muted);font-size:13px}
+  .speakText{font-size:22px;font-weight:800;margin:6px 0 16px;padding:16px 18px;background:#0f1620;border:1px solid var(--line);border-radius:12px;text-align:center}
+  .micBtn{background:#1b2431;color:var(--ink);border:1px solid var(--line);border-radius:999px;width:64px;height:64px;font-size:24px;cursor:pointer;display:flex;align-items:center;justify-content:center;margin:0 auto}
+  .micBtn.recording{background:var(--bad);border-color:var(--bad);animation:pulse2 1s ease-in-out infinite}
+  @keyframes pulse2{0%,100%{box-shadow:0 0 0 0 rgba(224,101,79,.5)}50%{box-shadow:0 0 0 14px rgba(224,101,79,0)}}
+  .micState{text-align:center;color:var(--muted);font-size:13px;margin-top:10px}
   .row{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-top:16px}
   .btn{background:var(--accent);color:#08111f;border:none;border-radius:12px;padding:12px 18px;font-weight:800;font-size:15px;cursor:pointer;font-family:inherit}
   .btn.secondary{background:#1b2431;color:var(--ink);border:1px solid var(--line)}
@@ -269,6 +274,11 @@ const BANKS = {
     {c:1,type:"listen",s:{de:"Was hast du gehört?",en:"What did you hear?"},transcript:"Hola, ¿cómo estás?",o:["Hola, ¿cómo estás?","Adiós, hasta luego.","Gracias por todo.","Buenas noches."],a:0},
     {c:2,type:"listen",s:{de:"Was hast du gehört?",en:"What did you hear?"},transcript:"¿Dónde está la estación?",o:["¿Dónde está el baño?","¿Dónde está la estación?","¿Cuánto cuesta esto?","¿Qué hora es?"],a:1},
     {c:2,type:"listen",s:{de:"Was hast du gehört?",en:"What did you hear?"},transcript:"Quisiera un café, por favor.",o:["Quisiera un café, por favor.","Quisiera un té, por favor.","Quisiera la cuenta, por favor.","Quisiera agua, por favor."],a:0},
+    // speak (read-aloud) items — text is spoken via the M2 speak() helper as a
+    // model pronunciation; graded client-side (gradeFill) against the SpeechRecognition transcript
+    {c:1,type:"speak",s:{de:"Lies laut vor:",en:"Read aloud:"},text:"Hola, ¿cómo estás?"},
+    {c:2,type:"speak",s:{de:"Lies laut vor:",en:"Read aloud:"},text:"Quisiera un café, por favor.",tolerance:2},
+    {c:2,type:"speak",s:{de:"Lies laut vor:",en:"Read aloud:"},text:"¿Dónde está la estación?",tolerance:2},
   ],
   ka: [
     {c:1,s:{de:"Wie sagt man 'Hallo'?",en:"How do you say 'hello'?"},o:["გამარჯობა","ნახვამდის","მადლობა","კი"],a:0},
@@ -311,6 +321,11 @@ const BANKS = {
     {c:1,type:"listen",s:{de:"Was hast du gehört?",en:"What did you hear?"},transcript:"გამარჯობა, როგორ ხარ?",o:["გამარჯობა, როგორ ხარ?","ნახვამდის, კარგად იყავი.","მადლობა ყველაფრისთვის.","ღამე მშვიდობისა."],a:0},
     {c:2,type:"listen",s:{de:"Was hast du gehört?",en:"What did you hear?"},transcript:"სად არის სადგური?",o:["სად არის ტუალეტი?","სად არის სადგური?","რა ღირს ეს?","რომელი საათია?"],a:1},
     {c:2,type:"listen",s:{de:"Was hast du gehört?",en:"What did you hear?"},transcript:"ყავა მინდა, თუ შეიძლება.",o:["ყავა მინდა, თუ შეიძლება.","ჩაი მინდა, თუ შეიძლება.","ანგარიში მინდა, თუ შეიძლება.","წყალი მინდა, თუ შეიძლება."],a:0},
+    // speak (read-aloud) items — text is spoken via the M2 speak() helper as a
+    // model pronunciation; graded client-side (gradeFill) against the SpeechRecognition transcript
+    {c:1,type:"speak",s:{de:"Lies laut vor:",en:"Read aloud:"},text:"გამარჯობა, როგორ ხარ?"},
+    {c:2,type:"speak",s:{de:"Lies laut vor:",en:"Read aloud:"},text:"ყავა მინდა, თუ შეიძლება.",tolerance:2},
+    {c:2,type:"speak",s:{de:"Lies laut vor:",en:"Read aloud:"},text:"სად არის სადგური?",tolerance:2},
   ],
 };
 const bankFor = pair => BANKS[pair.split("-")[1]];
@@ -469,10 +484,10 @@ for(const p of PAIRS){ const st=S.pairs[p]; if(!st.owned){ st.owned=[]; st.spent
 if(!PAIRS.includes(S.pair)) S.pair = "de-es";
 function P(){ return S.pairs[S.pair]; }
 function save(){ localStorage.setItem(KEY, JSON.stringify(S)); }
-// Stem text alone isn't always unique (listen items share a generic "What did
-// you hear?" stem across several transcripts) — disambiguate with whichever
-// content field actually varies per item.
-function keyOf(q){ return q.c+"|"+(q.s.de||q.s.en)+"|"+(q.transcript||(q.answers&&q.answers[0])||""); }
+// Stem text alone isn't always unique (listen/speak items share a generic
+// "What did you hear?" / "Read aloud:" stem across several transcripts/texts)
+// — disambiguate with whichever content field actually varies per item.
+function keyOf(q){ return q.c+"|"+(q.s.de||q.s.en)+"|"+(q.transcript||q.text||(q.answers&&q.answers[0])||""); }
 
 function tierItems(tier){ return byCefr(S.pair, tier+1); }
 function tierMastery(tier){
@@ -721,6 +736,97 @@ function speak(text, pair, onEnd){
   window.speechSynthesis.speak(u);
 }
 
+/* ============================ Speak (M3, browser ASR) ============================ */
+/* No Python/Whisper ASR microservice in this build (see plans/placement-modalities.md
+   M3 note) — recognition runs via the browser's SpeechRecognition API where
+   available (Chrome/Edge; cloud-backed by the vendor, NOT on-device — a bigger
+   privacy caveat than M2's on-device TTS) and is graded with the SAME gradeFill
+   edit-distance grader used for typed answers. Everywhere else (Safari/Firefox,
+   or no mic permission), it falls back to the M1 typed-answer UI so the item is
+   never unanswerable.
+   Georgian (ka-GE) recognition support is thin-to-absent in most browsers today
+   — the same moat risk already flagged for Georgian TTS in M2; the text-input
+   fallback keeps the item usable regardless. */
+const SR_LANG = { es: "es-ES", ka: "ka-GE" };
+function getSpeechRecognition(){
+  return window.SpeechRecognition || window.webkitSpeechRecognition || null;
+}
+function renderSpeakQuestion(q, box, onAnswered){
+  const SR = getSpeechRecognition();
+  box.innerHTML = `<div class="speakText">${q.text}</div>
+    <div class="playRow">
+      <button class="playBtn" id="hearBtn" aria-label="Hear a model pronunciation">🔊</button>
+      <span class="playMeta">Hear a model pronunciation, then read it aloud.</span>
+    </div>
+    ${SR
+      ? `<button class="micBtn" id="micBtn" aria-label="Start recording">🎙️</button>
+         <div class="micState" id="micState">Tap the mic and read the sentence above. Your speech is sent to your browser's speech-recognition service (e.g. Google, on Chrome) to be transcribed — nothing is recorded or stored.</div>`
+      : `<div class="fillWrap">
+           <input type="text" id="fillInput" class="fillInput" placeholder="Type what you'd say…" autocomplete="off" autocapitalize="off" spellcheck="false">
+           <button class="btn" id="fillCheckBtn">Check</button>
+         </div>
+         <div class="fillHint">Your browser doesn't support speech recognition — type the sentence instead.</div>`}
+  `;
+  const hearBtn = $("hearBtn");
+  const hearIt = () => { hearBtn.classList.add("playing"); speak(q.text, S.pair, () => hearBtn.classList.remove("playing")); };
+  hearBtn.onclick = hearIt;
+
+  const finish = (transcript) => {
+    const g = gradeFill(transcript, [q.text], q.tolerance);
+    const fb = $("feedback");
+    fb.textContent = g.correct ? (g.score >= 1 ? "Correct! 🎉" : "Close enough! 👍") : `Target: ${q.text}${transcript ? ` — heard: "${transcript}"` : ""}`;
+    fb.className = "feedback " + (g.correct ? "good" : "bad");
+    onAnswered(g.correct);
+    $("nextBtn").classList.remove("hide");
+  };
+
+  if(!SR){
+    const input = $("fillInput"), checkBtn = $("fillCheckBtn");
+    const submit = () => {
+      if(input.disabled) return;
+      input.disabled = true; checkBtn.disabled = true;
+      finish(input.value);
+      input.classList.add($("feedback").className.includes("good") ? "correct" : "wrong");
+    };
+    checkBtn.onclick = submit;
+    input.addEventListener("keydown", e => { if(e.key === "Enter") submit(); });
+    input.focus();
+    return;
+  }
+
+  const micBtn = $("micBtn"), micState = $("micState");
+  let recognizing = false, done = false;
+  const recognition = new SR();
+  recognition.lang = SR_LANG[S.pair.split("-")[1]];
+  recognition.interimResults = false;
+  recognition.maxAlternatives = 1;
+
+  recognition.onstart = () => { recognizing = true; micBtn.classList.add("recording"); micState.textContent = "Listening… speak now."; };
+  recognition.onresult = (e) => {
+    if(done) return; done = true;
+    const transcript = e.results[0][0].transcript;
+    micState.textContent = `Heard: "${transcript}"`;
+    micBtn.disabled = true;
+    finish(transcript);
+  };
+  recognition.onerror = () => {
+    if(done) return; done = true;
+    micState.textContent = "Couldn't hear you — recognition failed. Try again or type it below.";
+    micBtn.disabled = true;
+    finish(""); // graceful: grade as a miss rather than leaving the item stuck
+  };
+  recognition.onend = () => {
+    recognizing = false; micBtn.classList.remove("recording");
+    if(!done){ done = true; micState.textContent = "No speech detected."; finish(""); }
+  };
+
+  micBtn.onclick = () => {
+    if(recognizing || micBtn.disabled) return;
+    try { recognition.start(); }
+    catch(e){ micState.textContent = "Microphone unavailable — type your answer instead."; }
+  };
+}
+
 /* ============================ Shared question UI ============================ */
 function renderQuestion(q, onAnswered){
   $("stem").textContent = stemOf(q, S.pair);
@@ -759,6 +865,11 @@ function renderQuestion(q, onAnswered){
       };
       optBox.appendChild(b);
     });
+    return;
+  }
+
+  if(q.type==="speak"){
+    renderSpeakQuestion(q, box, onAnswered);
     return;
   }
 

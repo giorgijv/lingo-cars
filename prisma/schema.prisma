@@ -34,7 +34,7 @@ enum ExerciseType {
   mcq // multiple-choice, receptive (Phase 0)
   fill // typed free-text answer, productive (M1 — see plans/placement-modalities.md)
   listen // hear target-language audio, pick what was said, receptive (M2)
-  // enum leaves room for speak (M3 of the same plan)
+  speak // read a target-language sentence aloud, productive (M3, same plan)
 }
 
 enum SessionType {

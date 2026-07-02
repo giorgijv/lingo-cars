@@ -1,10 +1,9 @@
 # Plan: Multi-modal placement (writing, listening, speaking)
 
-> Status: **M1 (write text) and M2 (listen) SHIPPED.** M3 (speak) remains
-> planned below. Approved direction: make the placement test measure more
-> than receptive recognition by adding items where the taker must
-> **write text**, **hear and understand audio**, and **pronounce/read text
-> aloud**.
+> Status: **M1 (write text), M2 (listen), and M3 (speak) SHIPPED.** Approved
+> direction: make the placement test measure more than receptive recognition
+> by adding items where the taker must **write text**, **hear and understand
+> audio**, and **pronounce/read text aloud**.
 >
 > **What M1 actually built** (deviations from the original sketch, and why):
 > - **Discriminator moved to `Exercise.type`** (the existing DB column), not a
@@ -58,6 +57,52 @@
 > - **Real M2 (pre-generated audio + storage/CDN) remains future work** if a
 >   tamper-resistant, higher-quality listening item is ever required — this
 >   build should be read as "M2 lite," not the full milestone.
+>
+> **What M3 actually built** (a real deviation from the plan's §2c sketch,
+> same shape of trade-off as M2 — read this before trusting `speak` for
+> anything psychometrically load-bearing):
+> - **No Python/Whisper ASR microservice, no `MediaRecorder` upload pipeline,
+>   no GPU/CPU inference host.** None of that infra is provisioned in this
+>   environment. Instead, server-side `speak` is graded **identically to
+>   `fill`**: the target sentence (`payload.text`) is the sole accepted
+>   answer, scored by the exact same `gradeFillAnswer` edit-distance grader —
+>   because "how close is this text to the target" doesn't care whether the
+>   text was typed or recognized from speech. Zero new grading code.
+> - **Speech-to-text runs client-side, in the demo only**, via the browser's
+>   `SpeechRecognition` / `webkitSpeechRecognition` Web API — not the real
+>   API/backend (there is no `speak`-with-audio endpoint; the API only ever
+>   receives already-transcribed text via the same `response` field `fill`
+>   uses). Where the browser lacks `SpeechRecognition` support (Safari,
+>   Firefox) or the mic is unavailable, the demo falls back to the M1 typed-
+>   answer UI so the item is never unanswerable.
+> - **Bigger privacy caveat than M2's on-device TTS:** browser speech
+>   recognition in Chrome/Edge is **cloud-backed by the vendor** (e.g. sent to
+>   Google), not on-device. The demo discloses this explicitly next to the
+>   mic button, before recording starts — this is a real consent-style
+>   microcopy requirement the plan flagged (§2c "explicit mic-consent
+>   screen"), satisfied here at demo-fidelity rather than with a dedicated
+>   consent flow/retention-policy screen.
+> - **Georgian ASR coverage risk, same shape as Georgian TTS in M2**: browser
+>   speech-recognition support for `ka-GE` is thin-to-absent across most
+>   browsers today. The typed-input fallback keeps the item usable regardless
+>   of whether recognition actually works for a given learner's browser/OS.
+> - **What was and wasn't verified:** headless (Playwright against the real
+>   Chromium binary) confirmed (a) `SpeechRecognition` feature detection does
+>   not crash the render path, (b) a recognition failure (no mic device in a
+>   headless/sandboxed browser) is handled gracefully — graded as a miss,
+>   `nextBtn` still unblocks, no stuck UI state — and (c) the fallback typed-
+>   input path grades correctly for both a wrong and an exact answer via the
+>   same `gradeFill`. What could **not** be verified here: real voice capture
+>   and recognition accuracy/latency in an actual browser with mic access —
+>   that needs manual testing by a person with a microphone.
+> - Content: 3 `speak` items per bank (`es`, `ka`) at A1/A2, reusing the exact
+>   same sentences as the corresponding M2 `listen` items in each bank (hear
+>   it vs. read it aloud, same pedagogical target).
+> - **Real M3 (Python/Whisper ASR microservice, server-authoritative
+>   transcription, mic-consent + retention-policy flow) remains future work**
+>   if a tamper-resistant, browser-independent speaking item is ever
+>   required — this build should be read as "M3 lite," not the full
+>   milestone.
 
 ## 1. Why (and what it fixes)
 
@@ -185,7 +230,8 @@ preserved because grading inputs are stored on the immutable attempt.
 | **M1** | ✅ **Shipped** — `fill` type end-to-end (payloads, grading, content, soft placement staging, demo text input) | S–M | none |
 | **M2** | ✅ **Shipped as "M2 lite"** — `listen` type via on-device browser TTS (no `content:audio`/storage/CDN — see the note above) | S | none |
 | **M2-full** | Real pre-generated audio pipeline (`content:audio`, TTS account, object storage/CDN) — upgrade path if tamper-resistance/voice-quality matters | M | TTS account, object storage |
-| **M3** | `speak` type + ASR microservice (Python/Whisper) + consent flow | L | GPU/CPU inference host |
+| **M3** | ✅ **Shipped as "M3 lite"** — `speak` type graded server-side via the reused `fill` grader; demo captures speech via the browser `SpeechRecognition` API with a typed-input fallback (no ASR microservice — see the note above) | S | none |
+| **M3-full** | Real ASR microservice (Python/Whisper), server-side audio upload + transcription, mic-consent + retention-policy flow — upgrade path if browser-independent/tamper-resistant speaking assessment matters | L | GPU/CPU inference host |
 | **M4** | hard-staged placement + per-modality sub-scores + C-checkpoint groundwork | M | — |
 
 M1 is buildable immediately with zero new dependencies and already delivers

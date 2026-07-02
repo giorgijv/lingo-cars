@@ -169,6 +169,17 @@
               "correctIndex": 0
             }
           ]
+        },
+        {
+          "exercises": [
+            {
+              "stem": {
+                "de": "Lies laut vor:",
+                "en": "Read aloud:"
+              },
+              "text": "Hola, ¿cómo estás?"
+            }
+          ]
         }
       ]
     },
@@ -531,6 +542,17 @@
               "correctIndex": 0
             }
           ]
+        },
+        {
+          "exercises": [
+            {
+              "stem": {
+                "de": "Lies laut vor:",
+                "en": "Read aloud:"
+              },
+              "text": "Quisiera un café, por favor."
+            }
+          ]
         }
       ]
     },
@@ -669,6 +691,17 @@
                 "¿Qué hora es?"
               ],
               "correctIndex": 1
+            }
+          ]
+        },
+        {
+          "exercises": [
+            {
+              "stem": {
+                "de": "Lies laut vor:",
+                "en": "Read aloud:"
+              },
+              "text": "¿Dónde está la estación?"
             }
           ]
         }

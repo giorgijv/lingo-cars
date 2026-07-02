@@ -18,7 +18,7 @@ import { CEFR_ORDER, PLACEMENT } from "../config.js";
 export interface PlacementItem {
   id: string;
   difficulty: number;
-  type: "mcq" | "fill" | "listen";
+  type: "mcq" | "fill" | "listen" | "speak";
 }
 
 export interface PlacementResponse {

@@ -30,8 +30,8 @@ describe.skipIf(!RUN)("Phase 0 end-to-end learning loop", () => {
       .send({ email: `e2e-${Date.now()}@test.dev`, uiLanguage: "de" });
     await request(app).post("/enrollments").send({ userId: user.id, pairId });
 
-    // Placement: answer everything WRONG (mcq: the other option; fill: nonsense
-    // text) so the starting bet is A1. The pool mixes mcq and fill items.
+    // Placement: answer everything WRONG (mcq/listen: the other option; fill/
+    // speak: nonsense text) so the starting bet is A1. The pool mixes all types.
     let start = await request(app).post("/placement/start").send({ pairId });
     let state = start.body.state;
     let exercise = start.body.exercise;
@@ -39,7 +39,7 @@ describe.skipIf(!RUN)("Phase 0 end-to-end learning loop", () => {
     let guard = 0;
     while (!done && exercise && guard++ < 40) {
       const body: Record<string, unknown> = { pairId, state, exerciseId: exercise.id, latencyMs: 3000 };
-      if (exercise.type === "fill") {
+      if (exercise.type === "fill" || exercise.type === "speak") {
         body.response = "xyz-definitely-wrong-xyz";
       } else {
         const ci = await correctIndexOf(exercise.id);

@@ -4,9 +4,10 @@
 
 > **🏎️ Live demo:** <https://giorgijv.github.io/lingo-cars/> — a standalone,
 > in-browser illustration of the car-progression concept: pick a language pair
-> (de→es, en→es, de→ka, en→ka), take a placement test, study MCQs, and watch
-> the car level up City Hatch → Hypercar with milestone cosmetics along the
-> way. It runs entirely client-side and is separate from the API below.
+> (de→es, en→es, de→ka, en→ka), take a placement test, study multiple-choice,
+> typed, listen, and read-aloud exercises, and watch the car level up City
+> Hatch → Hypercar with milestone cosmetics along the way. It runs entirely
+> client-side and is separate from the API below.
 
 Backend for a gamified language-learning app.
 
@@ -36,7 +37,7 @@ Backend for a gamified language-learning app.
   projection) and shift skill only realizes 50–100% of it — a zero-skill
   Hypercar beats a perfect City Hatch. Racing appends to an immutable
   `RaceResult` log and awards nothing (no points/xp/CEFR).
-- **Multi-modal placement — M1 + M2 shipped:**
+- **Multi-modal placement — M1 + M2 + M3 shipped:**
   - **M1 — `fill`** (typed free-text answer), graded server-side by
     edit-distance + accent-insensitive matching (`src/content/grading.ts`),
     feeding both FSRS (score-based grade quality) and the adaptive placement
@@ -46,13 +47,21 @@ Backend for a gamified language-learning app.
     storage is provisioned in this build, so audio is synthesized **on-device**
     via the browser's Web Speech API from a stored `transcript`, not served
     as a pre-generated file. Grading is selectedIndex-based, identical to mcq.
-  - Both types get a **soft placement-staging bonus**: once ability is
-    roughly located (past `mcqStageItems`), non-mcq items surface preferentially
-    — the "productive/listening check" that corrects over-placement from pure
-    MCQ recognition.
-  - `speak` (M3 — ASR) remains planned in
-    [`plans/placement-modalities.md`](./plans/placement-modalities.md), which
-    also documents the M2 TTS deviation and its consequences in full.
+  - **M3 — `speak`** (read a target-language sentence aloud). Server-side is
+    identical to `fill`: the same `gradeFillAnswer` grader scores the
+    recognized text against the target `text`. Deviates from the plan's
+    original sketch: no Python/Whisper ASR microservice is provisioned in this
+    build, so the demo runs speech-to-text **in-browser** via the
+    `SpeechRecognition` Web API (Chrome/Edge; cloud-backed by the browser
+    vendor, not on-device — a bigger privacy caveat than M2's on-device TTS),
+    with a graceful fallback to typed input everywhere it's unsupported.
+  - All three non-mcq types get a **soft placement-staging bonus**: once
+    ability is roughly located (past `mcqStageItems`), non-mcq items surface
+    preferentially — the "productive/listening/speaking check" that corrects
+    over-placement from pure MCQ recognition.
+  - See [`plans/placement-modalities.md`](./plans/placement-modalities.md) for
+    the full plan and every "what actually got built" deviation writeup (M1,
+    M2, M3).
   See [`CLAUDE.md`](./CLAUDE.md) for the spec.
 
 ## Non-negotiable guardrails (enforced here)

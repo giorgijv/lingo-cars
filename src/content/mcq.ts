@@ -64,11 +64,32 @@ export const listenPayloadSchema = z
 
 export type ListenPayload = z.infer<typeof listenPayloadSchema>;
 
-export type ExercisePayload = McqPayload | FillPayload | ListenPayload;
+/**
+ * `speak` — read a target-language sentence aloud (plans/placement-
+ * modalities.md §2c). No ASR microservice in this build (M3 note): the
+ * client runs the browser's on-device/vendor-cloud SpeechRecognition and
+ * submits the recognized text as `response`, graded by the SAME
+ * gradeFillAnswer used for `fill` — "how close is this text to the target"
+ * is the identical problem whether the text was typed or spoken. `text` is
+ * shown to the learner openly (it's the prompt to read, not a hidden
+ * answer) and can be replayed via the M2 speak() TTS helper as a model
+ * pronunciation. `tolerance` defaults looser than fill's (ASR transcripts
+ * are noisier than typed text — dropped/added filler words, punctuation).
+ */
+export const speakPayloadSchema = z.object({
+  stem: z.string().min(1),
+  text: z.string().min(1),
+  tolerance: z.number().int().min(0).max(5).default(2),
+});
+
+export type SpeakPayload = z.infer<typeof speakPayloadSchema>;
+
+export type ExercisePayload = McqPayload | FillPayload | ListenPayload | SpeakPayload;
 
 /** Parse payloadJson using the exercise's own `type` column as the discriminator. */
 export function parseExercisePayload(type: ExerciseType, raw: unknown): ExercisePayload {
   if (type === "fill") return fillPayloadSchema.parse(raw);
   if (type === "listen") return listenPayloadSchema.parse(raw);
+  if (type === "speak") return speakPayloadSchema.parse(raw);
   return mcqPayloadSchema.parse(raw);
 }
