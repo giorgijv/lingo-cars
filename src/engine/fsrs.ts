@@ -30,6 +30,17 @@ export function gradeFor(correct: boolean, latencyMs: number): Grade {
   return Rating.Good;
 }
 
+/** Graded (productive) outcome -> FSRS grade. `score` comes from
+ *  gradeFillAnswer (src/content/grading.ts): 1/0.85 = strong recall (Easy),
+ *  0.6 = recalled with help (Good), 0 = Again. Latency is not used here —
+ *  score already captures how close the answer was, which is the stronger
+ *  signal for typed recall. */
+export function gradeForScore(score: number): Grade {
+  if (score >= 0.85) return Rating.Easy;
+  if (score >= 0.6) return Rating.Good;
+  return Rating.Again;
+}
+
 // ── FsrsState (Prisma enum) <-> State (ts-fsrs enum) ──
 const TO_FSRS_STATE: Record<FsrsState, State> = {
   new: State.New,
@@ -119,6 +130,9 @@ export async function applyAttempt(
     latencyMs: number;
     sessionType: SessionType;
     at: Date;
+    /** Present for graded (productive) exercises; drives FSRS grade quality
+     *  instead of the plain correct/latency heuristic. */
+    score?: number | null;
   },
 ): Promise<ReviewState | null> {
   if (args.sessionType === "placement") return null;
@@ -127,7 +141,7 @@ export async function applyAttempt(
     where: { userId_exerciseId: { userId: args.userId, exerciseId: args.exerciseId } },
   });
 
-  const grade = gradeFor(args.correct, args.latencyMs);
+  const grade = args.score != null ? gradeForScore(args.score) : gradeFor(args.correct, args.latencyMs);
   const next = nextCardFields(existing, grade, args.at);
 
   return db.reviewState.upsert({

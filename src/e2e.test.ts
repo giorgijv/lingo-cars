@@ -30,18 +30,22 @@ describe.skipIf(!RUN)("Phase 0 end-to-end learning loop", () => {
       .send({ email: `e2e-${Date.now()}@test.dev`, uiLanguage: "de" });
     await request(app).post("/enrollments").send({ userId: user.id, pairId });
 
-    // Placement: answer everything WRONG so the starting bet is A1.
+    // Placement: answer everything WRONG (mcq: the other option; fill: nonsense
+    // text) so the starting bet is A1. The pool mixes mcq and fill items.
     let start = await request(app).post("/placement/start").send({ pairId });
     let state = start.body.state;
     let exercise = start.body.exercise;
     let done = false;
     let guard = 0;
     while (!done && exercise && guard++ < 40) {
-      const ci = await correctIndexOf(exercise.id);
-      const wrong = (ci + 1) % exercise.options.length;
-      const ans = await request(app)
-        .post("/placement/answer")
-        .send({ pairId, state, exerciseId: exercise.id, selectedIndex: wrong, latencyMs: 3000 });
+      const body: Record<string, unknown> = { pairId, state, exerciseId: exercise.id, latencyMs: 3000 };
+      if (exercise.type === "fill") {
+        body.response = "xyz-definitely-wrong-xyz";
+      } else {
+        const ci = await correctIndexOf(exercise.id);
+        body.selectedIndex = (ci + 1) % exercise.options.length;
+      }
+      const ans = await request(app).post("/placement/answer").send(body);
       state = ans.body.state;
       done = ans.body.done;
       exercise = ans.body.exercise;
@@ -52,9 +56,10 @@ describe.skipIf(!RUN)("Phase 0 end-to-end learning loop", () => {
     const attemptsAfterPlacement = await db.attempt.count({ where: { userId: user.id } });
     expect(attemptsAfterPlacement).toBeGreaterThan(0);
 
-    // All A1 exercises for this pair.
+    // All A1 mcq exercises for this pair — this drill exercises the classic
+    // selectedIndex study flow; fill items are covered in app.test.ts.
     const a1 = await db.exercise.findMany({
-      where: { lesson: { skill: { pairId, cefr: "A1" } } },
+      where: { lesson: { skill: { pairId, cefr: "A1" } }, type: "mcq" },
       select: { id: true },
       orderBy: { id: "asc" },
     });

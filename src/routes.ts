@@ -2,7 +2,8 @@ import { Router } from "express";
 import { z } from "zod";
 import type { Exercise, PrismaClient } from "@prisma/client";
 import { asyncHandler, parse } from "./http/validate.js";
-import { mcqPayloadSchema } from "./content/mcq.js";
+import { fillPayloadSchema, mcqPayloadSchema } from "./content/mcq.js";
+import { gradeFillAnswer } from "./content/grading.js";
 import { applyAttempt } from "./engine/fsrs.js";
 import { recomputeProficiency } from "./engine/proficiency.js";
 import { applyTierDecision } from "./engine/mastery.js";
@@ -15,20 +16,47 @@ import {
   startPlacementSession,
 } from "./services/placement.js";
 
-/** Exercise as exposed to clients — never leaks correctIndex (grading is server-side). */
+/** Exercise as exposed to clients — never leaks correctIndex/answers (grading is server-side). */
 function publicExercise(ex: Exercise) {
+  const base = { id: ex.id, type: ex.type, difficulty: ex.difficulty, lessonId: ex.lessonId };
+  if (ex.type === "fill") {
+    const p = fillPayloadSchema.parse(ex.payloadJson);
+    return { ...base, stem: p.stem };
+  }
   const p = mcqPayloadSchema.parse(ex.payloadJson);
-  return { id: ex.id, type: ex.type, difficulty: ex.difficulty, lessonId: ex.lessonId, stem: p.stem, options: p.options };
+  return { ...base, stem: p.stem, options: p.options };
 }
 
-/** Grade a selected option against the stored payload (server-authoritative). */
-async function grade(db: PrismaClient, exerciseId: string, selectedIndex: number) {
+// Standalone schemas so grade() throws a proper ZodError (400, via the shared
+// error handler) when the required field for an exercise's type is missing —
+// rather than hand-rolling issue objects.
+const requireSelectedIndex = z.number({ required_error: "selectedIndex is required for mcq exercises" }).int().nonnegative();
+const requireResponse = z.string({ required_error: "response is required for fill exercises" });
+
+/**
+ * Grade an mcq selection or a fill response against the stored payload
+ * (server-authoritative — clients never see the answer key beforehand).
+ * Returns a uniform shape regardless of type so callers don't need to branch.
+ */
+async function grade(db: PrismaClient, exerciseId: string, input: { selectedIndex?: number; response?: string }) {
   const ex = await db.exercise.findUniqueOrThrow({ where: { id: exerciseId } });
+
+  if (ex.type === "fill") {
+    const payload = fillPayloadSchema.parse(ex.payloadJson);
+    const response = requireResponse.parse(input.response);
+    const graded = gradeFillAnswer(response, payload.answers, payload.tolerance);
+    return { correct: graded.correct, score: graded.score, correctIndex: null, correctAnswers: payload.answers, exercise: ex };
+  }
+
   const payload = mcqPayloadSchema.parse(ex.payloadJson);
-  return { correct: selectedIndex === payload.correctIndex, correctIndex: payload.correctIndex, exercise: ex };
+  const selectedIndex = requireSelectedIndex.parse(input.selectedIndex);
+  const correct = selectedIndex === payload.correctIndex;
+  return { correct, score: null as number | null, correctIndex: payload.correctIndex, correctAnswers: null as string[] | null, exercise: ex };
 }
 
 // ── zod request schemas ──
+// selectedIndex (mcq) XOR response (fill) — exactly which one is required is
+// determined server-side by the exercise's own type (see grade()).
 const placementStateSchema = z.object({
   ability: z.number(),
   askedExerciseIds: z.array(z.string()),
@@ -38,6 +66,9 @@ const placementStateSchema = z.object({
       difficulty: z.number(),
       correct: z.boolean(),
       latencyMs: z.number().int().nonnegative(),
+      score: z.number().nullable().optional(),
+      selectedIndex: z.number().int().nonnegative().optional(),
+      response: z.string().optional(),
     }),
   ),
 });
@@ -52,14 +83,16 @@ const placementAnswerSchema = z.object({
   pairId: z.string(),
   state: placementStateSchema,
   exerciseId: z.string(),
-  selectedIndex: z.number().int().nonnegative(),
+  selectedIndex: z.number().int().nonnegative().optional(),
+  response: z.string().optional(),
   latencyMs: z.number().int().nonnegative(),
 });
 const placementFinalizeSchema = z.object({ userId: z.string(), pairId: z.string(), state: placementStateSchema });
 const submitAttemptSchema = z.object({
   userId: z.string(),
   exerciseId: z.string(),
-  selectedIndex: z.number().int().nonnegative(),
+  selectedIndex: z.number().int().nonnegative().optional(),
+  response: z.string().optional(),
   latencyMs: z.number().int().nonnegative(),
 });
 const userPairQuery = z.object({ userId: z.string(), pairId: z.string() });
@@ -97,13 +130,17 @@ export function createRouter(db: PrismaClient): Router {
   }));
 
   r.post("/placement/answer", asyncHandler(async (req, res) => {
-    const { pairId, state, exerciseId, selectedIndex, latencyMs } = parse(placementAnswerSchema, req.body);
-    const { correct } = await grade(db, exerciseId, selectedIndex);
-    const out = await answerPlacement(db, pairId, state, exerciseId, correct, latencyMs);
+    const { pairId, state, exerciseId, selectedIndex, response, latencyMs } = parse(placementAnswerSchema, req.body);
+    const graded = await grade(db, exerciseId, { selectedIndex, response });
+    const out = await answerPlacement(db, pairId, state, exerciseId, graded.correct, latencyMs, {
+      score: graded.score,
+      selectedIndex,
+      response,
+    });
     res.json({
       state: out.state,
       done: out.done,
-      correct,
+      correct: graded.correct,
       exercise: out.item ? publicExercise(await db.exercise.findUniqueOrThrow({ where: { id: out.item.id } })) : null,
     });
   }));
@@ -155,13 +192,16 @@ export function createRouter(db: PrismaClient): Router {
   // Submit an answer: append to the immutable log, then FSRS -> mastery -> tier,
   // all in one transaction. Grading is server-authoritative.
   r.post("/attempts", asyncHandler(async (req, res) => {
-    const { userId, exerciseId, selectedIndex, latencyMs } = parse(submitAttemptSchema, req.body);
-    const { correct, correctIndex, exercise } = await grade(db, exerciseId, selectedIndex);
+    const { userId, exerciseId, selectedIndex, response, latencyMs } = parse(submitAttemptSchema, req.body);
+    const { correct, score, correctIndex, correctAnswers, exercise } = await grade(db, exerciseId, { selectedIndex, response });
 
     const pair = await db.languagePair.findFirstOrThrow({
       where: { skills: { some: { lessons: { some: { id: exercise.lessonId } } } } },
       select: { id: true },
     });
+
+    const responseJson =
+      response !== undefined ? { response } : selectedIndex !== undefined ? { selectedIndex } : undefined;
 
     const out = await db.$transaction(async (tx) => {
       const existing = await tx.reviewState.findUnique({
@@ -170,8 +210,8 @@ export function createRouter(db: PrismaClient): Router {
       const sessionType = existing ? ("review" as const) : ("study" as const);
       const at = new Date();
 
-      await tx.attempt.create({ data: { userId, exerciseId, correct, latencyMs, sessionType, createdAt: at } });
-      const reviewState = await applyAttempt(tx, { userId, exerciseId, correct, latencyMs, sessionType, at });
+      await tx.attempt.create({ data: { userId, exerciseId, correct, latencyMs, sessionType, createdAt: at, score, responseJson } });
+      const reviewState = await applyAttempt(tx, { userId, exerciseId, correct, latencyMs, sessionType, at, score });
       await recomputeProficiency(tx, userId, pair.id, at);
       const tier = await applyTierDecision(tx, userId, pair.id, at);
       const proficiency = await tx.proficiencyState.findUnique({ where: { userId_pairId: { userId, pairId: pair.id } } });
@@ -182,7 +222,9 @@ export function createRouter(db: PrismaClient): Router {
 
     res.json({
       correct,
+      score,
       correctIndex,
+      correctAnswers,
       sessionType: out.sessionType,
       due: out.reviewState?.due ?? null,
       tier: out.tier,

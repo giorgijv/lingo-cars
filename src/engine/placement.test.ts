@@ -15,7 +15,7 @@ import { PLACEMENT } from "../config.js";
 // (mirrors the real seed, which has 16+ A-level items per pair).
 const pool: PlacementItem[] = [];
 for (let d = 1; d <= 6; d++) {
-  for (let i = 0; i < 8; i++) pool.push({ id: `d${d}-${i}`, difficulty: d + i * 0.05 });
+  for (let i = 0; i < 8; i++) pool.push({ id: `d${d}-${i}`, difficulty: d + i * 0.05, type: "mcq" });
 }
 
 /** Simulate a full test where the taker's true ability decides correctness. */
@@ -38,7 +38,7 @@ describe("placement staircase", () => {
 
   it("raises ability on correct, lowers on incorrect", () => {
     const s0 = startPlacement();
-    const item: PlacementItem = { id: "x", difficulty: s0.ability };
+    const item: PlacementItem = { id: "x", difficulty: s0.ability, type: "mcq" };
     expect(applyAnswer(s0, item, true, 1000).ability).toBeGreaterThan(s0.ability);
     expect(applyAnswer(s0, item, false, 1000).ability).toBeLessThan(s0.ability);
   });
@@ -72,6 +72,47 @@ describe("placement difficulty ramp", () => {
     const state = simulate(1.1);
     const difficulties = state.responses.map((r) => r.difficulty);
     expect(Math.max(...difficulties)).toBeLessThanOrEqual(3);
+  });
+});
+
+describe("serveNext — soft staging prefers fill items after the mcq stage (M1)", () => {
+  const pastStageResponses = Array.from({ length: PLACEMENT.mcqStageItems }, (_, i) => ({
+    exerciseId: `seen-${i}`,
+    difficulty: 3,
+    correct: true,
+    latencyMs: 1000,
+  }));
+
+  it("before the stage threshold, a near-tie goes to mcq (id order, no fill preference yet)", () => {
+    // ids prefixed so plain id ordering favors mcq on a tie, isolating the
+    // pre/post-stage difference to the bonus alone in the next test.
+    const pool: PlacementItem[] = [
+      { id: "0-mcq-3", difficulty: 3, type: "mcq" },
+      { id: "9-fill-3", difficulty: 3, type: "fill" },
+    ];
+    const state: PlacementState = { ability: 3.2, askedExerciseIds: [], responses: [] };
+    const { item } = serveNext(state, pool);
+    expect(item).toEqual({ id: "0-mcq-3", difficulty: 3, type: "mcq" });
+  });
+
+  it("past the stage threshold, the same near-tie now goes to fill (the bonus)", () => {
+    const pool: PlacementItem[] = [
+      { id: "0-mcq-3", difficulty: 3, type: "mcq" },
+      { id: "9-fill-3", difficulty: 3, type: "fill" },
+    ];
+    const state: PlacementState = { ability: 3.2, askedExerciseIds: [], responses: pastStageResponses };
+    const { item } = serveNext(state, pool);
+    expect(item).toEqual({ id: "9-fill-3", difficulty: 3, type: "fill" });
+  });
+
+  it("the fill bonus does not override a meaningfully closer mcq item", () => {
+    const pool: PlacementItem[] = [
+      { id: "mcq-close", difficulty: 4, type: "mcq" }, // distance 0
+      { id: "fill-far", difficulty: 2, type: "fill" }, // distance 2, bonus still leaves 1.6
+    ];
+    const state: PlacementState = { ability: 4, askedExerciseIds: [], responses: pastStageResponses };
+    const { item } = serveNext(state, pool);
+    expect(item).toEqual({ id: "mcq-close", difficulty: 4, type: "mcq" });
   });
 });
 

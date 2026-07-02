@@ -18,6 +18,7 @@ import { CEFR_ORDER, PLACEMENT } from "../config.js";
 export interface PlacementItem {
   id: string;
   difficulty: number;
+  type: "mcq" | "fill";
 }
 
 export interface PlacementResponse {
@@ -25,6 +26,11 @@ export interface PlacementResponse {
   difficulty: number;
   correct: boolean;
   latencyMs: number;
+  /** Present for graded (fill) items; drives FSRS-quality grading downstream
+   *  and is persisted to the immutable Attempt log at finalize. */
+  score?: number | null;
+  selectedIndex?: number;
+  response?: string;
 }
 
 export interface PlacementState {
@@ -56,18 +62,31 @@ export function startPlacement(): PlacementState {
  * Select the unasked item whose difficulty is closest to the current ability
  * (maximum information), and mark it asked. Deterministic tie-break by
  * difficulty then id. Returns null when the pool is exhausted.
+ *
+ * Soft staging (plans/placement-modalities.md M1): once `mcqStageItems`
+ * responses are in — a fast receptive ability read — `fill` candidates get a
+ * selection bonus (effectively treated as closer to `ability` than they are)
+ * so the productive check runs, without a hard stage boundary that could
+ * strand the test if the pool lacks a fill item at the right difficulty.
  */
 export function serveNext(
   state: PlacementState,
   pool: PlacementItem[],
+  cfg: typeof PLACEMENT = PLACEMENT,
 ): { state: PlacementState; item: PlacementItem | null } {
   const asked = new Set(state.askedExerciseIds);
   const candidates = pool.filter((p) => !asked.has(p.id));
   if (candidates.length === 0) return { state, item: null };
 
+  const pastStage = state.responses.length >= cfg.mcqStageItems;
+  const effectiveDistance = (p: PlacementItem) => {
+    const raw = Math.abs(p.difficulty - state.ability);
+    return pastStage && p.type === "fill" ? Math.max(0, raw - cfg.fillPreferenceBonus) : raw;
+  };
+
   candidates.sort((a, b) => {
-    const da = Math.abs(a.difficulty - state.ability);
-    const db = Math.abs(b.difficulty - state.ability);
+    const da = effectiveDistance(a);
+    const db = effectiveDistance(b);
     return da - db || a.difficulty - b.difficulty || a.id.localeCompare(b.id);
   });
 
@@ -84,6 +103,7 @@ export function applyAnswer(
   item: PlacementItem,
   correct: boolean,
   latencyMs: number,
+  extra?: { score?: number | null; selectedIndex?: number; response?: string },
 ): PlacementState {
   const n = state.responses.length + 1;
   const k = Math.max(0.4, 1.5 / Math.sqrt(n));
@@ -97,7 +117,7 @@ export function applyAnswer(
       : [...state.askedExerciseIds, item.id],
     responses: [
       ...state.responses,
-      { exerciseId: item.id, difficulty: item.difficulty, correct, latencyMs },
+      { exerciseId: item.id, difficulty: item.difficulty, correct, latencyMs, ...extra },
     ],
   };
 }

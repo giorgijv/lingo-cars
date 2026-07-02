@@ -120,6 +120,37 @@
               "correctIndex": 0
             }
           ]
+        },
+        {
+          "exercises": [
+            {
+              "stem": {
+                "de": "Übersetze: 'Hallo'",
+                "en": "Translate: 'hello'"
+              },
+              "answers": [
+                "გამარჯობა"
+              ]
+            },
+            {
+              "stem": {
+                "de": "Übersetze: 'Danke'",
+                "en": "Translate: 'thank you'"
+              },
+              "answers": [
+                "მადლობა"
+              ]
+            },
+            {
+              "stem": {
+                "de": "Übersetze: 'ja'",
+                "en": "Translate: 'yes'"
+              },
+              "answers": [
+                "კი"
+              ]
+            }
+          ]
         }
       ]
     },
@@ -552,6 +583,29 @@
               "correctIndex": 1
             }
           ]
+        },
+        {
+          "exercises": [
+            {
+              "stem": {
+                "de": "Übersetze: 'das Brot'",
+                "en": "Translate: 'the bread'"
+              },
+              "answers": [
+                "პური"
+              ]
+            },
+            {
+              "stem": {
+                "de": "Übersetze: 'Ich möchte einen Kaffee.'",
+                "en": "Translate: 'I want a coffee.'"
+              },
+              "answers": [
+                "ყავა მინდა"
+              ],
+              "tolerance": 2
+            }
+          ]
         }
       ]
     },
@@ -751,6 +805,30 @@
                 "ვიცი"
               ],
               "correctIndex": 1
+            }
+          ]
+        },
+        {
+          "exercises": [
+            {
+              "stem": {
+                "de": "Übersetze: 'Ich lerne Georgisch.'",
+                "en": "Translate: 'I am learning Georgian.'"
+              },
+              "answers": [
+                "ქართულს ვსწავლობ",
+                "ვსწავლობ ქართულს"
+              ],
+              "tolerance": 2
+            },
+            {
+              "stem": {
+                "de": "Übersetze: 'Es gefällt mir.'",
+                "en": "Translate: 'I like it.'"
+              },
+              "answers": [
+                "მომწონს"
+              ]
             }
           ]
         }

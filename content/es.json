@@ -120,6 +120,37 @@
               "correctIndex": 0
             }
           ]
+        },
+        {
+          "exercises": [
+            {
+              "stem": {
+                "de": "Übersetze: 'Hallo'",
+                "en": "Translate: 'hello'"
+              },
+              "answers": [
+                "hola"
+              ]
+            },
+            {
+              "stem": {
+                "de": "Übersetze: 'Danke'",
+                "en": "Translate: 'thank you'"
+              },
+              "answers": [
+                "gracias"
+              ]
+            },
+            {
+              "stem": {
+                "de": "Übersetze: 'Tschüss'",
+                "en": "Translate: 'bye'"
+              },
+              "answers": [
+                "adiós"
+              ]
+            }
+          ]
         }
       ]
     },
@@ -430,6 +461,40 @@
               "correctIndex": 1
             }
           ]
+        },
+        {
+          "exercises": [
+            {
+              "stem": {
+                "de": "Übersetze: 'das Brot'",
+                "en": "Translate: 'the bread'"
+              },
+              "answers": [
+                "el pan"
+              ]
+            },
+            {
+              "stem": {
+                "de": "Übersetze: 'Ich möchte einen Kaffee.'",
+                "en": "Translate: 'I would like a coffee.'"
+              },
+              "answers": [
+                "quiero un café",
+                "quisiera un café"
+              ],
+              "tolerance": 2
+            },
+            {
+              "stem": {
+                "de": "Übersetze: 'lecker'",
+                "en": "Translate: 'tasty'"
+              },
+              "answers": [
+                "rico",
+                "sabroso"
+              ]
+            }
+          ]
         }
       ]
     },
@@ -631,6 +696,30 @@
               "correctIndex": 0
             }
           ]
+        },
+        {
+          "exercises": [
+            {
+              "stem": {
+                "de": "Übersetze: 'Ich hätte gern ein Zimmer.'",
+                "en": "Translate: 'I would like a room.'"
+              },
+              "answers": [
+                "quisiera una habitación",
+                "querría una habitación"
+              ],
+              "tolerance": 2
+            },
+            {
+              "stem": {
+                "de": "Übersetze: 'Es tut mir leid.'",
+                "en": "Translate: 'I'm sorry.'"
+              },
+              "answers": [
+                "lo siento"
+              ]
+            }
+          ]
         }
       ]
     },
@@ -716,6 +805,21 @@
                 "sabía"
               ],
               "correctIndex": 1
+            }
+          ]
+        },
+        {
+          "exercises": [
+            {
+              "stem": {
+                "de": "Übersetze: 'Ich stimme dir nicht zu.'",
+                "en": "Translate: \"I don't agree with you.\""
+              },
+              "answers": [
+                "no estoy de acuerdo contigo",
+                "no estoy de acuerdo"
+              ],
+              "tolerance": 2
             }
           ]
         }

@@ -36,7 +36,13 @@ Backend for a gamified language-learning app.
   projection) and shift skill only realizes 50–100% of it — a zero-skill
   Hypercar beats a perfect City Hatch. Racing appends to an immutable
   `RaceResult` log and awards nothing (no points/xp/CEFR).
-- **Next:** multi-modal placement (write / listen / speak) is planned in
+- **Multi-modal placement — M1 shipped:** a second exercise type, `fill`
+  (typed free-text answer), graded server-side by edit-distance +
+  accent-insensitive matching (`src/content/grading.ts`), feeding both FSRS
+  (score-based grade quality) and the adaptive placement staircase (a soft
+  preference surfaces `fill` items once ability is roughly located — the
+  "productive check" that corrects over-placement from pure MCQ recognition).
+  `listen`/`speak` (M2/M3 — TTS audio, ASR) remain planned in
   [`plans/placement-modalities.md`](./plans/placement-modalities.md).
   See [`CLAUDE.md`](./CLAUDE.md) for the spec.
 
@@ -126,11 +132,11 @@ npm test           # vitest — pure unit tests always run;
 | `POST /users` | Create a user `{ email, uiLanguage }`. |
 | `POST /enrollments` | Enroll `{ userId, pairId }`. |
 | `POST /placement/start` | Begin adaptive placement `{ pairId }` → `{ state, exercise }`. |
-| `POST /placement/answer` | Answer `{ pairId, state, exerciseId, selectedIndex, latencyMs }` → next item or `done`. |
+| `POST /placement/answer` | Answer `{ pairId, state, exerciseId, selectedIndex \| response, latencyMs }` (mcq XOR fill, by the exercise's own type) → next item or `done`. |
 | `POST /placement/finalize` | `{ userId, pairId, state }` → `{ cefr, confidence, inTierProgress, … }`; seeds enrollment. |
-| `GET /lessons/:id` | Lesson + exercises (no `correctIndex`). |
+| `GET /lessons/:id` | Lesson + exercises (no `correctIndex`/`answers`). |
 | `GET /queue?userId&pairId` | Due reviews + new tier items. |
-| `POST /attempts` | `{ userId, exerciseId, selectedIndex, latencyMs }` → grades, schedules FSRS, rolls up proficiency, evaluates promotion — one transaction. Response includes the updated car projection. |
+| `POST /attempts` | `{ userId, exerciseId, selectedIndex \| response, latencyMs }` → grades, schedules FSRS, rolls up proficiency, evaluates promotion — one transaction. Response includes `score`/`correctAnswers` for `fill` exercises and the updated car projection. |
 | `GET /proficiency?userId&pairId` | Current CEFR + proficiency state. |
 | `GET /car?userId&pairId` | **Phase 1.** The car as a pure projection: tier/class from `currentCefr`, speed & handling interpolated by `inTierProgress` toward the next class's base stats, plus micro-milestones (0.25/0.5/0.75). Computed on read — never stored (D5). |
 | `GET /economy?userId&pairId` | **Phase 3.** Balance (= xp − buys + sells), owned cosmetics, and the catalog with unlocked/affordable flags — all projections of xp + the `Purchase` ledger. |

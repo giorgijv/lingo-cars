@@ -1,7 +1,7 @@
-import { PrismaClient, type Cefr } from "@prisma/client";
+import { PrismaClient, type Cefr, type ExerciseType } from "@prisma/client";
 import { CEFR_DIFFICULTY } from "../src/config.js";
-import { mcqPayloadSchema, type McqPayload } from "../src/content/mcq.js";
-import { loadBank, optionsFor, type SourceLang, type TargetLang } from "../src/content/bank.js";
+import { fillPayloadSchema, mcqPayloadSchema } from "../src/content/mcq.js";
+import { isFillExercise, loadBank, optionsFor, type SourceLang, type TargetLang } from "../src/content/bank.js";
 
 /**
  * Seed: languages, all four pairs, the car catalog, the cosmetics catalog,
@@ -121,19 +121,19 @@ export async function main() {
         const exercises = skill.lessons[l]!.exercises;
         for (let e = 0; e < exercises.length; e++) {
           const ex = exercises[e]!;
-          const payload: McqPayload = mcqPayloadSchema.parse({
-            stem: ex.stem[src],
-            options: optionsFor(ex, src),
-            correctIndex: ex.correctIndex,
-          }); // integrity gate
+          const type: ExerciseType = isFillExercise(ex) ? "fill" : "mcq";
+          const payload = isFillExercise(ex)
+            ? fillPayloadSchema.parse({ stem: ex.stem[src], answers: ex.answers, tolerance: ex.tolerance })
+            : mcqPayloadSchema.parse({ stem: ex.stem[src], options: optionsFor(ex, src), correctIndex: ex.correctIndex });
+          // integrity gate (both branches validated above)
           const exerciseId = `ex-${src}-${tgt}-${skill.key}-${l}-${e}`;
           await prisma.exercise.upsert({
             where: { id: exerciseId },
-            update: { lessonId, payloadJson: payload, difficulty: itemDifficulty(skill.cefr, e) },
+            update: { lessonId, type, payloadJson: payload, difficulty: itemDifficulty(skill.cefr, e) },
             create: {
               id: exerciseId,
               lessonId,
-              type: "mcq",
+              type,
               payloadJson: payload,
               difficulty: itemDifficulty(skill.cefr, e),
             },

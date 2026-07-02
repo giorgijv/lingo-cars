@@ -24,7 +24,7 @@ const optionsSchema = z.union([
   z.object({ de: optionsArraySchema, en: optionsArraySchema }),
 ]);
 
-const exerciseSchema = z
+const mcqExerciseSchema = z
   .object({
     stem: stemsSchema,
     options: optionsSchema,
@@ -41,6 +41,22 @@ const exerciseSchema = z
       ctx.addIssue({ code: z.ZodIssueCode.custom, message: "correctIndex out of range", path: ["correctIndex"] });
     }
   });
+
+/** `fill` — a typed free-text answer (plans/placement-modalities.md §2a). The
+ *  accepted answer set is target-language text, identical regardless of which
+ *  source language the learner is translating from (unlike mcq options,
+ *  which occasionally need per-source sets for meaning-questions). Content
+ *  authors mark these with `answers` (mcq items use `options` instead) — no
+ *  separate `type` field needed, the two shapes are structurally exclusive. */
+const fillExerciseSchema = z.object({
+  stem: stemsSchema,
+  answers: z.array(z.string().min(1)).min(1).max(6),
+  tolerance: z.number().int().min(0).max(3).default(1),
+});
+
+// Mutually exclusive by required key (`answers` vs `options`), so a union
+// unambiguously routes each item to the right branch.
+const exerciseSchema = z.union([fillExerciseSchema, mcqExerciseSchema]);
 
 const skillSchema = z.object({
   key: z.string().regex(/^[a-z0-9-]+$/, "kebab-case key"),
@@ -65,6 +81,13 @@ export const bankSchema = z
 export type ContentBank = z.infer<typeof bankSchema>;
 export type ContentSkill = ContentBank["skills"][number];
 export type ContentExercise = ContentSkill["lessons"][number]["exercises"][number];
+export type ContentFillExercise = z.infer<typeof fillExerciseSchema>;
+export type ContentMcqExercise = z.infer<typeof mcqExerciseSchema>;
+
+/** Type guard: content-bank exercises are mcq unless they carry `answers`. */
+export function isFillExercise(ex: ContentExercise): ex is ContentFillExercise {
+  return "answers" in ex;
+}
 
 const CONTENT_DIR = join(dirname(fileURLToPath(import.meta.url)), "..", "..", "content");
 
@@ -76,8 +99,8 @@ export function loadBank(target: TargetLang): ContentBank {
   return bank;
 }
 
-/** Resolve an exercise's options for a given source language. */
-export function optionsFor(ex: ContentExercise, src: SourceLang): string[] {
+/** Resolve an mcq exercise's options for a given source language. */
+export function optionsFor(ex: ContentMcqExercise, src: SourceLang): string[] {
   return Array.isArray(ex.options) ? ex.options : ex.options[src];
 }
 
@@ -86,12 +109,15 @@ export function bankStats(bank: ContentBank) {
   const perCefr: Record<string, number> = {};
   let exercises = 0;
   let lessons = 0;
+  let mcqCount = 0;
+  let fillCount = 0;
   for (const s of bank.skills) {
     for (const l of s.lessons) {
       lessons++;
       exercises += l.exercises.length;
       perCefr[s.cefr] = (perCefr[s.cefr] ?? 0) + l.exercises.length;
+      for (const ex of l.exercises) (isFillExercise(ex) ? fillCount++ : mcqCount++);
     }
   }
-  return { skills: bank.skills.length, lessons, exercises, perCefr };
+  return { skills: bank.skills.length, lessons, exercises, perCefr, perType: { mcq: mcqCount, fill: fillCount } };
 }

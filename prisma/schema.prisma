@@ -31,7 +31,9 @@ enum UiLanguage {
 }
 
 enum ExerciseType {
-  mcq // only type built in Phase 0; enum leaves room for fill/listen/match/speak
+  mcq // multiple-choice, receptive (Phase 0)
+  fill // typed free-text answer, productive (Phase "M1" — see plans/placement-modalities.md)
+  // enum leaves room for listen/match/speak (M2/M3 of the same plan)
 }
 
 enum SessionType {
@@ -164,13 +166,15 @@ model Exercise {
 // grants in the SQL migration (Step 3). All derived state replays from this.
 
 model Attempt {
-  id          String      @id @default(cuid())
-  userId      String
-  exerciseId  String
-  correct     Boolean
-  latencyMs   Int
-  sessionType SessionType @default(study)
-  createdAt   DateTime    @default(now())
+  id           String      @id @default(cuid())
+  userId       String
+  exerciseId   String
+  correct      Boolean
+  latencyMs    Int
+  sessionType  SessionType @default(study)
+  responseJson Json? // raw response for productive types: { selectedIndex } | { response }
+  score        Float? // graded 0..1 for productive types (null for plain mcq)
+  createdAt    DateTime    @default(now())
 
   user     User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   exercise Exercise @relation(fields: [exerciseId], references: [id], onDelete: Cascade)

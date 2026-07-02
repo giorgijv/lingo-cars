@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { bankSchema, bankStats, loadBank, optionsFor } from "./bank.js";
+import { bankSchema, bankStats, isFillExercise, loadBank, optionsFor } from "./bank.js";
 
 describe("content pipeline", () => {
   it("both target banks load and validate", () => {
@@ -49,5 +49,46 @@ describe("content pipeline", () => {
 
     const mk = () => ({ key: "dup", cefr: "A1", name: { de: "n", en: "n" }, lessons: [{ exercises: [{ stem: { de: "s", en: "s" }, options: ["a", "b"], correctIndex: 0 }] }] });
     expect(() => bankSchema.parse({ target: "es", skills: [mk(), mk()] })).toThrow();
+  });
+
+  it("accepts a valid fill exercise, defaulting tolerance to 1", () => {
+    const ok = {
+      target: "es",
+      skills: [{ key: "k", cefr: "A1", name: { de: "n", en: "n" }, lessons: [{ exercises: [{ stem: { de: "s", en: "s" }, answers: ["hola", "buenas"] }] }] }],
+    };
+    const parsed = bankSchema.parse(ok);
+    const ex = parsed.skills[0]!.lessons[0]!.exercises[0]!;
+    expect(isFillExercise(ex)).toBe(true);
+    if (isFillExercise(ex)) expect(ex.tolerance).toBe(1);
+  });
+
+  it("rejects a fill exercise with an empty answers array", () => {
+    const bad = {
+      target: "es",
+      skills: [{ key: "k", cefr: "A1", name: { de: "n", en: "n" }, lessons: [{ exercises: [{ stem: { de: "s", en: "s" }, answers: [] }] }] }],
+    };
+    expect(() => bankSchema.parse(bad)).toThrow();
+  });
+
+  it("rejects an out-of-range fill tolerance", () => {
+    const bad = {
+      target: "es",
+      skills: [{ key: "k", cefr: "A1", name: { de: "n", en: "n" }, lessons: [{ exercises: [{ stem: { de: "s", en: "s" }, answers: ["a"], tolerance: 9 }] }] }],
+    };
+    expect(() => bankSchema.parse(bad)).toThrow();
+  });
+
+  it("isFillExercise distinguishes mcq from fill items in the real banks", () => {
+    const ka = loadBank("ka");
+    const skill = ka.skills.find((s) => s.key === "greetings")!;
+    const kinds = skill.lessons.flatMap((l) => l.exercises.map(isFillExercise));
+    expect(kinds).toContain(true); // the fill lesson added in this change
+    expect(kinds).toContain(false); // the original mcq lessons
+  });
+
+  it("bankStats reports a per-type breakdown that sums to the exercise total", () => {
+    const stats = bankStats(loadBank("es"));
+    expect(stats.perType.mcq + stats.perType.fill).toBe(stats.exercises);
+    expect(stats.perType.fill).toBeGreaterThan(0);
   });
 });
