@@ -1,6 +1,6 @@
 import { describe, it, expect } from "vitest";
 import { Rating } from "ts-fsrs";
-import { gradeFor, nextCardFields, retrievabilityOf, type CardFields } from "./fsrs.js";
+import { gradeFor, gradeForScore, nextCardFields, retrievabilityOf, type CardFields } from "./fsrs.js";
 
 const t0 = new Date("2026-01-01T00:00:00.000Z");
 
@@ -12,6 +12,19 @@ describe("gradeFor", () => {
   it("maps fast correct -> Easy, slow correct -> Good", () => {
     expect(gradeFor(true, 1000)).toBe(Rating.Easy);
     expect(gradeFor(true, 5000)).toBe(Rating.Good);
+  });
+});
+
+describe("gradeForScore (productive/typed exercises)", () => {
+  it("maps the gradeFillAnswer score buckets to the matching FSRS grade", () => {
+    expect(gradeForScore(1)).toBe(Rating.Easy);
+    expect(gradeForScore(0.85)).toBe(Rating.Easy);
+    expect(gradeForScore(0.6)).toBe(Rating.Good);
+    expect(gradeForScore(0)).toBe(Rating.Again);
+  });
+  it("is a strict threshold, not a smooth curve", () => {
+    expect(gradeForScore(0.84)).toBe(Rating.Good);
+    expect(gradeForScore(0.59)).toBe(Rating.Again);
   });
 });
 

@@ -21,13 +21,13 @@ import {
  *   - a seeded ProficiencyState carrying the low initial inTierProgress
  */
 
-/** The placement item pool for a pair: every exercise with its difficulty. */
+/** The placement item pool for a pair: every exercise with its difficulty + type. */
 export async function loadPool(db: PrismaClient, pairId: string): Promise<PlacementItem[]> {
   const exercises = await db.exercise.findMany({
     where: { lesson: { skill: { pairId } } },
-    select: { id: true, difficulty: true },
+    select: { id: true, difficulty: true, type: true },
   });
-  return exercises.map((e) => ({ id: e.id, difficulty: e.difficulty }));
+  return exercises.map((e) => ({ id: e.id, difficulty: e.difficulty, type: e.type }));
 }
 
 export interface StartResult {
@@ -57,12 +57,13 @@ export async function answerPlacement(
   exerciseId: string,
   correct: boolean,
   latencyMs: number,
+  extra?: { score?: number | null; selectedIndex?: number; response?: string },
 ): Promise<AnswerResult> {
   const pool = await loadPool(db, pairId);
   const item = pool.find((p) => p.id === exerciseId);
   if (!item) throw new Error(`Exercise ${exerciseId} not in placement pool for pair ${pairId}`);
 
-  const next = applyAnswer(state, item, correct, latencyMs);
+  const next = applyAnswer(state, item, correct, latencyMs, extra);
   if (isComplete(next)) return { state: next, item: null, done: true };
 
   const served = serveNext(next, pool);
@@ -93,6 +94,13 @@ export async function finalizePlacement(
           latencyMs: r.latencyMs,
           sessionType: "placement" as const,
           createdAt: now,
+          score: r.score ?? null,
+          responseJson:
+            r.response !== undefined
+              ? { response: r.response }
+              : r.selectedIndex !== undefined
+                ? { selectedIndex: r.selectedIndex }
+                : undefined,
         })),
       });
     }

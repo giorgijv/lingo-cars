@@ -1,9 +1,30 @@
 # Plan: Multi-modal placement (writing, listening, speaking)
 
-> Status: **PLAN — not yet implemented.** Approved direction: make the
-> placement test measure more than receptive recognition by adding items where
-> the taker must **write text**, **hear and understand audio**, and
-> **pronounce/read text aloud**.
+> Status: **M1 (write text) SHIPPED.** M2 (listen) and M3 (speak) remain
+> planned below. Approved direction: make the placement test measure more
+> than receptive recognition by adding items where the taker must
+> **write text**, **hear and understand audio**, and **pronounce/read text
+> aloud**.
+>
+> **What M1 actually built** (deviations from the original sketch, and why):
+> - **Discriminator moved to `Exercise.type`** (the existing DB column), not a
+>   `type` literal embedded in `payloadJson` — avoids default-value/back-compat
+>   handling for the ~270 exercises seeded before `fill` existed.
+> - **Score buckets simplified to 1 / 0.85 / 0.6 / 0** (exact / accent-only /
+>   within-tolerance / miss) rather than a continuous function — deterministic,
+>   easy to test, and maps cleanly to three FSRS grades (Easy/Good/Again).
+> - **Plain Levenshtein, not Damerau-Levenshtein** — adjacent-transposition
+>   typos cost 2 edits instead of 1. Fine at tolerance 0–3; revisit if that
+>   proves too strict in practice.
+> - **Placement staging is a soft preference, not a hard stage machine**: past
+>   `PLACEMENT.mcqStageItems` (6) responses, `fill` candidates get a selection
+>   bonus (`PLACEMENT.fillPreferenceBonus`) rather than a strict phase boundary
+>   — avoids stranding the test if the pool lacks a fill item at the right
+>   difficulty. The full per-modality-weighted staging in the table below is
+>   still M4 work.
+> - Content: `fill` items authored across A1–B2 for both `es` and `ka` (9 + 7
+>   items), reusing the existing `answers`-vs-`options` structural distinction
+>   in the content-bank schema (no separate `type` field needed there either).
 
 ## 1. Why (and what it fixes)
 
@@ -128,10 +149,10 @@ preserved because grading inputs are stored on the immutable attempt.
 
 | M | Scope | Size | New infra |
 |---|---|---|---|
-| **M1** | `fill` type end-to-end (payloads, grading, content, placement stage 2, demo text input) | S–M | none |
+| **M1** | ✅ **Shipped** — `fill` type end-to-end (payloads, grading, content, soft placement staging, demo text input) | S–M | none |
 | **M2** | `listen` type + `content:audio` build step + storage/CDN | M | TTS account, object storage |
 | **M3** | `speak` type + ASR microservice (Python/Whisper) + consent flow | L | GPU/CPU inference host |
-| **M4** | staged placement + per-modality sub-scores + C-checkpoint groundwork | M | — |
+| **M4** | hard-staged placement + per-modality sub-scores + C-checkpoint groundwork | M | — |
 
 M1 is buildable immediately with zero new dependencies and already delivers
 the biggest measurement win (productive writing).

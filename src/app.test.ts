@@ -49,9 +49,10 @@ describe.skipIf(!RUN)("Phase 0 API integration", () => {
     let done = false;
     let guard = 0;
     while (!done && exercise && guard++ < 40) {
-      const ans = await request(app)
-        .post("/placement/answer")
-        .send({ pairId, state, exerciseId: exercise.id, selectedIndex: 0, latencyMs: 1500 });
+      const body: Record<string, unknown> = { pairId, state, exerciseId: exercise.id, latencyMs: 1500 };
+      if (exercise.type === "fill") body.response = "test-answer";
+      else body.selectedIndex = 0;
+      const ans = await request(app).post("/placement/answer").send(body);
       expect(ans.status).toBe(200);
       state = ans.body.state;
       done = ans.body.done;
@@ -152,22 +153,30 @@ describe.skipIf(!RUN)("Phase 0 API integration", () => {
     }
   });
 
-  it("runs a placement with at least 15 items", async () => {
+  it("runs a placement with at least 15 items (mixed mcq/fill pool)", async () => {
     let start = await request(app).post("/placement/start").send({ pairId: "pair-de-ka" });
     let state = start.body.state;
     let exercise = start.body.exercise;
     let done = false;
     let count = 0;
+    let sawFill = false;
     while (!done && exercise && count < 40) {
-      const ans = await request(app)
-        .post("/placement/answer")
-        .send({ pairId: "pair-de-ka", state, exerciseId: exercise.id, selectedIndex: 0, latencyMs: 1500 });
+      const body: Record<string, unknown> = { pairId: "pair-de-ka", state, exerciseId: exercise.id, latencyMs: 1500 };
+      if (exercise.type === "fill") {
+        sawFill = true;
+        body.response = "test-answer";
+      } else {
+        body.selectedIndex = 0;
+      }
+      const ans = await request(app).post("/placement/answer").send(body);
+      expect(ans.status).toBe(200);
       state = ans.body.state;
       done = ans.body.done;
       exercise = ans.body.exercise;
       count++;
     }
     expect(state.responses.length).toBeGreaterThanOrEqual(15);
+    expect(sawFill).toBe(true); // the soft-staging preference actually surfaces a fill item
   });
 
   it("returns a lesson without correctIndex", async () => {
@@ -177,6 +186,61 @@ describe.skipIf(!RUN)("Phase 0 API integration", () => {
       expect(e).toHaveProperty("options");
       expect(e).not.toHaveProperty("correctIndex");
     }
+  });
+
+  it("runs a fill (typed-answer) exercise end to end: no answer leak, graded grading, FSRS quality", async () => {
+    const { body: writer } = await request(app)
+      .post("/users")
+      .send({ email: `fill-${Date.now()}@test.dev`, uiLanguage: "de" });
+    await request(app).post("/enrollments").send({ userId: writer.id, pairId });
+
+    // A fill lesson never exposes options/answers pre-answer.
+    const lesson = await request(app).get("/lessons/lesson-de-es-greetings-2");
+    expect(lesson.status).toBe(200);
+    const fillExercises = lesson.body.exercises;
+    expect(fillExercises.length).toBeGreaterThan(0);
+    for (const e of fillExercises) {
+      expect(e.type).toBe("fill");
+      expect(e).toHaveProperty("stem");
+      expect(e).not.toHaveProperty("options");
+      expect(e).not.toHaveProperty("answers");
+    }
+    const target = fillExercises[0];
+
+    // Wrong text -> incorrect, score 0, no FSRS "Easy/Good" bump; reveals correctAnswers.
+    const wrong = await request(app)
+      .post("/attempts")
+      .send({ userId: writer.id, exerciseId: target.id, response: "definitely wrong", latencyMs: 2000 });
+    expect(wrong.status).toBe(200);
+    expect(wrong.body.correct).toBe(false);
+    expect(wrong.body.score).toBe(0);
+    expect(Array.isArray(wrong.body.correctAnswers)).toBe(true);
+    expect(wrong.body.correctAnswers.length).toBeGreaterThan(0);
+    expect(wrong.body.correctIndex).toBeNull();
+
+    // The real accepted answer (server-side truth) graded correct, score 1, FSRS scheduled ahead.
+    const trueAnswer = wrong.body.correctAnswers[0];
+    const right = await request(app)
+      .post("/attempts")
+      .send({ userId: writer.id, exerciseId: target.id, response: trueAnswer, latencyMs: 2000 });
+    expect(right.body.correct).toBe(true);
+    expect(right.body.score).toBe(1);
+    expect(right.body.sessionType).toBe("review"); // second attempt on the same exercise
+    expect(new Date(right.body.due).getTime()).toBeGreaterThan(Date.now());
+
+    // Rejects a request missing the field the exercise's type requires (400, not a crash).
+    const missing = await request(app)
+      .post("/attempts")
+      .send({ userId: writer.id, exerciseId: target.id, latencyMs: 2000 });
+    expect(missing.status).toBe(400);
+
+    // The immutable log carries the typed response + graded score.
+    const stored = await db.attempt.findFirst({
+      where: { userId: writer.id, exerciseId: target.id, correct: true },
+      orderBy: { createdAt: "desc" },
+    });
+    expect(stored?.responseJson).toEqual({ response: trueAnswer });
+    expect(stored?.score).toBe(1);
   });
 
   it("runs the Phase 3 economy: earn → buy → tier-lock → sell, all as projections", async () => {
