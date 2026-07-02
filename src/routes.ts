@@ -2,7 +2,7 @@ import { Router } from "express";
 import { z } from "zod";
 import type { Exercise, PrismaClient } from "@prisma/client";
 import { asyncHandler, parse } from "./http/validate.js";
-import { fillPayloadSchema, listenPayloadSchema, mcqPayloadSchema } from "./content/mcq.js";
+import { fillPayloadSchema, listenPayloadSchema, mcqPayloadSchema, speakPayloadSchema } from "./content/mcq.js";
 import { gradeFillAnswer } from "./content/grading.js";
 import { applyAttempt } from "./engine/fsrs.js";
 import { recomputeProficiency } from "./engine/proficiency.js";
@@ -35,6 +35,11 @@ function publicExercise(ex: Exercise) {
     const p = listenPayloadSchema.parse(ex.payloadJson);
     return { ...base, stem: p.stem, options: p.options, transcript: p.transcript };
   }
+  if (ex.type === "speak") {
+    // `text` is the prompt to read aloud — shown openly, not a hidden answer.
+    const p = speakPayloadSchema.parse(ex.payloadJson);
+    return { ...base, stem: p.stem, text: p.text };
+  }
   const p = mcqPayloadSchema.parse(ex.payloadJson);
   return { ...base, stem: p.stem, options: p.options };
 }
@@ -46,9 +51,12 @@ const requireSelectedIndex = z.number({ required_error: "selectedIndex is requir
 const requireResponse = z.string({ required_error: "response is required for fill exercises" });
 
 /**
- * Grade an mcq selection or a fill response against the stored payload
- * (server-authoritative — clients never see the answer key beforehand).
- * Returns a uniform shape regardless of type so callers don't need to branch.
+ * Grade an mcq/listen selection or a fill/speak response against the stored
+ * payload (server-authoritative — clients never see the answer key
+ * beforehand). Returns a uniform shape regardless of type so callers don't
+ * need to branch. `speak` reuses gradeFillAnswer against its single target
+ * sentence — grading "how close is this text" is the same problem whether
+ * the text was typed or came from client-side speech recognition.
  */
 async function grade(db: PrismaClient, exerciseId: string, input: { selectedIndex?: number; response?: string }) {
   const ex = await db.exercise.findUniqueOrThrow({ where: { id: exerciseId } });
@@ -58,6 +66,13 @@ async function grade(db: PrismaClient, exerciseId: string, input: { selectedInde
     const response = requireResponse.parse(input.response);
     const graded = gradeFillAnswer(response, payload.answers, payload.tolerance);
     return { correct: graded.correct, score: graded.score, correctIndex: null, correctAnswers: payload.answers, exercise: ex };
+  }
+
+  if (ex.type === "speak") {
+    const payload = speakPayloadSchema.parse(ex.payloadJson);
+    const response = requireResponse.parse(input.response);
+    const graded = gradeFillAnswer(response, [payload.text], payload.tolerance);
+    return { correct: graded.correct, score: graded.score, correctIndex: null, correctAnswers: [payload.text], exercise: ex };
   }
 
   // listen and mcq share the selectedIndex mechanic exactly.

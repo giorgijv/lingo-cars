@@ -1,7 +1,7 @@
 import { PrismaClient, type Cefr, type ExerciseType } from "@prisma/client";
 import { CEFR_DIFFICULTY } from "../src/config.js";
-import { fillPayloadSchema, listenPayloadSchema, mcqPayloadSchema } from "../src/content/mcq.js";
-import { isFillExercise, isListenExercise, loadBank, optionsFor, type SourceLang, type TargetLang } from "../src/content/bank.js";
+import { fillPayloadSchema, listenPayloadSchema, mcqPayloadSchema, speakPayloadSchema } from "../src/content/mcq.js";
+import { isFillExercise, isListenExercise, isSpeakExercise, loadBank, optionsFor, type SourceLang, type TargetLang } from "../src/content/bank.js";
 
 /**
  * Seed: languages, all four pairs, the car catalog, the cosmetics catalog,
@@ -121,12 +121,20 @@ export async function main() {
         const exercises = skill.lessons[l]!.exercises;
         for (let e = 0; e < exercises.length; e++) {
           const ex = exercises[e]!;
-          const type: ExerciseType = isFillExercise(ex) ? "fill" : isListenExercise(ex) ? "listen" : "mcq";
+          const type: ExerciseType = isFillExercise(ex)
+            ? "fill"
+            : isListenExercise(ex)
+              ? "listen"
+              : isSpeakExercise(ex)
+                ? "speak"
+                : "mcq";
           const payload = isFillExercise(ex)
             ? fillPayloadSchema.parse({ stem: ex.stem[src], answers: ex.answers, tolerance: ex.tolerance })
             : isListenExercise(ex)
               ? listenPayloadSchema.parse({ stem: ex.stem[src], transcript: ex.transcript, options: ex.options, correctIndex: ex.correctIndex })
-              : mcqPayloadSchema.parse({ stem: ex.stem[src], options: optionsFor(ex, src), correctIndex: ex.correctIndex });
+              : isSpeakExercise(ex)
+                ? speakPayloadSchema.parse({ stem: ex.stem[src], text: ex.text, tolerance: ex.tolerance })
+                : mcqPayloadSchema.parse({ stem: ex.stem[src], options: optionsFor(ex, src), correctIndex: ex.correctIndex });
           // integrity gate (all branches validated above)
           const exerciseId = `ex-${src}-${tgt}-${skill.key}-${l}-${e}`;
           await prisma.exercise.upsert({

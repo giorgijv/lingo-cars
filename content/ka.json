@@ -169,6 +169,17 @@
               "correctIndex": 0
             }
           ]
+        },
+        {
+          "exercises": [
+            {
+              "stem": {
+                "de": "Lies laut vor:",
+                "en": "Read aloud:"
+              },
+              "text": "გამარჯობა, როგორ ხარ?"
+            }
+          ]
         }
       ]
     },
@@ -642,6 +653,17 @@
               "correctIndex": 0
             }
           ]
+        },
+        {
+          "exercises": [
+            {
+              "stem": {
+                "de": "Lies laut vor:",
+                "en": "Read aloud:"
+              },
+              "text": "ყავა მინდა, თუ შეიძლება."
+            }
+          ]
         }
       ]
     },
@@ -780,6 +802,17 @@
                 "რომელი საათია?"
               ],
               "correctIndex": 1
+            }
+          ]
+        },
+        {
+          "exercises": [
+            {
+              "stem": {
+                "de": "Lies laut vor:",
+                "en": "Read aloud:"
+              },
+              "text": "სად არის სადგური?"
             }
           ]
         }

@@ -50,7 +50,7 @@ describe.skipIf(!RUN)("Phase 0 API integration", () => {
     let guard = 0;
     while (!done && exercise && guard++ < 40) {
       const body: Record<string, unknown> = { pairId, state, exerciseId: exercise.id, latencyMs: 1500 };
-      if (exercise.type === "fill") body.response = "test-answer";
+      if (exercise.type === "fill" || exercise.type === "speak") body.response = "test-answer";
       else body.selectedIndex = 0;
       const ans = await request(app).post("/placement/answer").send(body);
       expect(ans.status).toBe(200);
@@ -162,7 +162,7 @@ describe.skipIf(!RUN)("Phase 0 API integration", () => {
     let sawFill = false;
     while (!done && exercise && count < 40) {
       const body: Record<string, unknown> = { pairId: "pair-de-ka", state, exerciseId: exercise.id, latencyMs: 1500 };
-      if (exercise.type === "fill") {
+      if (exercise.type === "fill" || exercise.type === "speak") {
         sawFill = true;
         body.response = "test-answer";
       } else {
@@ -385,6 +385,51 @@ describe.skipIf(!RUN)("Phase 0 API integration", () => {
     // Missing selectedIndex -> clean 400, not a crash.
     const missing = await request(app).post("/attempts").send({ userId: listener.id, exerciseId: target.id, latencyMs: 2000 });
     expect(missing.status).toBe(400);
+  });
+
+  it("runs a speak (M3 lite) exercise: shows the read-aloud prompt openly, grades the recognized text like fill", async () => {
+    const { body: speaker } = await request(app)
+      .post("/users")
+      .send({ email: `speak-${Date.now()}@test.dev`, uiLanguage: "de" });
+    await request(app).post("/enrollments").send({ userId: speaker.id, pairId });
+
+    // The prompt IS shown openly (it's what to read aloud, not a hidden answer).
+    const lesson = await request(app).get("/lessons/lesson-de-es-greetings-4");
+    expect(lesson.status).toBe(200);
+    const [target] = lesson.body.exercises;
+    expect(target.type).toBe("speak");
+    expect(target).toHaveProperty("text");
+    expect(target).not.toHaveProperty("tolerance"); // grading internals stay server-side
+
+    // A garbled "recognized speech" transcript grades incorrect, score 0.
+    const wrong = await request(app)
+      .post("/attempts")
+      .send({ userId: speaker.id, exerciseId: target.id, response: "completely unrelated words", latencyMs: 3000 });
+    expect(wrong.status).toBe(200);
+    expect(wrong.body.correct).toBe(false);
+    expect(wrong.body.score).toBe(0);
+    expect(wrong.body.correctAnswers).toEqual([target.text]);
+
+    // A perfect "recognized speech" transcript (matches the prompt exactly) grades score 1.
+    const right = await request(app)
+      .post("/attempts")
+      .send({ userId: speaker.id, exerciseId: target.id, response: target.text, latencyMs: 3000 });
+    expect(right.body.correct).toBe(true);
+    expect(right.body.score).toBe(1);
+    expect(right.body.sessionType).toBe("review");
+    expect(new Date(right.body.due).getTime()).toBeGreaterThan(Date.now());
+
+    // Missing response -> clean 400, not a crash.
+    const missing = await request(app).post("/attempts").send({ userId: speaker.id, exerciseId: target.id, latencyMs: 3000 });
+    expect(missing.status).toBe(400);
+
+    // The immutable log carries the "recognized" text + graded score, same as fill.
+    const stored = await db.attempt.findFirst({
+      where: { userId: speaker.id, exerciseId: target.id, correct: true },
+      orderBy: { createdAt: "desc" },
+    });
+    expect(stored?.responseJson).toEqual({ response: target.text });
+    expect(stored?.score).toBe(1);
   });
 
   it("validates input and maps errors", async () => {

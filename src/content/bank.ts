@@ -90,9 +90,23 @@ const listenExerciseSchema = z
     }
   });
 
-// Mutually exclusive by required key (`answers` / `transcript` / plain mcq),
-// so a union unambiguously routes each item to the right branch.
-const exerciseSchema = z.union([fillExerciseSchema, listenExerciseSchema, mcqExerciseSchema]);
+/** `speak` — read a target-language sentence aloud (plans/placement-
+ *  modalities.md §2c). `text` is the prompt (shown openly — it's not a
+ *  hidden answer). Grading reuses fill's edit-distance grader against the
+ *  recognized speech text, so this schema is deliberately identical in
+ *  shape to fill's minus the multi-answer array (a speak item has exactly
+ *  one target sentence, not several accepted phrasings). */
+const speakExerciseSchema = z
+  .object({
+    stem: stemsSchema,
+    text: z.string().min(1),
+    tolerance: z.number().int().min(0).max(5).default(2),
+  })
+  .strict();
+
+// Mutually exclusive by required key (`answers` / `transcript` / `text` /
+// plain mcq), so a union unambiguously routes each item to the right branch.
+const exerciseSchema = z.union([fillExerciseSchema, listenExerciseSchema, speakExerciseSchema, mcqExerciseSchema]);
 
 const skillSchema = z.object({
   key: z.string().regex(/^[a-z0-9-]+$/, "kebab-case key"),
@@ -119,6 +133,7 @@ export type ContentSkill = ContentBank["skills"][number];
 export type ContentExercise = ContentSkill["lessons"][number]["exercises"][number];
 export type ContentFillExercise = z.infer<typeof fillExerciseSchema>;
 export type ContentListenExercise = z.infer<typeof listenExerciseSchema>;
+export type ContentSpeakExercise = z.infer<typeof speakExerciseSchema>;
 export type ContentMcqExercise = z.infer<typeof mcqExerciseSchema>;
 
 /** Type guard: content-bank exercises are mcq unless they carry `answers`. */
@@ -126,9 +141,14 @@ export function isFillExercise(ex: ContentExercise): ex is ContentFillExercise {
   return "answers" in ex;
 }
 
-/** Type guard: `listen` items carry `transcript` (fill/mcq never do). */
+/** Type guard: `listen` items carry `transcript` (fill/mcq/speak never do). */
 export function isListenExercise(ex: ContentExercise): ex is ContentListenExercise {
   return "transcript" in ex;
+}
+
+/** Type guard: `speak` items carry `text` (fill/mcq/listen never do). */
+export function isSpeakExercise(ex: ContentExercise): ex is ContentSpeakExercise {
+  return "text" in ex;
 }
 
 const CONTENT_DIR = join(dirname(fileURLToPath(import.meta.url)), "..", "..", "content");
@@ -154,6 +174,7 @@ export function bankStats(bank: ContentBank) {
   let mcqCount = 0;
   let fillCount = 0;
   let listenCount = 0;
+  let speakCount = 0;
   for (const s of bank.skills) {
     for (const l of s.lessons) {
       lessons++;
@@ -162,6 +183,7 @@ export function bankStats(bank: ContentBank) {
       for (const ex of l.exercises) {
         if (isFillExercise(ex)) fillCount++;
         else if (isListenExercise(ex)) listenCount++;
+        else if (isSpeakExercise(ex)) speakCount++;
         else mcqCount++;
       }
     }
@@ -171,6 +193,6 @@ export function bankStats(bank: ContentBank) {
     lessons,
     exercises,
     perCefr,
-    perType: { mcq: mcqCount, fill: fillCount, listen: listenCount },
+    perType: { mcq: mcqCount, fill: fillCount, listen: listenCount, speak: speakCount },
   };
 }
