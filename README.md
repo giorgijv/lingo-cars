@@ -8,6 +8,15 @@
 > typed, listen, and read-aloud exercises, and watch the car level up City
 > Hatch → Hypercar with milestone cosmetics along the way. It runs entirely
 > client-side and is separate from the API below.
+>
+> **Placement and study draw from separate pools.** The demo's placement test
+> (`BANKS`, ~40 items/language) and study mode (`STUDY_BANKS`, **100 items per
+> target language**, A1–C2) are disjoint arrays with zero item overlap, so a
+> learner never sees the exact same question in both modes back to back.
+> Study items also carry a bilingual `why` explanation, shown under the
+> feedback line whenever an answer is wrong. Georgian study content above A2
+> is, like the rest of this build's `ka` content, not yet reviewed by a
+> native speaker.
 
 Backend for a gamified language-learning app.
 

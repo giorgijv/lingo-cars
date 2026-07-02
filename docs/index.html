@@ -88,6 +88,7 @@
   .btn:disabled{opacity:.5;cursor:default}
   .feedback{font-weight:700;font-size:14px}
   .feedback.good{color:var(--good)} .feedback.bad{color:var(--bad)}
+  .explainText{margin-top:6px;font-weight:400;font-size:13px;color:var(--muted);line-height:1.4}
   .center{text-align:center}
   .lead{color:var(--muted);font-size:15px;line-height:1.5;margin:8px 0 0}
   .kpis{display:flex;gap:18px;justify-content:center;margin-top:14px;color:var(--muted);font-size:13px;flex-wrap:wrap}
@@ -328,10 +329,228 @@ const BANKS = {
     {c:2,type:"speak",s:{de:"Lies laut vor:",en:"Read aloud:"},text:"სად არის სადგური?",tolerance:2},
   ],
 };
+/* ============================ Study bank (100/language, disjoint from placement) ============================ */
+/* Separate from BANKS above: placement draws only from BANKS (the small adaptive-test
+   pool), study draws only from STUDY_BANKS (100 items per target language, thematic
+   vocab/grammar coverage across A1-C2) — so a learner never sees the same question in
+   both modes back to back. Each item's optional `why` (bilingual) is shown on a wrong
+   answer as a short explanation; see renderQuestion's explainOf() helper below.
+   Georgian items above A2 are, like the rest of this build's ka content, not yet
+   reviewed by a native speaker (see plans/placement-modalities.md and README.md).
+*/
+const STUDY_BANKS = {
+  es: [
+    {c:1,s:{de:"Wie sagt man 'zwei'?",en:"How do you say 'two'?"},o:["uno","dos","tres","cuatro"],a:1,why:{de:"'Dos' ist die Zahl 2.",en:"'Dos' is the number 2."}},
+    {c:1,s:{de:"Wie sagt man 'drei'?",en:"How do you say 'three'?"},o:["dos","tres","cuatro","cinco"],a:1,why:{de:"'Tres' ist die Zahl 3.",en:"'Tres' is the number 3."}},
+    {c:1,s:{de:"Wie sagt man 'vier'?",en:"How do you say 'four'?"},o:["tres","cuatro","cinco","seis"],a:1,why:{de:"'Cuatro' ist die Zahl 4.",en:"'Cuatro' is the number 4."}},
+    {c:1,s:{de:"Wie sagt man 'fünf'?",en:"How do you say 'five'?"},o:["cuatro","cinco","seis","siete"],a:1,why:{de:"'Cinco' ist die Zahl 5.",en:"'Cinco' is the number 5."}},
+    {c:1,s:{de:"Wie sagt man 'sechs'?",en:"How do you say 'six'?"},o:["cinco","seis","siete","ocho"],a:1,why:{de:"'Seis' ist die Zahl 6.",en:"'Seis' is the number 6."}},
+    {c:1,s:{de:"Wie sagt man 'sieben'?",en:"How do you say 'seven'?"},o:["seis","siete","ocho","nueve"],a:1,why:{de:"'Siete' ist die Zahl 7.",en:"'Siete' is the number 7."}},
+    {c:1,s:{de:"Wie sagt man 'acht'?",en:"How do you say 'eight'?"},o:["siete","ocho","nueve","diez"],a:1,why:{de:"'Ocho' ist die Zahl 8.",en:"'Ocho' is the number 8."}},
+    {c:1,s:{de:"Wie sagt man 'neun'?",en:"How do you say 'nine'?"},o:["ocho","nueve","diez","once"],a:1,why:{de:"'Nueve' ist die Zahl 9.",en:"'Nueve' is the number 9."}},
+    {c:1,s:{de:"Wie sagt man 'zehn'?",en:"How do you say 'ten'?"},o:["nueve","diez","once","doce"],a:1,why:{de:"'Diez' ist die Zahl 10.",en:"'Diez' is the number 10."}},
+    {c:1,s:{de:"Wie sagt man 'blau'?",en:"How do you say 'blue'?"},o:["verde","azul","amarillo","negro"],a:1,why:{de:"'Azul' bedeutet 'blau'.",en:"'Azul' means 'blue'."}},
+    {c:1,s:{de:"Wie sagt man 'grün'?",en:"How do you say 'green'?"},o:["azul","verde","blanco","gris"],a:1,why:{de:"'Verde' bedeutet 'grün'.",en:"'Verde' means 'green'."}},
+    {c:1,s:{de:"Wie sagt man 'gelb'?",en:"How do you say 'yellow'?"},o:["marrón","gris","amarillo","rosa"],a:2,why:{de:"'Amarillo' bedeutet 'gelb'.",en:"'Amarillo' means 'yellow'."}},
+    {c:1,s:{de:"Wie sagt man 'schwarz'?",en:"How do you say 'black'?"},o:["blanco","negro","gris","rojo"],a:1,why:{de:"'Negro' bedeutet 'schwarz'.",en:"'Negro' means 'black'."}},
+    {c:1,s:{de:"Wie sagt man 'weiß'?",en:"How do you say 'white'?"},o:["negro","gris","blanco","azul"],a:2,why:{de:"'Blanco' bedeutet 'weiß'.",en:"'Blanco' means 'white'."}},
+    {c:1,s:{de:"Wie sagt man 'braun'?",en:"How do you say 'brown'?"},o:["marrón","rosa","gris","verde"],a:0,why:{de:"'Marrón' bedeutet 'braun'.",en:"'Marrón' means 'brown'."}},
+    {c:1,s:{de:"Wie sagt man 'Mutter'?",en:"How do you say 'mother'?"},o:["padre","madre","hermana","hija"],a:1,why:{de:"'Madre' bedeutet 'Mutter'.",en:"'Madre' means 'mother'."}},
+    {c:1,s:{de:"Wie sagt man 'Vater'?",en:"How do you say 'father'?"},o:["madre","padre","hermano","hijo"],a:1,why:{de:"'Padre' bedeutet 'Vater'.",en:"'Padre' means 'father'."}},
+    {c:1,s:{de:"Wie sagt man 'Bruder'?",en:"How do you say 'brother'?"},o:["hermana","hermano","primo","tío"],a:1,why:{de:"'Hermano' bedeutet 'Bruder'.",en:"'Hermano' means 'brother'."}},
+    {c:1,s:{de:"Wie sagt man 'Schwester'?",en:"How do you say 'sister'?"},o:["hermano","hermana","abuela","tía"],a:1,why:{de:"'Hermana' bedeutet 'Schwester'.",en:"'Hermana' means 'sister'."}},
+    {c:1,s:{de:"Wie sagt man 'Sohn'?",en:"How do you say 'son'?"},o:["hija","hijo","nieto","primo"],a:1,why:{de:"'Hijo' bedeutet 'Sohn'.",en:"'Hijo' means 'son'."}},
+    {c:1,s:{de:"Wie sagt man 'Tochter'?",en:"How do you say 'daughter'?"},o:["hijo","hija","nieta","sobrina"],a:1,why:{de:"'Hija' bedeutet 'Tochter'.",en:"'Hija' means 'daughter'."}},
+    {c:1,s:{de:"Wie sagt man 'das Haus'?",en:"How do you say 'the house'?"},o:["la casa","el coche","la calle","el parque"],a:0,why:{de:"'Casa' bedeutet 'Haus'.",en:"'Casa' means 'house'."}},
+    {c:1,s:{de:"Wie sagt man 'die Schule'?",en:"How do you say 'the school'?"},o:["el trabajo","la escuela","la tienda","el hospital"],a:1,why:{de:"'Escuela' bedeutet 'Schule'.",en:"'Escuela' means 'school'."}},
+    {c:1,s:{de:"Wie sagt man 'das Buch'?",en:"How do you say 'the book'?"},o:["la mesa","la silla","el libro","el papel"],a:2,why:{de:"'Libro' bedeutet 'Buch'.",en:"'Libro' means 'book'."}},
+    {c:1,s:{de:"Wie sagt man 'der Tisch'?",en:"How do you say 'the table'?"},o:["la mesa","la silla","la puerta","la ventana"],a:0,why:{de:"'Mesa' bedeutet 'Tisch'.",en:"'Mesa' means 'table'."}},
+    {c:1,s:{de:"Wie sagt man 'der Stuhl'?",en:"How do you say 'the chair'?"},o:["la mesa","la silla","la cama","la puerta"],a:1,why:{de:"'Silla' bedeutet 'Stuhl'.",en:"'Silla' means 'chair'."}},
+    {c:1,s:{de:"Wie sagt man 'die Tür'?",en:"How do you say 'the door'?"},o:["la ventana","la puerta","la pared","el techo"],a:1,why:{de:"'Puerta' bedeutet 'Tür'.",en:"'Puerta' means 'door'."}},
+    {c:1,s:{de:"Wie sagt man 'groß'?",en:"How do you say 'big'?"},o:["pequeño","grande","alto","corto"],a:1,why:{de:"'Grande' bedeutet 'groß'.",en:"'Grande' means 'big'."}},
+    {c:1,s:{de:"Wie sagt man 'klein'?",en:"How do you say 'small'?"},o:["grande","pequeño","largo","viejo"],a:1,why:{de:"'Pequeño' bedeutet 'klein'.",en:"'Pequeño' means 'small'."}},
+    {c:1,s:{de:"Wie sagt man 'gut'?",en:"How do you say 'good'?"},o:["malo","bueno","nuevo","feo"],a:1,why:{de:"'Bueno' bedeutet 'gut'.",en:"'Bueno' means 'good'."}},
+    {c:2,s:{de:"'Er arbeitet.'",en:"'He works.'"},o:["Él come","Él trabaja","Él vive","Él escribe"],a:1,why:{de:"'Trabajar' = arbeiten; 3. Person Singular: 'trabaja'.",en:"'Trabajar' = to work; 3rd person singular: 'trabaja'."}},
+    {c:2,s:{de:"'Sie isst.'",en:"'She eats.'"},o:["Ella come","Ella bebe","Ella escribe","Ella lee"],a:0,why:{de:"'Comer' = essen; 3. Person Singular: 'come'.",en:"'Comer' = to eat; 3rd person singular: 'come'."}},
+    {c:2,s:{de:"'Wir wohnen hier.'",en:"'We live here.'"},o:["Vivimos aquí","Trabajamos aquí","Comemos aquí","Estudiamos aquí"],a:0,why:{de:"'Vivir' = wohnen/leben; 1. Person Plural: 'vivimos'.",en:"'Vivir' = to live; 1st person plural: 'vivimos'."}},
+    {c:2,s:{de:"'Ich spreche Spanisch.'",en:"'I speak Spanish.'"},o:["Hablo español","Escribo español","Leo español","Escucho español"],a:0,why:{de:"'Hablar' = sprechen; 1. Person Singular: 'hablo'.",en:"'Hablar' = to speak; 1st person singular: 'hablo'."}},
+    {c:2,s:{de:"'Sie schreibt einen Brief.'",en:"'She writes a letter.'"},o:["Ella lee una carta","Ella escribe una carta","Ella envía una carta","Ella abre una carta"],a:1,why:{de:"'Escribir' = schreiben; 3. Person Singular: 'escribe'.",en:"'Escribir' = to write; 3rd person singular: 'escribe'."}},
+    {c:2,s:{de:"'Él lee un periódico.'",en:"'He reads a newspaper.'"},o:["He reads a book","He reads a newspaper","He writes a newspaper","He sells a newspaper"],a:1,why:{de:"'Leer' bedeutet 'lesen'; 'periódico' ist die Zeitung.",en:"'Leer' means 'to read'; 'periódico' is 'newspaper'."}},
+    {c:2,s:{de:"'Nosotros viajamos mucho.'",en:"'We travel a lot.'"},o:["We work a lot","We travel a lot","We eat a lot","We study a lot"],a:1,why:{de:"'Viajar' bedeutet 'reisen'.",en:"'Viajar' means 'to travel'."}},
+    {c:2,s:{de:"'Ella cocina la cena.'",en:"'She cooks dinner.'"},o:["She buys dinner","She cooks dinner","She serves dinner","She orders dinner"],a:1,why:{de:"'Cocinar' bedeutet 'kochen'.",en:"'Cocinar' means 'to cook'."}},
+    {c:2,s:{de:"Wie fragt man nach der Uhrzeit?",en:"How do you ask for the time?"},o:["¿Qué hora es?","¿Qué día es?","¿Dónde estás?","¿Cómo estás?"],a:0,why:{de:"'¿Qué hora es?' fragt nach der Uhrzeit.",en:"'¿Qué hora es?' asks what time it is."}},
+    {c:2,s:{de:"'Es ist ein Uhr.'",en:"'It's one o'clock.'"},o:["Son las dos","Es la una","Son las tres","Es medianoche"],a:1,why:{de:"Bei 'einer Uhr' benutzt man den Singular 'es la una'.",en:"For one o'clock Spanish uses the singular 'es la una'."}},
+    {c:2,s:{de:"'Es sind zwei Uhr.'",en:"'It's two o'clock.'"},o:["Es la una","Son las dos","Son las tres","Es mediodía"],a:1,why:{de:"Ab zwei Uhr benutzt man den Plural 'son las...'.",en:"From two o'clock on, Spanish uses the plural 'son las...'."}},
+    {c:2,s:{de:"Wie sagt man 'Mittag'?",en:"How do you say 'noon'?"},o:["medianoche","mediodía","madrugada","tarde"],a:1,why:{de:"'Mediodía' bedeutet 'Mittag'.",en:"'Mediodía' means 'noon'."}},
+    {c:2,s:{de:"Wie sagt man 'Mitternacht'?",en:"How do you say 'midnight'?"},o:["mediodía","medianoche","madrugada","amanecer"],a:1,why:{de:"'Medianoche' bedeutet 'Mitternacht'.",en:"'Medianoche' means 'midnight'."}},
+    {c:2,s:{de:"'Es ist sonnig.'",en:"'It's sunny.'"},o:["Hace frío","Hace sol","Llueve","Nieva"],a:1,why:{de:"'Hace sol' bedeutet 'es ist sonnig'.",en:"'Hace sol' means 'it's sunny'."}},
+    {c:2,s:{de:"'Es regnet.'",en:"'It's raining.'"},o:["Nieva","Hace calor","Llueve","Hace viento"],a:2,why:{de:"'Llueve' bedeutet 'es regnet'.",en:"'Llueve' means 'it's raining'."}},
+    {c:2,s:{de:"'Es schneit.'",en:"'It's snowing.'"},o:["Llueve","Nieva","Hace sol","Hace frío"],a:1,why:{de:"'Nieva' bedeutet 'es schneit'.",en:"'Nieva' means 'it's snowing'."}},
+    {c:2,s:{de:"'Es ist kalt.'",en:"'It's cold.'"},o:["Hace calor","Hace frío","Hace sol","Hace viento"],a:1,why:{de:"'Hace frío' bedeutet 'es ist kalt'.",en:"'Hace frío' means 'it's cold'."}},
+    {c:2,s:{de:"Wie sagt man 'der Apfel'?",en:"How do you say 'the apple'?"},o:["la manzana","el plátano","la naranja","la uva"],a:0,why:{de:"'Manzana' bedeutet 'Apfel'.",en:"'Manzana' means 'apple'."}},
+    {c:2,s:{de:"Wie sagt man 'die Banane'?",en:"How do you say 'the banana'?"},o:["la manzana","el plátano","la pera","la fresa"],a:1,why:{de:"'Plátano' bedeutet 'Banane'.",en:"'Plátano' means 'banana'."}},
+    {c:2,s:{de:"Wie sagt man 'das Fleisch'?",en:"How do you say 'the meat'?"},o:["el pescado","la carne","el pollo","el huevo"],a:1,why:{de:"'Carne' bedeutet 'Fleisch'.",en:"'Carne' means 'meat'."}},
+    {c:2,s:{de:"Wie sagt man 'der Fisch' (Essen)?",en:"How do you say 'fish' (food)?"},o:["la carne","el pescado","el pan","el arroz"],a:1,why:{de:"'Pescado' bedeutet 'Fisch' als Speise.",en:"'Pescado' means 'fish' as food."}},
+    {c:2,s:{de:"Wie sagt man 'der Reis'?",en:"How do you say 'the rice'?"},o:["el arroz","el pan","la sopa","la sal"],a:0,why:{de:"'Arroz' bedeutet 'Reis'.",en:"'Arroz' means 'rice'."}},
+    {c:2,s:{de:"Wie sagt man 'die Suppe'?",en:"How do you say 'the soup'?"},o:["la ensalada","la sopa","la salsa","la tarta"],a:1,why:{de:"'Sopa' bedeutet 'Suppe'.",en:"'Sopa' means 'soup'."}},
+    {c:2,s:{de:"'Wer ist das?'",en:"'Who is that?'"},o:["¿Qué es eso?","¿Quién es ese?","¿Cuándo es eso?","¿Cómo es eso?"],a:1,why:{de:"'Quién' fragt nach einer Person.",en:"'Quién' asks about a person."}},
+    {c:2,s:{de:"'Wann kommst du?'",en:"'When are you coming?'"},o:["¿Cuándo vienes?","¿Dónde vienes?","¿Quién vienes?","¿Qué vienes?"],a:0,why:{de:"'Cuándo' fragt nach der Zeit.",en:"'Cuándo' asks about time."}},
+    {c:3,s:{de:"'Puedo ayudarte.'",en:"'I can help you.'"},o:["I want to help you","I can help you","I must help you","I know how to help you"],a:1,why:{de:"'Poder' (irregulär) = können; 1. Pers. Sg. 'puedo'.",en:"'Poder' (irregular) = can/to be able to; 1st person singular 'puedo'."}},
+    {c:3,s:{de:"'Tengo que trabajar.'",en:"'I have to work.'"},o:["I want to work","I have to work","I like to work","I used to work"],a:1,why:{de:"'Tener que + Infinitiv' drückt eine Notwendigkeit aus.",en:"'Tener que + infinitive' expresses obligation/necessity."}},
+    {c:3,s:{de:"'Ella es más alta que él.'",en:"'She is taller than him.'"},o:["Sie ist so groß wie er","Sie ist größer als er","Sie ist kleiner als er","Sie ist genauso groß"],a:1,why:{de:"'Más...que' bildet den Komparativ.",en:"'Más...que' forms the comparative 'more...than'."}},
+    {c:3,s:{de:"'Él es tan alto como ella.'",en:"'He is as tall as her.'"},o:["Er ist größer als sie","Er ist genauso groß wie sie","Er ist kleiner als sie","Er ist der größte"],a:1,why:{de:"'Tan...como' bedeutet 'genauso...wie'.",en:"'Tan...como' means 'as...as'."}},
+    {c:3,s:{de:"'Esta es la ciudad más grande.'",en:"'This is the biggest city.'"},o:["...more big city","...biggest city","...bigger city","...as big city"],a:1,why:{de:"'El/la más + Adjektiv' bildet den Superlativ.",en:"'El/la más + adjective' forms the superlative."}},
+    {c:3,s:{de:"Wähle den passenden Konnektor: '___ llueve, salimos.'",en:"Pick the right connector: '___ it rains, we go out.'"},o:["Aunque","Porque","Cuando","Sin embargo"],a:0,why:{de:"'Aunque' bedeutet 'obwohl' — ein Gegensatz trotz Regen.",en:"'Aunque' means 'although' — a contrast despite the rain."}},
+    {c:3,s:{de:"Wähle den passenden Konnektor: 'No fui ___ estaba enfermo.'",en:"Pick the right connector: 'I didn't go ___ I was sick.'"},o:["aunque","porque","pero","o"],a:1,why:{de:"'Porque' gibt den Grund an.",en:"'Porque' gives the reason."}},
+    {c:3,s:{de:"Wähle den passenden Konnektor: '___ , llegamos tarde.'",en:"Pick the right connector: '___ , we arrived late.'"},o:["Porque","Sin embargo","Aunque","Y"],a:1,why:{de:"'Sin embargo' bedeutet 'trotzdem/jedoch'.",en:"'Sin embargo' means 'however/nevertheless'."}},
+    {c:3,s:{de:"Wie sagt man 'der Arzt'?",en:"How do you say 'the doctor'?"},o:["el profesor","el médico","el abogado","el cocinero"],a:1,why:{de:"'Médico' bedeutet 'Arzt'.",en:"'Médico' means 'doctor'."}},
+    {c:3,s:{de:"Wie sagt man 'der Lehrer'?",en:"How do you say 'the teacher'?"},o:["el médico","el profesor","el ingeniero","el jefe"],a:1,why:{de:"'Profesor' bedeutet 'Lehrer'.",en:"'Profesor' means 'teacher'."}},
+    {c:3,s:{de:"Wie sagt man 'der Ingenieur'?",en:"How do you say 'the engineer'?"},o:["el abogado","el ingeniero","el cocinero","el camarero"],a:1,why:{de:"'Ingeniero' bedeutet 'Ingenieur'.",en:"'Ingeniero' means 'engineer'."}},
+    {c:3,s:{de:"Wie sagt man 'der Anwalt'?",en:"How do you say 'the lawyer'?"},o:["el abogado","el médico","el profesor","el jefe"],a:0,why:{de:"'Abogado' bedeutet 'Anwalt'.",en:"'Abogado' means 'lawyer'."}},
+    {c:3,s:{de:"Wie sagt man 'der Koch'?",en:"How do you say 'the cook/chef'?"},o:["el camarero","el cocinero","el cliente","el dueño"],a:1,why:{de:"'Cocinero' bedeutet 'Koch'.",en:"'Cocinero' means 'cook/chef'."}},
+    {c:3,s:{de:"Wie sagt man 'die Besprechung'?",en:"How do you say 'the meeting'?"},o:["la reunión","el contrato","el sueldo","el jefe"],a:0,why:{de:"'Reunión' bedeutet 'Besprechung/Meeting'.",en:"'Reunión' means 'meeting'."}},
+    {c:3,s:{de:"Wie sagt man 'der Vertrag'?",en:"How do you say 'the contract'?"},o:["la reunión","el contrato","el sueldo","el permiso"],a:1,why:{de:"'Contrato' bedeutet 'Vertrag'.",en:"'Contrato' means 'contract'."}},
+    {c:3,s:{de:"Wie sagt man 'das Gehalt'?",en:"How do you say 'the salary'?"},o:["el sueldo","el contrato","el horario","el impuesto"],a:0,why:{de:"'Sueldo' bedeutet 'Gehalt'.",en:"'Sueldo' means 'salary'."}},
+    {c:3,s:{de:"Wie sagt man 'der Chef'?",en:"How do you say 'the boss'?"},o:["el empleado","el jefe","el cliente","el socio"],a:1,why:{de:"'Jefe' bedeutet 'Chef'.",en:"'Jefe' means 'boss'."}},
+    {c:3,s:{de:"'Ellos saben la verdad.'",en:"'They know the truth.'"},o:["They know the truth","They believe the truth","They say the truth","They hide the truth"],a:0,why:{de:"'Saber' (irregulär) = wissen; 3. Pers. Pl. 'saben'.",en:"'Saber' (irregular) = to know (facts); 3rd person plural 'saben'."}},
+    {c:3,s:{de:"'Yo conozco a tu hermano.'",en:"'I know your brother.'"},o:["I met your brother","I know your brother","I miss your brother","I called your brother"],a:1,why:{de:"'Conocer' = jemanden/etwas kennen (Personen/Orte).",en:"'Conocer' = to know/be familiar with (people, places)."}},
+    {c:3,s:{de:"'Nosotros pudimos terminar.'",en:"'We were able to finish.'"},o:["We wanted to finish","We were able to finish","We had to finish","We used to finish"],a:1,why:{de:"'Pudimos' ist die Vergangenheitsform (pretérito) von 'poder'.",en:"'Pudimos' is the past-tense (preterite) form of 'poder'."}},
+    {c:4,s:{de:"'Es importante que ___ a tiempo.' (llegar, du)",en:"'It's important that you arrive on time.'"},o:["llegas","llegues","llegarás","llegabas"],a:1,why:{de:"Nach 'es importante que' folgt der Subjuntivo: 'llegues'.",en:"'Es importante que' triggers the subjunctive: 'llegues'."}},
+    {c:4,s:{de:"'Dudo que ___ razón.' (tener, sie)",en:"'I doubt that she is right.'"},o:["tiene","tenga","tendrá","tenía"],a:1,why:{de:"'Dudar que' triggert den Subjuntivo: 'tenga'.",en:"'Dudar que' triggers the subjunctive: 'tenga'."}},
+    {c:4,s:{de:"Idiom: 'meter la pata' bedeutet…",en:"Idiom: 'meter la pata' means…"},o:["einen Fehler machen","Glück haben","sich beeilen","sich ausruhen"],a:0,why:{de:"'Meter la pata' = ins Fettnäpfchen treten / einen Fehler machen.",en:"'Meter la pata' = to put your foot in it / make a blunder."}},
+    {c:4,s:{de:"Idiom: 'tomar el pelo a alguien' bedeutet…",en:"Idiom: 'tomar el pelo a alguien' means…"},o:["jemanden necken/verarschen","jemandem helfen","jemanden entlassen","jemanden loben"],a:0,why:{de:"'Tomar el pelo' = jemanden auf den Arm nehmen.",en:"'Tomar el pelo' = to pull someone's leg."}},
+    {c:4,s:{de:"Idiom: 'costar un ojo de la cara' bedeutet…",en:"Idiom: 'costar un ojo de la cara' means…"},o:["sehr billig sein","sehr teuer sein","kostenlos sein","sich schnell verkaufen"],a:1,why:{de:"'Costar un ojo de la cara' = sehr teuer sein.",en:"'Costar un ojo de la cara' = to cost an arm and a leg."}},
+    {c:4,s:{de:"Wähle das formellste Wort für 'anfangen'.",en:"Pick the most formal word for 'to begin'."},o:["empezar","comenzar","iniciar","dar comienzo a"],a:3,why:{de:"'Dar comienzo a' ist die formellste, eher schriftsprachliche Form.",en:"'Dar comienzo a' is the most formal, written-register option."}},
+    {c:4,s:{de:"'Se lo expliqué para que lo ___.' (entender)",en:"'I explained it to him so that he would understand it.'"},o:["entiende","entendiera","entenderá","entendió"],a:1,why:{de:"Nach 'para que' steht der Subjuntivo (hier Imperfekt): 'entendiera'.",en:"'Para que' takes the subjunctive (here past subjunctive): 'entendiera'."}},
+    {c:4,s:{de:"Wie sagt man 'die Sitzung' (formell)?",en:"How do you say 'the session' (formal)?"},o:["la sesión","la fiesta","la charla","el descanso"],a:0,why:{de:"'Sesión' ist die formelle Bezeichnung für eine Sitzung.",en:"'Sesión' is the formal word for a session/meeting."}},
+    {c:4,s:{de:"Wie sagt man 'die Forschung'?",en:"How do you say 'research'?"},o:["la investigación","la invención","la información","la instrucción"],a:0,why:{de:"'Investigación' bedeutet 'Forschung'.",en:"'Investigación' means 'research'."}},
+    {c:4,s:{de:"Wie sagt man 'die Schlussfolgerung'?",en:"How do you say 'the conclusion'?"},o:["la conclusión","la confusión","la conexión","la condición"],a:0,why:{de:"'Conclusión' bedeutet 'Schlussfolgerung'.",en:"'Conclusión' means 'conclusion'."}},
+    {c:4,s:{de:"'No pienso que ___ verdad.' (ser)",en:"'I don't think it's true.'"},o:["es","sea","será","era"],a:1,why:{de:"Verneintes 'pensar que' triggert oft den Subjuntivo: 'sea'.",en:"Negated 'pensar que' often triggers the subjunctive: 'sea'."}},
+    {c:4,s:{de:"Wähle das Register: geschäftliche E-Mail-Anrede.",en:"Pick the register: formal business email opener."},o:["¡Hola!","Estimado señor:","Qué tal","Oye"],a:1,why:{de:"'Estimado señor:' ist die formelle Anrede in Geschäftsbriefen.",en:"'Estimado señor:' is the formal salutation in business letters."}},
+    {c:5,s:{de:"Idiom: 'irse por las ramas' bedeutet…",en:"Idiom: 'irse por las ramas' means…"},o:["auf den Punkt kommen","vom Thema abschweifen","schnell entscheiden","sich entschuldigen"],a:1,why:{de:"'Irse por las ramas' = um den heißen Brei reden.",en:"'Irse por las ramas' = to beat around the bush."}},
+    {c:5,s:{de:"Idiom: 'no tener pelos en la lengua' bedeutet…",en:"Idiom: 'no tener pelos en la lengua' means…"},o:["schüchtern sein","offen/direkt seine Meinung sagen","lügen","schweigen"],a:1,why:{de:"'No tener pelos en la lengua' = kein Blatt vor den Mund nehmen.",en:"'No tener pelos en la lengua' = to not mince words."}},
+    {c:5,s:{de:"Idiom: 'dar en el clavo' bedeutet…",en:"Idiom: 'dar en el clavo' means…"},o:["ins Schwarze treffen","scheitern","zu spät kommen","sich irren"],a:0,why:{de:"'Dar en el clavo' = genau richtig liegen.",en:"'Dar en el clavo' = to hit the nail on the head."}},
+    {c:5,s:{de:"Wähle den nuancierten Konnektor: '___ todo, decidimos quedarnos.'",en:"Pick the nuanced connector: '___ everything, we decided to stay.'"},o:["Pese a","Debido a","Gracias a","A favor de"],a:0,why:{de:"'Pese a' bedeutet 'trotz' — ein gehobener Gegensatz-Konnektor.",en:"'Pese a' means 'despite' — an elevated contrastive connector."}},
+    {c:5,s:{de:"Wähle das Synonym (gehoben) für 'ayudar'.",en:"Pick the elevated synonym for 'ayudar' (to help)."},o:["colaborar","asistir","socorrer","molestar"],a:2,why:{de:"'Socorrer' ist ein gehobenes Synonym für 'helfen', v.a. in Notlagen.",en:"'Socorrer' is an elevated synonym for 'to help', esp. in emergencies."}},
+    {c:5,s:{de:"'Por muy cansado que ___, seguía trabajando.' (estar)",en:"'However tired he was, he kept working.'"},o:["está","estuviera","estará","estaba"],a:1,why:{de:"'Por muy...que' triggert den Subjuntivo: 'estuviera'.",en:"'Por muy...que' triggers the subjunctive: 'estuviera'."}},
+    {c:5,s:{de:"Idiom: 'estar entre la espada y la pared' bedeutet…",en:"Idiom: 'estar entre la espada y la pared' means…"},o:["viele Optionen haben","in der Klemme stecken","sich entspannen","gewinnen"],a:1,why:{de:"'Entre la espada y la pared' = zwischen Baum und Borke.",en:"'Entre la espada y la pared' = between a rock and a hard place."}},
+    {c:5,s:{de:"Wähle das formellste Konnektiv für 'deshalb'.",en:"Pick the most formal connector for 'therefore'."},o:["así que","por lo tanto","o sea","bueno"],a:1,why:{de:"'Por lo tanto' ist die formelle Variante von 'deshalb'.",en:"'Por lo tanto' is the formal register option for 'therefore'."}},
+    {c:6,s:{de:"Was bedeutet 'a la postre'?",en:"What does 'a la postre' mean?"},o:["am Anfang","letztendlich","gelegentlich","sofort"],a:1,why:{de:"'A la postre' bedeutet 'letztendlich/am Ende'.",en:"'A la postre' means 'in the end/ultimately'."}},
+    {c:6,s:{de:"Was bedeutet 'amén de'?",en:"What does 'amén de' mean?"},o:["außer","zusätzlich zu","trotz","anstatt"],a:1,why:{de:"'Amén de' bedeutet 'zusätzlich zu / abgesehen von'.",en:"'Amén de' means 'in addition to / besides'."}},
+    {c:6,s:{de:"Was bedeutet 'ex profeso'?",en:"What does 'ex profeso' mean?"},o:["zufällig","absichtlich","vorübergehend","heimlich"],a:1,why:{de:"'Ex profeso' bedeutet 'ausdrücklich/absichtlich'.",en:"'Ex profeso' means 'expressly/on purpose'."}},
+    {c:6,s:{de:"Register: das gehobenste Wort für 'streiten'.",en:"Register: the most elevated word for 'to argue'."},o:["pelear","discutir","altercar","reñir"],a:2,why:{de:"'Altercar' ist die gehobenste, literarische Form.",en:"'Altercar' is the most elevated, literary option."}},
+    {c:6,s:{de:"Was bedeutet 'de facto'?",en:"What does 'de facto' mean?"},o:["rechtlich","tatsächlich/faktisch","selten","theoretisch"],a:1,why:{de:"'De facto' bedeutet 'faktisch/in der Praxis' (im Gegensatz zu 'de iure').",en:"'De facto' means 'in practice/actually' (as opposed to 'de iure')."}}
+  ],
+  ka: [
+    {c:1,s:{de:"Wie sagt man 'drei'?",en:"How do you say 'three'?"},o:["ორი","სამი","ოთხი","ხუთი"],a:1,why:{de:"'სამი' არის რიცხვი 3.",en:"'სამი' is the number 3."}},
+    {c:1,s:{de:"Wie sagt man 'vier'?",en:"How do you say 'four'?"},o:["სამი","ოთხი","ხუთი","ექვსი"],a:1,why:{de:"'ოთხი' არის რიცხვი 4.",en:"'ოთხი' is the number 4."}},
+    {c:1,s:{de:"Wie sagt man 'fünf'?",en:"How do you say 'five'?"},o:["ოთხი","ხუთი","ექვსი","შვიდი"],a:1,why:{de:"'ხუთი' არის რიცხვი 5.",en:"'ხუთი' is the number 5."}},
+    {c:1,s:{de:"Wie sagt man 'sechs'?",en:"How do you say 'six'?"},o:["ხუთი","ექვსი","შვიდი","რვა"],a:1,why:{de:"'ექვსი' არის რიცხვი 6.",en:"'ექვსი' is the number 6."}},
+    {c:1,s:{de:"Wie sagt man 'sieben'?",en:"How do you say 'seven'?"},o:["ექვსი","შვიდი","რვა","ცხრა"],a:1,why:{de:"'შვიდი' არის რიცხვი 7.",en:"'შვიდი' is the number 7."}},
+    {c:1,s:{de:"Wie sagt man 'acht'?",en:"How do you say 'eight'?"},o:["შვიდი","რვა","ცხრა","ათი"],a:1,why:{de:"'რვა' არის რიცხვი 8.",en:"'რვა' is the number 8."}},
+    {c:1,s:{de:"Wie sagt man 'neun'?",en:"How do you say 'nine'?"},o:["რვა","ცხრა","ათი","თერთმეტი"],a:1,why:{de:"'ცხრა' არის რიცხვი 9.",en:"'ცხრა' is the number 9."}},
+    {c:1,s:{de:"Wie sagt man 'zehn'?",en:"How do you say 'ten'?"},o:["ცხრა","ათი","თერთმეტი","თორმეტი"],a:1,why:{de:"'ათი' არის რიცხვი 10.",en:"'ათი' is the number 10."}},
+    {c:1,s:{de:"Wie sagt man 'rot'?",en:"How do you say 'red'?"},o:["ლურჯი","წითელი","ყვითელი","შავი"],a:1,why:{de:"'წითელი' ნიშნავს 'წითელს'.",en:"'წითელი' means 'red'."}},
+    {c:1,s:{de:"Wie sagt man 'blau'?",en:"How do you say 'blue'?"},o:["ლურჯი","მწვანე","თეთრი","ნაცრისფერი"],a:0,why:{de:"'ლურჯი' ნიშნავს 'ლურჯს/ცისფერს'.",en:"'ლურჯი' means 'blue'."}},
+    {c:1,s:{de:"Wie sagt man 'grün'?",en:"How do you say 'green'?"},o:["ლურჯი","მწვანე","ყვითელი","ვარდისფერი"],a:1,why:{de:"'მწვანე' ნიშნავს 'მწვანეს'.",en:"'მწვანე' means 'green'."}},
+    {c:1,s:{de:"Wie sagt man 'gelb'?",en:"How do you say 'yellow'?"},o:["ყავისფერი","ნაცრისფერი","ყვითელი","ვარდისფერი"],a:2,why:{de:"'ყვითელი' ნიშნავს 'ყვითელს'.",en:"'ყვითელი' means 'yellow'."}},
+    {c:1,s:{de:"Wie sagt man 'schwarz'?",en:"How do you say 'black'?"},o:["თეთრი","შავი","ნაცრისფერი","წითელი"],a:1,why:{de:"'შავი' ნიშნავს 'შავს'.",en:"'შავი' means 'black'."}},
+    {c:1,s:{de:"Wie sagt man 'weiß'?",en:"How do you say 'white'?"},o:["შავი","ნაცრისფერი","თეთრი","ლურჯი"],a:2,why:{de:"'თეთრი' ნიშნავს 'თეთრს'.",en:"'თეთრი' means 'white'."}},
+    {c:1,s:{de:"Wie sagt man 'braun'?",en:"How do you say 'brown'?"},o:["ყავისფერი","ვარდისფერი","ნაცრისფერი","მწვანე"],a:0,why:{de:"'ყავისფერი' ნიშნავს 'ყავისფერს/ყავისფერს'.",en:"'ყავისფერი' means 'brown'."}},
+    {c:1,s:{de:"Wie sagt man 'Mutter'?",en:"How do you say 'mother'?"},o:["მამა","დედა","და","ქალიშვილი"],a:1,why:{de:"'დედა' ნიშნავს 'დედას'.",en:"'დედა' means 'mother'."}},
+    {c:1,s:{de:"Wie sagt man 'Vater'?",en:"How do you say 'father'?"},o:["დედა","მამა","ძმა","შვილი"],a:1,why:{de:"'მამა' ნიშნავს 'მამას'.",en:"'მამა' means 'father'."}},
+    {c:1,s:{de:"Wie sagt man 'Bruder'?",en:"How do you say 'brother'?"},o:["და","ძმა","ბიძა","ბაბუა"],a:1,why:{de:"'ძმა' ნიშნავს 'ძმას'.",en:"'ძმა' means 'brother'."}},
+    {c:1,s:{de:"Wie sagt man 'Schwester'?",en:"How do you say 'sister'?"},o:["ძმა","და","დეიდა","ბებია"],a:1,why:{de:"'და' ნიშნავს 'დას'.",en:"'და' means 'sister'."}},
+    {c:1,s:{de:"Wie sagt man 'Sohn'?",en:"How do you say 'son'?"},o:["ქალიშვილი","შვილი","შვილიშვილი","ბიძაშვილი"],a:1,why:{de:"'შვილი' ზოგადად 'შვილს/ვაჟს' ნიშნავს.",en:"'შვილი' generally means 'child/son'."}},
+    {c:1,s:{de:"Wie sagt man 'Tochter'?",en:"How do you say 'daughter'?"},o:["შვილი","ქალიშვილი","დისწული","ძმისწული"],a:1,why:{de:"'ქალიშვილი' ნიშნავს 'ქალიშვილს'.",en:"'ქალიშვილი' means 'daughter'."}},
+    {c:1,s:{de:"Wie sagt man 'das Haus'?",en:"How do you say 'the house'?"},o:["სახლი","მანქანა","ქუჩა","პარკი"],a:0,why:{de:"'სახლი' ნიშნავს 'სახლს'.",en:"'სახლი' means 'house'."}},
+    {c:1,s:{de:"Wie sagt man 'die Schule'?",en:"How do you say 'the school'?"},o:["სამსახური","სკოლა","მაღაზია","საავადმყოფო"],a:1,why:{de:"'სკოლა' ნიშნავს 'სკოლას'.",en:"'სკოლა' means 'school'."}},
+    {c:1,s:{de:"Wie sagt man 'das Buch'?",en:"How do you say 'the book'?"},o:["მაგიდა","სკამი","წიგნი","ქაღალდი"],a:2,why:{de:"'წიგნი' ნიშნავს 'წიგნს'.",en:"'წიგნი' means 'book'."}},
+    {c:1,s:{de:"Wie sagt man 'der Tisch'?",en:"How do you say 'the table'?"},o:["მაგიდა","სკამი","კარი","ფანჯარა"],a:0,why:{de:"'მაგიდა' ნიშნავს 'მაგიდას'.",en:"'მაგიდა' means 'table'."}},
+    {c:1,s:{de:"Wie sagt man 'der Stuhl'?",en:"How do you say 'the chair'?"},o:["მაგიდა","სკამი","საწოლი","კარი"],a:1,why:{de:"'სკამი' ნიშნავს 'სკამს'.",en:"'სკამი' means 'chair'."}},
+    {c:1,s:{de:"Wie sagt man 'die Tür'?",en:"How do you say 'the door'?"},o:["ფანჯარა","კარი","კედელი","ჭერი"],a:1,why:{de:"'კარი' ნიშნავს 'კარს'.",en:"'კარი' means 'door'."}},
+    {c:1,s:{de:"Wie sagt man 'groß'?",en:"How do you say 'big'?"},o:["პატარა","დიდი","მაღალი","მოკლე"],a:1,why:{de:"'დიდი' ნიშნავს 'დიდს'.",en:"'დიდი' means 'big'."}},
+    {c:1,s:{de:"Wie sagt man 'klein'?",en:"How do you say 'small'?"},o:["დიდი","პატარა","გრძელი","ძველი"],a:1,why:{de:"'პატარა' ნიშნავს 'პატარას'.",en:"'პატარა' means 'small'."}},
+    {c:1,s:{de:"Wie sagt man 'gut'?",en:"How do you say 'good'?"},o:["ცუდი","კარგი","ახალი","უშნო"],a:1,why:{de:"'კარგი' ნიშნავს 'კარგს'.",en:"'კარგი' means 'good'."}},
+    {c:2,s:{de:"'Er/sie arbeitet.'",en:"'He/she works.'"},o:["ის ჭამს","ის მუშაობს","ის სვამს","ის წერს"],a:1,why:{de:"'მუშაობს' ნიშნავს 'ის მუშაობს'.",en:"'მუშაობს' means '(he/she) works'."}},
+    {c:2,s:{de:"'Er/sie isst.'",en:"'He/she eats.'"},o:["ის ჭამს","ის სვამს","ის წერს","ის კითხულობს"],a:0,why:{de:"'ჭამს' ნიშნავს 'ჭამა'-ს ზმნას.",en:"'ჭამს' means '(he/she) eats'."}},
+    {c:2,s:{de:"'Wir wohnen hier.'",en:"'We live here.'"},o:["ჩვენ აქ ვმუშაობთ","ჩვენ აქ ვცხოვრობთ","ჩვენ აქ ვსწავლობთ","ჩვენ აქ ვჭამთ"],a:1,why:{de:"'ვცხოვრობთ' ნიშნავს 'ჩვენ ვცხოვრობთ'.",en:"'ვცხოვრობთ' means '(we) live'."}},
+    {c:2,s:{de:"'Ich spreche Georgisch.'",en:"'I speak Georgian.'"},o:["მე ქართულს ვწერ","მე ქართულად ვლაპარაკობ","მე ქართულს ვკითხულობ","მე ქართულს ვისმენ"],a:1,why:{de:"'ვლაპარაკობ' ნიშნავს 'ვსაუბრობ'.",en:"'ვლაპარაკობ' means '(I) speak'."}},
+    {c:2,s:{de:"'Sie schreibt einen Brief.'",en:"'She writes a letter.'"},o:["ის წერილს კითხულობს","ის წერილს წერს","ის წერილს აგზავნის","ის წერილს ხსნის"],a:1,why:{de:"'წერს' ნიშნავს '(ის) წერს'.",en:"'წერს' means '(he/she) writes'."}},
+    {c:2,s:{de:"'Er liest eine Zeitung.'",en:"'He reads a newspaper.'"},o:["ის წიგნს კითხულობს","ის გაზეთს კითხულობს","ის გაზეთს ყიდის","ის გაზეთს წერს"],a:1,why:{de:"'გაზეთი' ნიშნავს 'გაზეთს/ჟურნალს'.",en:"'გაზეთი' means 'newspaper'."}},
+    {c:2,s:{de:"'Wir reisen viel.'",en:"'We travel a lot.'"},o:["ჩვენ ბევრს ვმუშაობთ","ჩვენ ბევრს ვმოგზაურობთ","ჩვენ ბევრს ვჭამთ","ჩვენ ბევრს ვსწავლობთ"],a:1,why:{de:"'ვმოგზაურობთ' ნიშნავს 'ჩვენ ვმოგზაურობთ'.",en:"'ვმოგზაურობთ' means '(we) travel'."}},
+    {c:2,s:{de:"'Sie kocht das Abendessen.'",en:"'She cooks dinner.'"},o:["ის ვახშამს ყიდულობს","ის ვახშამს ამზადებს","ის ვახშამს მირთმევს","ის ვახშამს უკვეთავს"],a:1,why:{de:"'ამზადებს' ნიშნავს '(ის) ამზადებს'.",en:"'ამზადებს' means '(he/she) prepares/cooks'."}},
+    {c:2,s:{de:"Wie fragt man nach der Uhrzeit?",en:"How do you ask for the time?"},o:["რომელი საათია?","რომელი დღეა?","სად ხარ?","როგორ ხარ?"],a:0,why:{de:"'რომელი საათია?' არის დროზე კითხვა.",en:"'რომელი საათია?' asks what time it is."}},
+    {c:2,s:{de:"Wie sagt man 'Mittag'?",en:"How do you say 'noon'?"},o:["შუაღამე","შუადღე","განთიადი","საღამო"],a:1,why:{de:"'შუადღე' ნიშნავს 'შუადღეს'.",en:"'შუადღე' means 'noon'."}},
+    {c:2,s:{de:"Wie sagt man 'Mitternacht'?",en:"How do you say 'midnight'?"},o:["შუადღე","შუაღამე","დილა","საღამო"],a:1,why:{de:"'შუაღამე' ნიშნავს 'შუაღამეს'.",en:"'შუაღამე' means 'midnight'."}},
+    {c:2,s:{de:"'Es ist sonnig.'",en:"'It's sunny.'"},o:["ცივა","მზიანია","წვიმს","თოვს"],a:1,why:{de:"'მზიანია' ნიშნავს 'მზეა/მზიანია'.",en:"'მზიანია' means 'it's sunny'."}},
+    {c:2,s:{de:"'Es regnet.'",en:"'It's raining.'"},o:["თოვს","ცხელა","წვიმს","ქარია"],a:2,why:{de:"'წვიმს' ნიშნავს 'წვიმს'.",en:"'წვიმს' means 'it's raining'."}},
+    {c:2,s:{de:"'Es schneit.'",en:"'It's snowing.'"},o:["წვიმს","თოვს","მზიანია","ცივა"],a:1,why:{de:"'თოვს' ნიშნავს 'თოვს'.",en:"'თოვს' means 'it's snowing'."}},
+    {c:2,s:{de:"'Es ist kalt.'",en:"'It's cold.'"},o:["ცხელა","ცივა","მზიანია","ქარია"],a:1,why:{de:"'ცივა' ნიშნავს 'ცივა'.",en:"'ცივა' means 'it's cold'."}},
+    {c:2,s:{de:"Wie sagt man 'der Apfel'?",en:"How do you say 'the apple'?"},o:["ვაშლი","ბანანი","ფორთოხალი","ყურძენი"],a:0,why:{de:"'ვაშლი' ნიშნავს 'ვაშლს'.",en:"'ვაშლი' means 'apple'."}},
+    {c:2,s:{de:"Wie sagt man 'die Banane'?",en:"How do you say 'the banana'?"},o:["ვაშლი","ბანანი","მსხალი","მარწყვი"],a:1,why:{de:"'ბანანი' ნიშნავს 'ბანანს'.",en:"'ბანანი' means 'banana'."}},
+    {c:2,s:{de:"Wie sagt man 'das Fleisch'?",en:"How do you say 'the meat'?"},o:["თევზი","ხორცი","ქათამი","კვერცხი"],a:1,why:{de:"'ხორცი' ნიშნავს 'ხორცს'.",en:"'ხორცი' means 'meat'."}},
+    {c:2,s:{de:"Wie sagt man 'der Fisch' (Essen)?",en:"How do you say 'fish' (food)?"},o:["ხორცი","თევზი","პური","ბრინჯი"],a:1,why:{de:"'თევზი' ნიშნავს 'თევზს'.",en:"'თევზი' means 'fish'."}},
+    {c:2,s:{de:"Wie sagt man 'der Reis'?",en:"How do you say 'the rice'?"},o:["ბრინჯი","პური","წვნიანი","მარილი"],a:0,why:{de:"'ბრინჯი' ნიშნავს 'ბრინჯს'.",en:"'ბრინჯი' means 'rice'."}},
+    {c:2,s:{de:"Wie sagt man 'die Suppe'?",en:"How do you say 'the soup'?"},o:["სალათი","წვნიანი","საწებელი","ნამცხვარი"],a:1,why:{de:"'წვნიანი' ნიშნავს 'წვნიანს/სუპს'.",en:"'წვნიანი' means 'soup'."}},
+    {c:2,s:{de:"'Wer ist das?'",en:"'Who is that?'"},o:["ეს რა არის?","ეს ვინ არის?","ეს როდის არის?","ეს როგორ არის?"],a:1,why:{de:"'ვინ' ეკითხება პიროვნებას.",en:"'ვინ' asks about a person."}},
+    {c:2,s:{de:"'Wann kommst du?'",en:"'When are you coming?'"},o:["როდის მოხვალ?","სად მოხვალ?","ვინ მოხვალ?","რა მოხვალ?"],a:0,why:{de:"'როდის' დროზე ეკითხება.",en:"'როდის' asks about time."}},
+    {c:2,s:{de:"Wie sagt man 'die Kleidung'?",en:"How do you say 'clothing'?"},o:["ტანსაცმელი","ფეხსაცმელი","ქუდი","ჩანთა"],a:0,why:{de:"'ტანსაცმელი' ნიშნავს 'ტანსაცმელს'.",en:"'ტანსაცმელი' means 'clothing'."}},
+    {c:2,s:{de:"Wie sagt man 'die Schuhe'?",en:"How do you say 'shoes'?"},o:["ტანსაცმელი","ფეხსაცმელი","ხელთათმანი","ქუდი"],a:1,why:{de:"'ფეხსაცმელი' ნიშნავს 'ფეხსაცმელს'.",en:"'ფეხსაცმელი' means 'shoes'."}},
+    {c:3,s:{de:"'Ich kann dir helfen.'",en:"'I can help you.'"},o:["მინდა დაგეხმარო","შემიძლია დაგეხმარო","უნდა დაგეხმარო","ვიცი დაგეხმარო"],a:1,why:{de:"'შემიძლია' ნიშნავს 'შემიძლია/შემეძლება'.",en:"'შემიძლია' means 'I can/am able to'."}},
+    {c:3,s:{de:"'Ich muss arbeiten.'",en:"'I have to work.'"},o:["მინდა ვიმუშაო","უნდა ვიმუშაო","მიყვარს მუშაობა","ვმუშაობდი"],a:1,why:{de:"'უნდა + ზმნა' აუცილებლობას გამოხატავს.",en:"'უნდა + verb' expresses necessity/obligation."}},
+    {c:3,s:{de:"'Sie ist größer als er.'",en:"'She is taller than him.'"},o:["ის მასზე დაბალია","ის მასზე მაღალია","ის მისნაირია","ის ყველაზე დაბალია"],a:1,why:{de:"'-ზე' + შედარებითი ფორმა ადარებს ორ საგანს.",en:"'-ze' + comparative form compares two things."}},
+    {c:3,s:{de:"'Das ist die größte Stadt.'",en:"'This is the biggest city.'"},o:["...უფრო დიდი ქალაქი","...ყველაზე დიდი ქალაქი","...საკმაოდ დიდი ქალაქი","...ისეთივე დიდი ქალაქი"],a:1,why:{de:"'ყველაზე' + ზედსართავი აღნიშნავს აღმატებით ხარისხს.",en:"'ყველაზე' + adjective forms the superlative."}},
+    {c:3,s:{de:"Wähle den passenden Konnektor: '___ წვიმს, გავდივართ.'",en:"Pick the right connector: '___ it rains, we go out.'"},o:["მიუხედავად იმისა, რომ","იმიტომ, რომ","როცა","მაგრამ"],a:0,why:{de:"'მიუხედავად იმისა, რომ' ნიშნავს 'obwohl/although'.",en:"'მიუხედავად იმისა, რომ' means 'although'."}},
+    {c:3,s:{de:"Wähle den passenden Konnektor: 'არ მივედი, ___ ავად ვიყავი.'",en:"Pick the right connector: 'I didn't go ___ I was sick.'"},o:["თუმცა","იმიტომ, რომ","მაგრამ","ან"],a:1,why:{de:"'იმიტომ, რომ' მიზეზს გამოხატავს.",en:"'იმიტომ, რომ' gives the reason."}},
+    {c:3,s:{de:"Wie sagt man 'der Arzt'?",en:"How do you say 'the doctor'?"},o:["მასწავლებელი","ექიმი","ადვოკატი","მზარეული"],a:1,why:{de:"'ექიმი' ნიშნავს 'ექიმს'.",en:"'ექიმი' means 'doctor'."}},
+    {c:3,s:{de:"Wie sagt man 'der Lehrer'?",en:"How do you say 'the teacher'?"},o:["ექიმი","მასწავლებელი","ინჟინერი","უფროსი"],a:1,why:{de:"'მასწავლებელი' ნიშნავს 'მასწავლებელს'.",en:"'მასწავლებელი' means 'teacher'."}},
+    {c:3,s:{de:"Wie sagt man 'der Ingenieur'?",en:"How do you say 'the engineer'?"},o:["ადვოკატი","ინჟინერი","მზარეული","მიმტანი"],a:1,why:{de:"'ინჟინერი' ნიშნავს 'ინჟინერს'.",en:"'ინჟინერი' means 'engineer'."}},
+    {c:3,s:{de:"Wie sagt man 'der Anwalt'?",en:"How do you say 'the lawyer'?"},o:["ადვოკატი","ექიმი","მასწავლებელი","უფროსი"],a:0,why:{de:"'ადვოკატი' ნიშნავს 'ადვოკატს'.",en:"'ადვოკატი' means 'lawyer'."}},
+    {c:3,s:{de:"Wie sagt man 'der Koch'?",en:"How do you say 'the cook/chef'?"},o:["მიმტანი","მზარეული","მომხმარებელი","მეპატრონე"],a:1,why:{de:"'მზარეული' ნიშნავს 'მზარეულს'.",en:"'მზარეული' means 'cook/chef'."}},
+    {c:3,s:{de:"Wie sagt man 'die Besprechung'?",en:"How do you say 'the meeting'?"},o:["შეხვედრა","ხელშეკრულება","ხელფასი","უფროსი"],a:0,why:{de:"'შეხვედრა' ნიშნავს 'შეხვედრას/მიტინგს'.",en:"'შეხვედრა' means 'meeting'."}},
+    {c:3,s:{de:"Wie sagt man 'der Vertrag'?",en:"How do you say 'the contract'?"},o:["შეხვედრა","ხელშეკრულება","ხელფასი","ნებართვა"],a:1,why:{de:"'ხელშეკრულება' ნიშნავს 'ხელშეკრულებას'.",en:"'ხელშეკრულება' means 'contract'."}},
+    {c:3,s:{de:"Wie sagt man 'das Gehalt'?",en:"How do you say 'the salary'?"},o:["ხელფასი","ხელშეკრულება","განრიგი","გადასახადი"],a:0,why:{de:"'ხელფასი' ნიშნავს 'ხელფასს'.",en:"'ხელფასი' means 'salary'."}},
+    {c:3,s:{de:"Wie sagt man 'der Chef'?",en:"How do you say 'the boss'?"},o:["თანამშრომელი","უფროსი","მომხმარებელი","პარტნიორი"],a:1,why:{de:"'უფროსი' ნიშნავს 'უფროსს/ჩეფს'.",en:"'უფროსი' means 'boss'."}},
+    {c:3,s:{de:"'Sie wissen die Wahrheit.'",en:"'They know the truth.'"},o:["მათ სჯერათ სიმართლე","მათ იციან სიმართლე","მათ ამბობენ სიმართლეს","მათ მალავენ სიმართლეს"],a:1,why:{de:"'იციან' ნიშნავს '(მათ) იციან'.",en:"'იციან' means '(they) know'."}},
+    {c:3,s:{de:"'Ich kenne deinen Bruder.'",en:"'I know your brother.'"},o:["მე შევხვდი შენს ძმას","მე ვიცნობ შენს ძმას","მე ვნატრობ შენს ძმას","მე დავურეკე შენს ძმას"],a:1,why:{de:"'ვიცნობ' ნიშნავს 'ვიცნობ (ვიღაცას)'.",en:"'ვიცნობ' means '(I) know/am familiar with (someone)'."}},
+    {c:3,s:{de:"'Wir konnten es beenden.'",en:"'We were able to finish.'"},o:["ჩვენ გვინდოდა დამთავრება","ჩვენ შევძელით დამთავრება","ჩვენ უნდა დაგვემთავრებინა","ჩვენ ვამთავრებდით"],a:1,why:{de:"'შევძელით' არის წარსული დროის ფორმა 'შემეძლო'-სი.",en:"'შევძელით' is the past-tense form of 'to be able to'."}},
+    {c:3,s:{de:"Wähle den passenden Konnektor: '___ , გვიან მივედით.'",en:"Pick the right connector: '___ , we arrived late.'"},o:["იმიტომ, რომ","თუმცა","და","ან"],a:1,why:{de:"'თუმცა' ნიშნავს 'თუმცა/მიუხედავად ამისა'.",en:"'თუმცა' means 'however/nevertheless'."}},
+    {c:3,s:{de:"'Er schreibt schneller als ich.'",en:"'He writes faster than me.'"},o:["ის ჩემსავით წერს","ის ჩემზე უფრო სწრაფად წერს","ის ნაკლებად სწრაფად წერს","ის ყველაზე ნელა წერს"],a:1,why:{de:"'-ზე უფრო' ადარებს ორ საგანს.",en:"'-ze upro' (more than) compares two things."}},
+    {c:4,s:{de:"Wähle das formellste Wort für 'anfangen'.",en:"Pick the most formal word for 'to begin'."},o:["დაწყება","დაწყება-დამთავრება","ინიცირება","დაწყება ოფიციალურად"],a:2,why:{de:"'ინიცირება' არის ყველაზე ფორმალური, ნასესხები ტერმინი.",en:"'ინიცირება' is the most formal, loanword-based option."}},
+    {c:4,s:{de:"Wie sagt man 'die Sitzung' (formell)?",en:"How do you say 'the session' (formal)?"},o:["სხდომა","წვეულება","საუბარი","შესვენება"],a:0,why:{de:"'სხდომა' ფორმალური სიტყვაა შეხვედრისთვის.",en:"'სხდომა' is the formal word for a session/meeting."}},
+    {c:4,s:{de:"Wie sagt man 'die Forschung'?",en:"How do you say 'research'?"},o:["კვლევა","გამოგონება","ინფორმაცია","ინსტრუქცია"],a:0,why:{de:"'კვლევა' ნიშნავს 'კვლევას/რესერჩს'.",en:"'კვლევა' means 'research'."}},
+    {c:4,s:{de:"Wie sagt man 'die Schlussfolgerung'?",en:"How do you say 'the conclusion'?"},o:["დასკვნა","დაბნეულობა","კავშირი","პირობა"],a:0,why:{de:"'დასკვნა' ნიშნავს 'დასკვნას'.",en:"'დასკვნა' means 'conclusion'."}},
+    {c:4,s:{de:"Evidential 'თურმე' bedeutet…",en:"Evidential 'თურმე' means…"},o:["ცხადია","თურმე/გამოდის რომ","აუცილებლად","სულაც არა"],a:1,why:{de:"'თურმე' მოწმობს, რომ ინფორმაცია მეორადი წყაროდან მოდის.",en:"'თურმე' marks that the information is second-hand/apparent."}},
+    {c:4,s:{de:"Wähle das Register: geschäftliche E-Mail-Anrede.",en:"Pick the register: formal business email opener."},o:["გამარჯობა!","ბატონო/ქალბატონო,","როგორ ხარ","ეი"],a:1,why:{de:"'ბატონო/ქალბატონო,' არის ფორმალური მიმართვა საქმიან წერილში.",en:"'ბატონო/ქალბატონო,' is the formal salutation in business letters."}},
+    {c:4,s:{de:"Wie sagt man 'die Verhandlung' (geschäftlich)?",en:"How do you say 'negotiation' (business)?"},o:["მოლაპარაკება","საუბარი","ჩხუბი","შეთანხმება უკვე"],a:0,why:{de:"'მოლაპარაკება' ნიშნავს 'მოლაპარაკებას'.",en:"'მოლაპარაკება' means 'negotiation'."}},
+    {c:4,s:{de:"Wie sagt man 'das Budget'?",en:"How do you say 'budget'?"},o:["ბიუჯეტი","გადასახადი","შემოსავალი","ხარჯი"],a:0,why:{de:"'ბიუჯეტი' ნასესხებია და ნიშნავს 'ბიუჯეტს'.",en:"'ბიუჯეტი' is a loanword meaning 'budget'."}},
+    {c:4,s:{de:"Wähle das formellste Wort für 'sagen'.",en:"Pick the most formal word for 'to say'."},o:["თქმა","განცხადება","ლაპარაკი","ჭორი"],a:1,why:{de:"'განცხადება' გამოხატავს ფორმალურ, საჯარო განაცხადს.",en:"'განცხადება' expresses a formal, public statement."}},
+    {c:4,s:{de:"Wie sagt man 'die Verantwortung'?",en:"How do you say 'responsibility'?"},o:["პასუხისმგებლობა","პასუხი","კითხვა","პრობლემა"],a:0,why:{de:"'პასუხისმგებლობა' ნიშნავს 'პასუხისმგებლობას'.",en:"'პასუხისმგებლობა' means 'responsibility'."}},
+    {c:4,s:{de:"Wie sagt man 'die Bewerbung' (Job)?",en:"How do you say 'application' (job)?"},o:["განცხადება/განაცხადი","წერილი","ანგარიში","ხელშეკრულება"],a:0,why:{de:"'განაცხადი' ნიშნავს 'ბიზნეს/სამუშაო განაცხადს'.",en:"'განაცხადი' means a (job) application."}},
+    {c:4,s:{de:"Wie sagt man 'die Frist' (Deadline)?",en:"How do you say 'deadline'?"},o:["ვადა","დრო","საათი","კალენდარი"],a:0,why:{de:"'ვადა' ნიშნავს 'ვადას/დედლაინს'.",en:"'ვადა' means 'deadline'."}},
+    {c:5,s:{de:"Register: das gehobenste Verb für 'sagen'.",en:"Register: the most elevated verb for 'to say'."},o:["თქმა","განაცხადა","უთხრა","ილაპარაკა"],a:1,why:{de:"'განაცხადა' გამოხატავს ყველაზე ფორმალურ/საჯარო რეგისტრს.",en:"'განაცხადა' is the most formal/public-register option."}},
+    {c:5,s:{de:"Wähle das nuancierte Wort für 'wichtig'.",en:"Pick the nuanced word for 'important'."},o:["მნიშვნელოვანი","საჭირო","საინტერესო","სასურველი"],a:0,why:{de:"'მნიშვნელოვანი' არის ზუსტი შესატყვისი 'მნიშვნელოვანი'-სთვის.",en:"'მნიშვნელოვანი' is the precise match for 'important'."}},
+    {c:5,s:{de:"Wie sagt man 'die Doppeldeutigkeit'?",en:"How do you say 'ambiguity'?"},o:["ორაზროვნება","გაურკვევლობა","სიცხადე","დარწმუნებულობა"],a:0,why:{de:"'ორაზროვნება' ნიშნავს 'ორმაგი მნიშვნელობის' მქონეს.",en:"'ორაზროვნება' means having a double/unclear meaning."}},
+    {c:5,s:{de:"Wie sagt man 'die Objektivität'?",en:"How do you say 'objectivity'?"},o:["ობიექტურობა","სუბიექტურობა","რეალობა","აზრი"],a:0,why:{de:"'ობიექტურობა' ნასესხებია და ნიშნავს 'ობიექტურობას'.",en:"'ობიექტურობა' is a loanword meaning 'objectivity'."}},
+    {c:5,s:{de:"Wähle die formellere Variante von 'ცოტა' (ein bisschen).",en:"Pick the more formal variant of 'a little'."},o:["ცოტა","მცირედი","ცოტაოდენი","ცოტათი"],a:1,why:{de:"'მცირედი' არის ლიტერატურული/ფორმალური ვარიანტი.",en:"'მცირედი' is the literary/formal variant."}},
+    {c:5,s:{de:"Wie sagt man 'die Perspektive' (Sichtweise)?",en:"How do you say 'perspective' (viewpoint)?"},o:["პერსპექტივა","სურათი","ხედი","გეგმა"],a:0,why:{de:"'პერსპექტივა' ნიშნავს '(აზრობრივ) პერსპექტივას'.",en:"'პერსპექტივა' means '(conceptual) perspective'."}},
+    {c:5,s:{de:"Wie sagt man 'die Konsequenz' (Folge)?",en:"How do you say 'consequence'?"},o:["შედეგი","მიზეზი","დასაწყისი","პროცესი"],a:0,why:{de:"'შედეგი' ნიშნავს 'შედეგს/კონსეკვენციას'.",en:"'შედეგი' means 'consequence/result'."}},
+    {c:5,s:{de:"Wie sagt man 'die Legitimität'?",en:"How do you say 'legitimacy'?"},o:["ლეგიტიმურობა","კანონიერება","სამართლიანობა","ავტორიტეტი"],a:0,why:{de:"'ლეგიტიმურობა' ნასესხებია და ზუსტად შეესაბამება 'legitimacy'-ს.",en:"'ლეგიტიმურობა' is a loanword that precisely matches 'legitimacy'."}},
+    {c:6,s:{de:"Wie sagt man 'die Nuance'?",en:"How do you say 'nuance'?"},o:["ნიუანსი","განსხვავება","მსგავსება","დეტალი"],a:0,why:{de:"'ნიუანსი' ნასესხებია ფრანგულიდან და ზუსტად ემთხვევა 'nuance'-ს.",en:"'ნიუანსი' is a loanword from French matching 'nuance' precisely."}},
+    {c:6,s:{de:"Wie sagt man 'die Ambivalenz'?",en:"How do you say 'ambivalence'?"},o:["ორმაგგანცდა/ამბივალენტობა","სიხარული","დარწმუნებულობა","სიმტკიცე"],a:0,why:{de:"'ამბივალენტობა' ნასესხებია და ეხება ორმაგ, წინააღმდეგობრივ გრძნობებს.",en:"'ამბივალენტობა' is a loanword referring to mixed, conflicting feelings."}},
+    {c:6,s:{de:"Register: das gehobenste Wort für 'denken'.",en:"Register: the most elevated word for 'to think'."},o:["ფიქრი","ჩაფიქრება","მოაზროვნება","გონება"],a:2,why:{de:"'მოაზროვნება' გამოხატავს ღრმა, ფორმალურ ფიქრს.",en:"'მოაზროვნება' expresses deep, formal reflection/thinking."}},
+    {c:6,s:{de:"Wie sagt man 'die Subtilität'?",en:"How do you say 'subtlety'?"},o:["დახვეწილობა","სისადავე","სიმარტივე","სისრულე"],a:0,why:{de:"'დახვეწილობა' ნიშნავს 'დახვეწილობას/სუბტილურობას'.",en:"'დახვეწილობა' means 'refinement/subtlety'."}},
+    {c:6,s:{de:"Wie sagt man 'die Kohärenz'?",en:"How do you say 'coherence'?"},o:["თანმიმდევრულობა","დაბნეულობა","სისწრაფე","სიახლე"],a:0,why:{de:"'თანმიმდევრულობა' ნიშნავს 'თანმიმდევრულობას/კოჰერენტულობას'.",en:"'თანმიმდევრულობა' means 'coherence/consistency'."}}
+  ],
+};
+
 const bankFor = pair => BANKS[pair.split("-")[1]];
+const studyBankFor = pair => STUDY_BANKS[pair.split("-")[1]];
 const stemOf = (q,pair) => q.s[pair.split("-")[0]];
 const optsOf = (q,pair) => Array.isArray(q.o) ? q.o : q.o[pair.split("-")[0]];
-const byCefr = (pair,c) => bankFor(pair).filter(q=>q.c===c);
+const whyOf = (q,pair) => q.why ? q.why[pair.split("-")[0]] : null;
+const byCefr = (pair,c) => studyBankFor(pair).filter(q=>q.c===c);
 
 /* ============================ Car ladder ============================ */
 const CARS = [
@@ -665,7 +884,7 @@ function startStudy(){
 function nextStudyItem(){
   const items = tierItems(P().tier);
   items.sort((a,b)=> (P().strength[keyOf(a)]||0) - (P().strength[keyOf(b)]||0));
-  const q = items[Math.floor(Math.random()*Math.min(3,items.length))] || bankFor(S.pair)[0];
+  const q = items[Math.floor(Math.random()*Math.min(3,items.length))] || studyBankFor(S.pair)[0];
   study.cur=q;
   $("qcount").textContent = `${CARS[P().tier].cefr} · ${CARS[P().tier].name}`;
   updateQuizKpis();
@@ -718,6 +937,17 @@ function gradeFill(response, answers, tolerance){
   for(const ans of answers){ const d=levenshtein(norm, normalizeAnswer(ans)); if(d<best) best=d; }
   if(best <= (tolerance??1)) return {correct:true, score:0.6};
   return {correct:false, score:0};
+}
+
+/* Shared wrong-answer explanation: appends q.why[srcLang] (if the item has
+   one — the 100-item STUDY_BANKS do, the small placement BANKS mostly don't)
+   under the feedback line so a wrong answer teaches something, not just
+   marks it wrong. */
+function setFeedback(mainText, correct, q){
+  const fb = $("feedback");
+  const why = !correct ? whyOf(q, S.pair) : null;
+  fb.innerHTML = why ? `<div>${mainText}</div><div class="explainText">${why}</div>` : mainText;
+  fb.className = "feedback "+(correct?"good":"bad");
 }
 
 /* ============================ Listen (M2, browser TTS) ============================ */
@@ -773,9 +1003,8 @@ function renderSpeakQuestion(q, box, onAnswered){
 
   const finish = (transcript) => {
     const g = gradeFill(transcript, [q.text], q.tolerance);
-    const fb = $("feedback");
-    fb.textContent = g.correct ? (g.score >= 1 ? "Correct! 🎉" : "Close enough! 👍") : `Target: ${q.text}${transcript ? ` — heard: "${transcript}"` : ""}`;
-    fb.className = "feedback " + (g.correct ? "good" : "bad");
+    const mainText = g.correct ? (g.score >= 1 ? "Correct! 🎉" : "Close enough! 👍") : `Target: ${q.text}${transcript ? ` — heard: "${transcript}"` : ""}`;
+    setFeedback(mainText, g.correct, q);
     onAnswered(g.correct);
     $("nextBtn").classList.remove("hide");
   };
@@ -857,9 +1086,8 @@ function renderQuestion(q, onAnswered){
         [...optBox.children].forEach((el,j)=>{ el.disabled=true;
           if(j===q.a) el.classList.add("correct");
           if(j===i && !correct) el.classList.add("wrong"); });
-        const fb=$("feedback");
-        fb.textContent = correct ? "Correct! 🎉" : `You heard: "${q.transcript}"`;
-        fb.className = "feedback "+(correct?"good":"bad");
+        const mainText = correct ? "Correct! 🎉" : `You heard: "${q.transcript}"`;
+        setFeedback(mainText, correct, q);
         onAnswered(correct);
         $("nextBtn").classList.remove("hide");
       };
@@ -885,9 +1113,8 @@ function renderQuestion(q, onAnswered){
       const g = gradeFill(input.value, q.answers, q.tolerance);
       input.disabled=true; checkBtn.disabled=true;
       input.classList.add(g.correct?"correct":"wrong");
-      const fb=$("feedback");
-      fb.textContent = g.correct ? (g.score>=1 ? "Correct! 🎉" : "Close enough! 👍") : `Correct answer: ${q.answers[0]}`;
-      fb.className = "feedback "+(g.correct?"good":"bad");
+      const mainText = g.correct ? (g.score>=1 ? "Correct! 🎉" : "Close enough! 👍") : `Correct answer: ${q.answers[0]}`;
+      setFeedback(mainText, g.correct, q);
       onAnswered(g.correct);
       $("nextBtn").classList.remove("hide");
     };
@@ -906,9 +1133,8 @@ function renderQuestion(q, onAnswered){
       [...box.children].forEach((el,j)=>{ el.disabled=true;
         if(j===q.a) el.classList.add("correct");
         if(j===i && !correct) el.classList.add("wrong"); });
-      const fb=$("feedback");
-      fb.textContent = correct ? "Correct! 🎉" : `Correct answer: ${opts[q.a]}`;
-      fb.className = "feedback "+(correct?"good":"bad");
+      const mainText = correct ? "Correct! 🎉" : `Correct answer: ${opts[q.a]}`;
+      setFeedback(mainText, correct, q);
       onAnswered(correct);
       $("nextBtn").classList.remove("hide");
     };
