@@ -6,6 +6,7 @@ import { mcqPayloadSchema } from "./content/mcq.js";
 import { applyAttempt } from "./engine/fsrs.js";
 import { recomputeProficiency } from "./engine/proficiency.js";
 import { applyTierDecision } from "./engine/mastery.js";
+import { getCar } from "./engine/car.js";
 import {
   answerPlacement,
   finalizePlacement,
@@ -172,7 +173,9 @@ export function createRouter(db: PrismaClient): Router {
       await recomputeProficiency(tx, userId, pair.id, at);
       const tier = await applyTierDecision(tx, userId, pair.id, at);
       const proficiency = await tx.proficiencyState.findUnique({ where: { userId_pairId: { userId, pairId: pair.id } } });
-      return { sessionType, reviewState, tier, proficiency };
+      // Phase 1: read-only car projection of the state we just updated (D5).
+      const car = await getCar(tx, userId, pair.id);
+      return { sessionType, reviewState, tier, proficiency, car };
     });
 
     res.json({
@@ -182,7 +185,14 @@ export function createRouter(db: PrismaClient): Router {
       due: out.reviewState?.due ?? null,
       tier: out.tier,
       proficiency: out.proficiency,
+      car: out.car,
     });
+  }));
+
+  // ── Car projection (Phase 1) — computed on read, never stored (D5) ──
+  r.get("/car", asyncHandler(async (req, res) => {
+    const { userId, pairId } = parse(userPairQuery, req.query);
+    res.json(await getCar(db, userId, pairId));
   }));
 
   // ── Proficiency read ──

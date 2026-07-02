@@ -95,6 +95,22 @@ describe.skipIf(!RUN)("Phase 0 API integration", () => {
     expect(right.body.proficiency.xp).toBeGreaterThan(0);
   });
 
+  it("serves the car as a read-only projection (Phase 1, D5)", async () => {
+    const car = await request(app).get("/car").query({ userId, pairId });
+    expect(car.status).toBe(200);
+    expect(car.body.tier).toBeGreaterThanOrEqual(0);
+    expect(car.body.tier).toBeLessThanOrEqual(5);
+    expect(typeof car.body.className).toBe("string");
+    expect(car.body.speed).toBeGreaterThanOrEqual(1);
+    expect(car.body.milestones).toHaveLength(3);
+
+    // Projection consistency: tier must equal the CEFR index from /proficiency.
+    const prof = await request(app).get("/proficiency").query({ userId, pairId });
+    const order = ["A1", "A2", "B1", "B2", "C1", "C2"];
+    expect(car.body.tier).toBe(order.indexOf(prof.body.currentCefr));
+    expect(car.body.cefr).toBe(prof.body.currentCefr);
+  });
+
   it("returns a lesson without correctIndex", async () => {
     const lesson = await request(app).get("/lessons/lesson-greetings-0");
     expect(lesson.status).toBe(200);

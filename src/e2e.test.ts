@@ -59,9 +59,16 @@ describe.skipIf(!RUN)("Phase 0 end-to-end learning loop", () => {
       orderBy: { id: "asc" },
     });
 
+    // Phase 1: the starting car is the A1 City Hatch at base stats.
+    const car0 = (await request(app).get("/car").query({ userId: user.id, pairId })).body;
+    expect(car0.className).toBe("City Hatch");
+    expect(car0.tier).toBe(0);
+
     // Study rounds: answer every A1 item correctly until promotion fires.
     let promoted = false;
     let currentCefr = "A1";
+    let sawSpeedRise = false;
+    let lastSpeed = car0.speed;
     for (let round = 0; round < 4 && !promoted; round++) {
       for (const ex of a1) {
         const ci = await correctIndexOf(ex.id);
@@ -70,14 +77,21 @@ describe.skipIf(!RUN)("Phase 0 end-to-end learning loop", () => {
           .send({ userId: user.id, exerciseId: ex.id, selectedIndex: ci, latencyMs: 1500 });
         expect(res.body.correct).toBe(true);
         currentCefr = res.body.tier.currentCefr;
+        // Car rides along in the attempt response and tunes up within the tier.
+        if (!promoted && res.body.car.speed > lastSpeed) sawSpeedRise = true;
+        lastSpeed = res.body.car.speed;
         if (res.body.tier.action === "promote") {
           promoted = true;
           expect(res.body.tier.nextCefr).toBe("A2");
+          // The model swap is the CEFR reward (D3): now a Hot Hatch.
+          expect(res.body.car.className).toBe("Hot Hatch");
+          expect(res.body.car.tier).toBe(1);
         }
       }
     }
 
     expect(promoted).toBe(true);
+    expect(sawSpeedRise).toBe(true);
 
     // Enrollment now reflects A2; proficiency + FSRS state exist.
     const prof = await request(app).get("/proficiency").query({ userId: user.id, pairId });

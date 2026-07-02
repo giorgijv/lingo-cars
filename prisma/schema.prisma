@@ -186,6 +186,19 @@ model ReviewState {
   @@index([userId, due]) // "what's due now" queue
 }
 
+// ─────────────── CATALOG: car ladder (Phase 1) ───────────────
+// Static anchors for the two-tier progression (§3.2). The car a user "has" is
+// NEVER stored — it is computed on read from Enrollment.currentCefr +
+// ProficiencyState.inTierProgress against this catalog (D5: pure projection).
+
+model CarCatalog {
+  tier         Int    @id // 0..5 == A1..C2
+  className    String // shipped, brand-agnostic name (D4)
+  baseSpeed    Float
+  baseHandling Float
+  unlockCefr   Cefr   @unique
+}
+
 // ─────────────── DERIVED: per-(user,pair) rollup (replayable) ───────────────
 
 model ProficiencyState {
