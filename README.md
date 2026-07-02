@@ -1,4 +1,4 @@
-# lingo-cars — Phases 0–3 (learning loop, car projection, content pipeline, economy)
+# lingo-cars — Phases 0–4 (learning loop, car projection, content pipeline, economy, race)
 
 [![CI](https://github.com/giorgijv/lingo-cars/actions/workflows/ci.yml/badge.svg)](https://github.com/giorgijv/lingo-cars/actions/workflows/ci.yml)
 
@@ -30,7 +30,15 @@ Backend for a gamified language-learning app.
   (secondary-market MVP). `Purchase` is an immutable ledger like `Attempt`;
   balance and ownership are pure projections. **D3 holds:** cosmetics are
   gated to already-unlocked tiers and never advance one; **D5 holds:** stats
-  are untouched by ownership. See [`CLAUDE.md`](./CLAUDE.md) for the spec.
+  are untouched by ownership.
+- **Phase 4 — race minigame:** a time trial where **proficiency sets the
+  performance ceiling** (D5: `ceiling = speed^0.7 × handling^0.3` from the car
+  projection) and shift skill only realizes 50–100% of it — a zero-skill
+  Hypercar beats a perfect City Hatch. Racing appends to an immutable
+  `RaceResult` log and awards nothing (no points/xp/CEFR).
+- **Next:** multi-modal placement (write / listen / speak) is planned in
+  [`plans/placement-modalities.md`](./plans/placement-modalities.md).
+  See [`CLAUDE.md`](./CLAUDE.md) for the spec.
 
 ## Non-negotiable guardrails (enforced here)
 
@@ -127,6 +135,8 @@ npm test           # vitest — pure unit tests always run;
 | `GET /car?userId&pairId` | **Phase 1.** The car as a pure projection: tier/class from `currentCefr`, speed & handling interpolated by `inTierProgress` toward the next class's base stats, plus micro-milestones (0.25/0.5/0.75). Computed on read — never stored (D5). |
 | `GET /economy?userId&pairId` | **Phase 3.** Balance (= xp − buys + sells), owned cosmetics, and the catalog with unlocked/affordable flags — all projections of xp + the `Purchase` ledger. |
 | `POST /purchases` | **Phase 3.** `{ userId, pairId, cosmeticId, action: buy\|sell }` — appends one immutable ledger row (serializable tx). Buy requires the item's tier to be already unlocked (403 otherwise — D3), sufficient balance, and non-ownership; sell refunds 50%. |
+| `POST /races` | **Phase 4.** `{ userId, pairId, shiftAccuracies: number[0..1][] }` — server projects the car (the D5 ceiling), computes the finish time, appends one immutable `RaceResult`. Awards nothing. |
+| `GET /races?userId&pairId` | Personal best + last 10 runs. |
 
 Grading is **server-authoritative**: clients send the selected option index and
 never receive `correctIndex`.

@@ -81,6 +81,7 @@ model LanguagePair {
   skills            Skill[]
   proficiencyStates ProficiencyState[]
   purchases         Purchase[]
+  raceResults       RaceResult[]
 
   @@unique([sourceCode, targetCode])
 }
@@ -98,6 +99,7 @@ model User {
   reviewStates      ReviewState[]
   proficiencyStates ProficiencyState[]
   purchases         Purchase[]
+  raceResults       RaceResult[]
 }
 
 model Enrollment {
@@ -247,6 +249,29 @@ model Purchase {
   cosmetic CosmeticsCatalog @relation(fields: [cosmeticId], references: [id])
 
   @@index([userId, pairId, createdAt])
+}
+
+// ─────────────── IMMUTABLE LOG: race results (Phase 4, append-only) ───────────────
+// D5 hard rule: proficiency sets the performance CEILING (the car's projected
+// speed/handling are snapshotted per race); race skill only realizes a fraction
+// of that ceiling. Racing writes NOTHING that proficiency, tier, or the economy
+// read — no points, no xp, no CEFR movement. Pure engagement.
+
+model RaceResult {
+  id         String   @id @default(cuid())
+  userId     String
+  pairId     String
+  tier       Int // car snapshot at race time
+  speed      Float
+  handling   Float
+  skillScore Float // 0..1, from gameplay inputs
+  finishMs   Int
+  createdAt  DateTime @default(now())
+
+  user User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  pair LanguagePair @relation(fields: [pairId], references: [id], onDelete: Cascade)
+
+  @@index([userId, pairId, finishMs])
 }
 
 // ─────────────── DERIVED: per-(user,pair) rollup (replayable) ───────────────

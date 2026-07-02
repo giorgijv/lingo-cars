@@ -243,6 +243,49 @@ describe.skipIf(!RUN)("Phase 0 API integration", () => {
     ).rejects.toThrow();
   });
 
+  it("runs Phase 4 races: server-authoritative, ceiling-bound, and reward-free (D5)", async () => {
+    const { body: racer } = await request(app)
+      .post("/users")
+      .send({ email: `race-${Date.now()}@test.dev`, uiLanguage: "de" });
+    await request(app).post("/enrollments").send({ userId: racer.id, pairId });
+
+    // Snapshot everything a race must NOT change.
+    const ecoBefore = await request(app).get("/economy").query({ userId: racer.id, pairId });
+    const profBefore = await request(app).get("/proficiency").query({ userId: racer.id, pairId });
+
+    // Sloppy run, then a perfect run.
+    const sloppy = await request(app)
+      .post("/races")
+      .send({ userId: racer.id, pairId, shiftAccuracies: [0.2, 0.1, 0.3, 0.2, 0.1] });
+    expect(sloppy.status).toBe(201);
+    const perfect = await request(app)
+      .post("/races")
+      .send({ userId: racer.id, pairId, shiftAccuracies: [1, 1, 1, 1, 1] });
+    expect(perfect.body.finishMs).toBeLessThan(sloppy.body.finishMs);
+    // Perfect skill hits exactly this car's ceiling — never past it.
+    expect(perfect.body.finishMs).toBe(perfect.body.ceilingMs);
+    expect(perfect.body.isNewBest).toBe(true);
+
+    const races = await request(app).get("/races").query({ userId: racer.id, pairId });
+    expect(races.body.best.finishMs).toBe(perfect.body.finishMs);
+    expect(races.body.recent).toHaveLength(2);
+
+    // Racing awards NOTHING: economy, xp, and CEFR are untouched.
+    const ecoAfter = await request(app).get("/economy").query({ userId: racer.id, pairId });
+    const profAfter = await request(app).get("/proficiency").query({ userId: racer.id, pairId });
+    expect(ecoAfter.body.balance).toBe(ecoBefore.body.balance);
+    expect(profAfter.body.currentCefr).toBe(profBefore.body.currentCefr);
+    expect(profAfter.body.proficiency?.xp ?? 0).toBe(profBefore.body.proficiency?.xp ?? 0);
+
+    // Rule 4: the race log is append-only at the DB level.
+    await expect(
+      db.$executeRawUnsafe(`UPDATE "RaceResult" SET "finishMs" = 1 WHERE "userId" = $1`, racer.id),
+    ).rejects.toThrow();
+
+    // Validation: accuracies outside [0,1] are rejected.
+    expect((await request(app).post("/races").send({ userId: racer.id, pairId, shiftAccuracies: [2] })).status).toBe(400);
+  });
+
   it("validates input and maps errors", async () => {
     expect((await request(app).post("/users").send({ email: "not-an-email" })).status).toBe(400);
     expect((await request(app).get("/queue").query({ userId })).status).toBe(400);
