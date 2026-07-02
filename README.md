@@ -16,8 +16,11 @@ Backend for a gamified language-learning app.
 - **Phase 1 — the motivation loop:** the car as a **pure read-only projection**
   of proficiency — a static `CarCatalog` ladder, stat interpolation within a
   tier, and intra-tier micro-milestones. No points economy, no market, no race
-  (Phase 3+). Backend content is still **de→es**; the extra pairs exist in the
-  demo only. See [`CLAUDE.md`](./CLAUDE.md) for the full spec and rationale.
+  (Phase 3+).
+- **Language pairs:** all four pairs are seeded with A1/A2 MCQ content —
+  **de→es, en→es, de→ka, en→ka** — generated from two target-language banks
+  (Spanish + Georgian/Mkhedruli) with per-source stems. The engine is
+  byte-identical across pairs. See [`CLAUDE.md`](./CLAUDE.md) for the spec.
 
 ## Non-negotiable guardrails (enforced here)
 
@@ -80,7 +83,7 @@ npm install
 cp .env.example .env    # edit DATABASE_URL (app_role) + DIRECT_URL (owner)
 
 npm run prisma:deploy   # tables + append-only trigger/grants
-npm run seed            # de/es, de->es, A1/A2 skills -> lessons -> MCQ exercises
+npm run seed            # 4 languages, 4 pairs, car catalog, A1/A2 content per pair
 ```
 
 `DATABASE_URL` uses the **restricted** `app_role`; `DIRECT_URL` uses the table
