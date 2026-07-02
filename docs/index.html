@@ -74,6 +74,15 @@
   .lead{color:var(--muted);font-size:15px;line-height:1.5;margin:8px 0 0}
   .kpis{display:flex;gap:18px;justify-content:center;margin-top:14px;color:var(--muted);font-size:13px;flex-wrap:wrap}
   .kpis b{color:var(--ink);font-size:16px}
+  .track{position:relative;height:46px;background:#0d1420;border:1px solid var(--line);border-radius:12px;overflow:hidden;margin:12px 0}
+  .zone{position:absolute;top:0;bottom:0;left:41%;width:18%;background:rgba(63,185,138,.22);border-left:1px solid var(--good);border-right:1px solid var(--good)}
+  .marker{position:absolute;top:0;bottom:0;width:4px;background:#fff;border-radius:2px;box-shadow:0 0 8px #fff}
+  .shiftfb{min-height:20px;font-weight:800;font-size:14px;text-align:center}
+  .racedash{position:relative;height:70px;overflow:hidden;margin:8px 0}
+  .racedash svg{position:absolute;left:-30%;width:200px;height:auto;animation:dash linear forwards}
+  @keyframes dash{from{left:-25%}to{left:100%}}
+  .racestats{display:flex;gap:16px;justify-content:center;color:var(--muted);font-size:13px;flex-wrap:wrap;margin-top:8px}
+  .racestats b{color:var(--ink);font-size:17px}
   .shop{display:grid;grid-template-columns:repeat(auto-fill,minmax(185px,1fr));gap:10px;margin-top:4px}
   .shopitem{background:#0f1620;border:1px solid var(--line);border-radius:12px;padding:12px;display:flex;flex-direction:column;gap:6px}
   .shopitem .nm{font-weight:800;font-size:14px}
@@ -123,6 +132,18 @@
       </div>
       <div class="mstones" id="mstones"></div>
     </div>
+    <div class="row" style="justify-content:center;margin-top:14px">
+      <button class="btn secondary" id="raceBtn">🏁 Race this car</button>
+    </div>
+  </section>
+
+  <!-- RACE (Phase 4 — proficiency is the ceiling) -->
+  <section class="card panel hide" id="racePanel">
+    <div class="qmeta">
+      <span class="badge">🏁 Time trial</span>
+      <span id="raceMeta"></span>
+    </div>
+    <div id="raceStage"></div>
   </section>
 
   <!-- INTRO -->
@@ -642,8 +663,98 @@ let nextAction=null;
 function showNext(action){ nextAction=action; }
 $("nextBtn").onclick=()=>{ if(nextAction){ const a=nextAction; nextAction=null; a(); } };
 
+/* ============================ Race (Phase 4) ============================ */
+/* D5: proficiency sets the CEILING — ceiling = speed^0.7 × handling^0.3 from
+   the car's CURRENT projected stats; shift skill realizes 50..100% of it.
+   Racing awards nothing: no XP, no points, no progress. */
+const RACE_BASE_MS = 20000, RACE_SHIFTS = 5;
+function computeRaceDemo(spd, hnd, accs){
+  const skill = accs.reduce((s,a)=>s+Math.min(1,Math.max(0,a)),0)/accs.length;
+  const ceiling = Math.pow(spd,0.7)*Math.pow(hnd,0.3);
+  const realized = ceiling*(0.5+0.5*skill);
+  return { skill, finishMs: Math.round(RACE_BASE_MS/realized), ceilingMs: Math.round(RACE_BASE_MS/ceiling) };
+}
+let race=null;
+function carStats(){
+  const st=P(); const t=st.tier, p=inTierProgress(t);
+  const c=CARS[t], n=CARS[Math.min(t+1,CARS.length-1)];
+  const top = t===CARS.length-1;
+  return { spd: top?c.spd:lerp(c.spd,n.spd,p), hnd: top?c.hnd:lerp(c.hnd,n.hnd,p) };
+}
+function openRace(){
+  ["introPanel","quizPanel","resultPanel"].forEach(id=>$(id).classList.add("hide"));
+  $("racePanel").classList.remove("hide");
+  $("raceMeta").textContent = `${CARS[P().tier].name} · hit SHIFT in the green zone`;
+  race = { accs:[], raf:0, t0:performance.now() };
+  renderShiftRound();
+}
+function closeRace(){
+  if(race){ cancelAnimationFrame(race.raf); race=null; }
+  $("racePanel").classList.add("hide");
+  showIntro();
+}
+function renderShiftRound(){
+  $("raceStage").innerHTML = `
+    <div class="shiftfb" id="shiftFb">Gear ${race.accs.length+1} / ${RACE_SHIFTS}</div>
+    <div class="track" id="raceTrack"><div class="zone"></div><div class="marker" id="raceMarker"></div></div>
+    <div class="row" style="justify-content:center">
+      <button class="btn" id="shiftBtn">SHIFT ⚡</button>
+      <button class="btn secondary" id="raceQuitBtn">Quit</button>
+    </div>`;
+  const marker=$("raceMarker");
+  const tick=(now)=>{
+    if(!race) return;
+    const t=(now-race.t0)/1000;
+    const phase=(t*0.9)%2, pos=phase<1?phase:2-phase; // ping-pong 0..1
+    race.pos=pos;
+    marker.style.left=`calc(${(pos*100).toFixed(2)}% - 2px)`;
+    race.raf=requestAnimationFrame(tick);
+  };
+  race.raf=requestAnimationFrame(tick);
+  $("shiftBtn").onclick=()=>doShift();
+  $("raceQuitBtn").onclick=closeRace;
+}
+function doShift(acc){
+  if(!race) return;
+  const a = acc!==undefined ? acc : Math.max(0, 1-Math.abs((race.pos??0)-0.5)*2.5);
+  race.accs.push(a);
+  $("shiftFb").textContent = a>0.85?"Perfect shift! 🔥":a>0.55?"Good shift":a>0.25?"Late…":"Missed!";
+  if(race.accs.length>=RACE_SHIFTS){ cancelAnimationFrame(race.raf); finishRace(race.accs); }
+  else setTimeout(()=>{ if(race) renderShiftRound(); }, 450);
+}
+function finishRace(accs){
+  const st=P(); const {spd,hnd}=carStats();
+  const r=computeRaceDemo(spd,hnd,accs);
+  if(!st.raceBest) st.raceBest={};
+  const prev=st.raceBest[st.tier];
+  const isBest=!prev||r.finishMs<prev;
+  if(isBest) st.raceBest[st.tier]=r.finishMs;
+  save();
+  const cos=cosmeticsOf(st);
+  const dur=Math.min(2.6, r.finishMs/8000);
+  $("raceStage").innerHTML = `
+    <div class="racedash"><svg viewBox="0 0 480 190" style="animation-duration:${dur}s">${carSVG(st.tier,inTierProgress(st.tier),cos).replace(/^[\s\S]*?<svg[^>]*>/,"").replace(/<\/svg>\s*$/,"")}</svg></div>
+    <div class="shiftfb">${isBest?"🏆 New personal best!":"Finished!"}</div>
+    <div class="racestats">
+      <span><b>${(r.finishMs/1000).toFixed(2)}s</b> your time</span>
+      <span><b>${(r.ceilingMs/1000).toFixed(2)}s</b> this car's ceiling</span>
+      <span><b>${Math.round(r.skill*100)}%</b> shift skill</span>
+      <span><b>${((st.raceBest[st.tier])/1000).toFixed(2)}s</b> best (${CARS[st.tier].name})</span>
+    </div>
+    <p class="lead" style="font-size:12px;text-align:center">Perfect shifting only reaches this car's ceiling — a faster ceiling comes from language mastery, not the track.</p>
+    <div class="row" style="justify-content:center">
+      <button class="btn" id="raceAgainBtn">Race again</button>
+      <button class="btn secondary" id="raceCloseBtn">Back to studying</button>
+    </div>`;
+  $("raceAgainBtn").onclick=openRace;
+  $("raceCloseBtn").onclick=closeRace;
+  return r;
+}
+
 /* ============================ Pair switching & wiring ============================ */
 function showIntro(){
+  if(race){ cancelAnimationFrame(race.raf); race=null; }
+  $("racePanel").classList.add("hide");
   $("quizPanel").classList.add("hide"); $("resultPanel").classList.add("hide");
   $("introPanel").classList.remove("hide");
   $("introTitle").textContent = P().placed ? "Welcome back 👋" : "Welcome 👋";
@@ -661,6 +772,7 @@ sel.onchange = ()=>{
   showIntro(); renderGarage(true);
 };
 
+$("raceBtn").onclick=openRace;
 $("startBtn").onclick=startPlacement;
 $("skipBtn").onclick=()=>{ if(!P().placed){ P().tier=0; P().placed=true; save(); } startStudy(); };
 $("beginStudyBtn").onclick=startStudy;

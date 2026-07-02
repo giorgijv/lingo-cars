@@ -8,6 +8,7 @@ import { recomputeProficiency } from "./engine/proficiency.js";
 import { applyTierDecision } from "./engine/mastery.js";
 import { getCar } from "./engine/car.js";
 import { EconomyError, getEconomy, tradeCosmetic } from "./engine/economy.js";
+import { getRaces, MAX_SHIFTS, runRace } from "./engine/race.js";
 import {
   answerPlacement,
   finalizePlacement,
@@ -225,6 +226,31 @@ export function createRouter(db: PrismaClient): Router {
       }
       throw err;
     }
+  }));
+
+  // ── Race minigame (Phase 4) — proficiency is the ceiling (D5); racing
+  //    appends to an immutable log and awards nothing (no points/xp/CEFR). ──
+  const raceSchema = z.object({
+    userId: z.string(),
+    pairId: z.string(),
+    shiftAccuracies: z.array(z.number().min(0).max(1)).min(1).max(MAX_SHIFTS),
+  });
+  r.post("/races", asyncHandler(async (req, res) => {
+    const { userId, pairId, shiftAccuracies } = parse(raceSchema, req.body);
+    const run = await runRace(db, userId, pairId, shiftAccuracies);
+    res.status(201).json({
+      finishMs: run.outcome.finishMs,
+      ceilingMs: run.outcome.ceilingMs,
+      skillScore: run.outcome.skillScore,
+      bestMs: run.bestMs,
+      isNewBest: run.isNewBest,
+      car: { tier: run.car.tier, className: run.car.className, speed: run.car.speed, handling: run.car.handling },
+    });
+  }));
+
+  r.get("/races", asyncHandler(async (req, res) => {
+    const { userId, pairId } = parse(userPairQuery, req.query);
+    res.json(await getRaces(db, userId, pairId));
   }));
 
   // ── Proficiency read ──
