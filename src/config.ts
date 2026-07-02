@@ -46,10 +46,10 @@ export function cefrIndex(c: Cefr): number {
   return CEFR_ORDER.indexOf(c);
 }
 
-/** Placement test budget. */
+/** Placement test budget: at least 15 items for a comprehensive estimate. */
 export const PLACEMENT = {
   maxItems: 24,
-  minItems: 12,
+  minItems: 15,
   /** starting difficulty on the A2/B1 boundary */
   startDifficulty: 2.5,
   /** low in-tier progress seeded after placement */

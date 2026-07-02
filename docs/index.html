@@ -446,7 +446,7 @@ function checkMilestoneToast(){
 /* ============================ Placement ============================ */
 let placement=null;
 function startPlacement(){
-  placement = { ability:2.5, i:0, n:6, asked:new Set() };
+  placement = { ability:2.5, i:0, n:15, asked:new Set() };
   $("introPanel").classList.add("hide");
   $("resultPanel").classList.add("hide");
   $("quizPanel").classList.remove("hide");
@@ -554,7 +554,7 @@ function showIntro(){
   $("introTitle").textContent = P().placed ? "Welcome back 👋" : "Welcome 👋";
   $("introLead").textContent = P().placed
     ? `Your ${pairLabel(S.pair)} garage is saved. Keep driving, retake placement, or reset this pair.`
-    : `Take a quick placement test for ${pairLabel(S.pair)} to find your starting level, then keep answering to tune your car. Each language pair has its own garage.`;
+    : `Take a 15-question adaptive placement test for ${pairLabel(S.pair)} to find your starting level, then keep answering to tune your car. Each language pair has its own garage.`;
   $("skipBtn").textContent = P().placed ? "Continue studying" : "Skip & study at A1";
 }
 const sel = $("pairSel");

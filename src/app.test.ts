@@ -111,8 +111,55 @@ describe.skipIf(!RUN)("Phase 0 API integration", () => {
     expect(car.body.cefr).toBe(prof.body.currentCefr);
   });
 
+  it("serves all four language pairs, including de→ka Georgian content", async () => {
+    const pairs = await request(app).get("/pairs");
+    const ids = pairs.body.map((p: { id: string }) => p.id);
+    expect(ids).toEqual(expect.arrayContaining(["pair-de-es", "pair-en-es", "pair-de-ka", "pair-en-ka"]));
+
+    // Enroll the same user into de→ka and study a Georgian exercise end-to-end.
+    const enr = await request(app).post("/enrollments").send({ userId, pairId: "pair-de-ka" });
+    expect(enr.status).toBe(201);
+
+    const queue = await request(app).get("/queue").query({ userId, pairId: "pair-de-ka" });
+    expect(queue.status).toBe(200);
+    expect(queue.body.new.length).toBeGreaterThan(0);
+    const item = queue.body.new[0];
+    // Options are Georgian (Mkhedruli block U+10A0–U+10FF).
+    expect(item.options.join("")).toMatch(/[Ⴀ-ჿ]/);
+
+    const ex = await db.exercise.findUniqueOrThrow({ where: { id: item.id } });
+    const payload = mcqPayloadSchema.parse(ex.payloadJson);
+    const res = await request(app)
+      .post("/attempts")
+      .send({ userId, exerciseId: item.id, selectedIndex: payload.correctIndex, latencyMs: 1500 });
+    expect(res.body.correct).toBe(true);
+    expect(res.body.car.className).toBeDefined();
+
+    // Pair isolation: the de→es proficiency is a separate row from de→ka's.
+    const profKa = await request(app).get("/proficiency").query({ userId, pairId: "pair-de-ka" });
+    expect(profKa.status).toBe(200);
+  });
+
+  it("runs a placement with at least 15 items", async () => {
+    let start = await request(app).post("/placement/start").send({ pairId: "pair-de-ka" });
+    let state = start.body.state;
+    let exercise = start.body.exercise;
+    let done = false;
+    let count = 0;
+    while (!done && exercise && count < 40) {
+      const ans = await request(app)
+        .post("/placement/answer")
+        .send({ pairId: "pair-de-ka", state, exerciseId: exercise.id, selectedIndex: 0, latencyMs: 1500 });
+      state = ans.body.state;
+      done = ans.body.done;
+      exercise = ans.body.exercise;
+      count++;
+    }
+    expect(state.responses.length).toBeGreaterThanOrEqual(15);
+  });
+
   it("returns a lesson without correctIndex", async () => {
-    const lesson = await request(app).get("/lessons/lesson-greetings-0");
+    const lesson = await request(app).get("/lessons/lesson-de-es-greetings-0");
     expect(lesson.status).toBe(200);
     for (const e of lesson.body.exercises) {
       expect(e).toHaveProperty("options");
