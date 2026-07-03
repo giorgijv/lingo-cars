@@ -2,11 +2,11 @@
 
 [![CI](https://github.com/giorgijv/lingo-cars/actions/workflows/ci.yml/badge.svg)](https://github.com/giorgijv/lingo-cars/actions/workflows/ci.yml)
 
-&copy; Giorgi Jvarsheishvili. All rights reserved.
+&copy; 2026 Giorgi Jvarsheishvili. All rights reserved.
 
 > **🏎️ Live demo:** <https://giorgijv.github.io/lingo-cars/> — a standalone,
 > in-browser illustration of the car-progression concept: pick a language pair
-> (de→es, en→es, de→ka, en→ka, de→ru), take a placement test, study multiple-choice,
+> (de→es, en→es, de→ka, en→ka, de→ru, en→ru), take a placement test, study multiple-choice,
 > typed, listen, and read-aloud exercises, and watch the car level up City
 > Hatch → Hypercar with milestone cosmetics along the way. It runs entirely
 > client-side and is separate from the API below.
@@ -51,17 +51,17 @@ Backend for a gamified language-learning app.
   of proficiency — a static `CarCatalog` ladder, stat interpolation within a
   tier, and intra-tier micro-milestones. No points economy, no market, no race
   (Phase 3+).
-- **Language pairs:** five pairs — **de→es, en→es, de→ka, en→ka, de→ru** —
-  served from three target-language banks with per-source stems. The engine
-  is byte-identical across pairs.
+- **Language pairs:** six pairs — **de→es, en→es, de→ka, en→ka, de→ru,
+  en→ru** — served from three target-language banks with per-source stems.
+  The engine is byte-identical across pairs.
 - **Phase 2 — content pipeline + script/case depth:** course content lives as
   validated data in [`content/`](./content) (zod-gated by
   `src/content/bank.ts`; `npm run content:check` runs in CI). The Georgian
   bank carries real curriculum depth: Mkhedruli script recognition, the
   nominative/ergative/dative case system, and verb person/tense morphology.
-  The Russian bank (`content/ru.json`, `de→ru`) mirrors that depth: Cyrillic
-  script recognition, the six-case system, and verb aspect
-  (perfective/imperfective) + motion verbs.
+  The Russian bank (`content/ru.json`, served to both `de→ru` and `en→ru`)
+  mirrors that depth: Cyrillic script recognition, the six-case system, and
+  verb aspect (perfective/imperfective) + motion verbs.
 - **Phase 3 — economy & agency:** points (earned from answering) can be
   **spent** on visual cosmetics, **saved**, or items **sold back** at 50%
   (secondary-market MVP). `Purchase` is an immutable ledger like `Attempt`;
@@ -286,7 +286,6 @@ never receive `correctIndex`.
 
 ## Not built yet (later phases)
 
-Points economy & allocation choices, cosmetic market, race minigame,
-English-source backend content for `ru` (only `de→ru` is seeded), and any
+Points economy & allocation choices, cosmetic market, race minigame, and any
 C-level checkpoint (`assessments` table).
 Per [`CLAUDE.md`](./CLAUDE.md) §8.

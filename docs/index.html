@@ -125,12 +125,14 @@
   .toast.show{opacity:1;transform:translateX(-50%) translateY(6px)}
   footer{color:var(--muted);font-size:12px;text-align:center;margin-top:26px;line-height:1.6}
   footer a{color:var(--accent);text-decoration:none}
+  .topCopyright{color:var(--muted);font-size:11px;text-align:center;padding:6px 0 2px}
   .hide{display:none}
 </style>
 </head>
 <body>
 <div class="toast" id="toast"></div>
 <div class="wrap">
+  <div class="topCopyright">&copy; 2026 Giorgi Jvarsheishvili. All rights reserved.</div>
   <header>
     <div class="brand"><span class="dot">●</span> Lingo&nbsp;Cars</div>
     <div class="row" style="margin-top:0;gap:8px">
@@ -272,7 +274,7 @@
 const $ = id => document.getElementById(id);
 $("copyYear").textContent = new Date().getFullYear();
 const LANGS = { de:{name:"German",flag:"🇩🇪"}, en:{name:"English",flag:"🇬🇧"}, es:{name:"Spanish",flag:"🇪🇸"}, ka:{name:"Georgian",flag:"🇬🇪"}, ru:{name:"Russian",flag:"🇷🇺"} };
-const PAIRS = ["de-es","en-es","de-ka","en-ka","de-ru"];
+const PAIRS = ["de-es","en-es","de-ka","en-ka","de-ru","en-ru"];
 const pairLabel = id => { const [s,t]=id.split("-"); return `${LANGS[s].flag} ${LANGS[s].name} → ${LANGS[t].flag} ${LANGS[t].name}`; };
 
 /* ============================ Content banks ============================ */
