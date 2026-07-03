@@ -181,6 +181,58 @@ npm test           # vitest — pure unit tests always run;
                    # DB integration + e2e run only when DATABASE_URL is set
 ```
 
+## Deploying (Supabase + Render, both free-tier)
+
+The demo's login (`docs/index.html`, 👤 button) needs this API reachable from
+the public internet — it isn't hosted anywhere by default. This is the
+cheapest path: **Supabase for Postgres, Render for the Node API.** Neither
+requires code changes; both configs below are already in the repo.
+
+### 1. Database — Supabase
+
+1. Create a Supabase project (or reuse an existing one) at
+   [supabase.com](https://supabase.com).
+2. Open **SQL Editor** and run the same role-creation SQL used for local dev
+   (`docker/init/01-app-role.sql`), against Supabase's default `postgres`
+   database:
+   ```sql
+   CREATE ROLE app_role LOGIN PASSWORD 'choose-a-strong-password-here';
+   GRANT CONNECT ON DATABASE postgres TO app_role;
+   ```
+   `prisma migrate deploy` (next step, run by Render) applies this role's
+   per-table grants and the append-only triggers automatically — same
+   migrations as local dev, nothing Supabase-specific to write.
+3. In **Project Settings → Database**, copy two connection strings:
+   - **Connection pooling** (port 6543, "Transaction" mode) — this becomes
+     `DATABASE_URL`. Swap in the `app_role` user/password from step 2, and
+     append `?pgbouncer=true` (Prisma needs this over PgBouncer).
+   - **Direct connection** (port 5432) — this becomes `DIRECT_URL`, using the
+     `postgres` (owner) user/password Supabase gives you. Migrations need a
+     direct connection, not the pooled one.
+
+### 2. API — Render
+
+1. Push this repo to GitHub (already done), then in Render create
+   **New → Blueprint** and point it at the repo — it reads
+   [`render.yaml`](./render.yaml) and creates the `lingo-cars-api` free web
+   service automatically. (Or create a **Web Service** by hand with the same
+   build/start commands from that file, if you'd rather not use Blueprints.)
+2. In the service's **Environment** tab, set `DATABASE_URL` and `DIRECT_URL`
+   to the two Supabase strings from step 1 (`render.yaml` deliberately leaves
+   these blank — never commit real credentials).
+3. Deploy. The build runs `npm run render-build`
+   (`prisma generate` → `prisma migrate deploy` → `tsc build` → `npm run seed`
+   — seeding is idempotent, safe on every deploy) then starts the API;
+   `/health` is the configured health-check path.
+4. Copy the resulting `https://lingo-cars-api-xxxx.onrender.com` URL.
+
+### 3. Point the demo at it
+
+Open the live demo, click 👤 → paste that Render URL into **API server URL**,
+then sign up. Render's free tier spins the service down after ~15 min idle,
+so the first request after a quiet spell takes a few seconds (cold start) —
+expected, not a bug.
+
 ## API
 
 | Method & path | Purpose |

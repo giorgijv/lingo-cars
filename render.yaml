@@ -1,0 +1,26 @@
+# Render Blueprint for the API — see README "Deploying" section.
+#
+# This deploys ONLY the Node/Express API on Render's free web-service tier.
+# Postgres itself is NOT provisioned here: DATABASE_URL/DIRECT_URL point at a
+# database you host elsewhere (Supabase, Neon, etc. — see the README), since
+# Render's own free Postgres expires after 90 days.
+#
+# `render-build` (package.json) runs prisma generate -> migrate deploy ->
+# tsc build -> seed, in that order, against DIRECT_URL/DATABASE_URL. Seeding
+# is idempotent (deterministic ids + upserts, never deletes) so it's safe to
+# run on every deploy, not just the first one.
+services:
+  - type: web
+    name: lingo-cars-api
+    runtime: node
+    plan: free
+    buildCommand: npm ci && npm run render-build
+    startCommand: npm start
+    healthCheckPath: /health
+    envVars:
+      - key: NODE_VERSION
+        value: 20.18.0
+      - key: DATABASE_URL
+        sync: false # set in the Render dashboard — never commit real credentials
+      - key: DIRECT_URL
+        sync: false # set in the Render dashboard — never commit real credentials
