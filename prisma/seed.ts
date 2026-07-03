@@ -1,12 +1,14 @@
 import { PrismaClient, type Cefr, type ExerciseType } from "@prisma/client";
 import { CEFR_DIFFICULTY } from "../src/config.js";
 import { fillPayloadSchema, listenPayloadSchema, mcqPayloadSchema, speakPayloadSchema } from "../src/content/mcq.js";
-import { isFillExercise, isListenExercise, isSpeakExercise, loadBank, optionsFor, type SourceLang, type TargetLang } from "../src/content/bank.js";
+import { isFillExercise, isListenExercise, isSpeakExercise, loadBank, optionsFor, PAIRS } from "../src/content/bank.js";
 
 /**
- * Seed: languages, all six pairs, the car catalog, the cosmetics catalog,
- * and course content loaded from the content pipeline (content/{target}.json,
- * validated by src/content/bank.ts — invalid content never reaches the DB).
+ * Seed: languages, all twelve pairs (PAIRS in src/content/bank.ts — the
+ * single source of truth, shared with content-coverage validation), the car
+ * catalog, the cosmetics catalog, and course content loaded from the content
+ * pipeline (content/{target}.json, validated by src/content/bank.ts —
+ * invalid content never reaches the DB).
  *
  * Runs as the DB OWNER (DIRECT_URL) because app_role is read-only on content.
  * Deterministic IDs (`skill-{src}-{tgt}-{key}`, …) + upserts keep it
@@ -15,15 +17,6 @@ import { isFillExercise, isListenExercise, isSpeakExercise, loadBank, optionsFor
 const prisma = new PrismaClient({
   datasources: { db: { url: process.env.DIRECT_URL ?? process.env.DATABASE_URL } },
 });
-
-const PAIRS: { src: SourceLang; tgt: TargetLang }[] = [
-  { src: "de", tgt: "es" },
-  { src: "en", tgt: "es" },
-  { src: "de", tgt: "ka" },
-  { src: "en", tgt: "ka" },
-  { src: "de", tgt: "ru" },
-  { src: "en", tgt: "ru" },
-];
 
 /** Car ladder anchors (§3.2 of the spec) — brand-agnostic shipped names (D4). */
 const CAR_LADDER: { tier: number; className: string; baseSpeed: number; baseHandling: number; unlockCefr: Cefr }[] = [
@@ -82,6 +75,8 @@ export async function main() {
     es: loadBank("es"),
     ka: loadBank("ka"),
     ru: loadBank("ru"),
+    de: loadBank("de"),
+    en: loadBank("en"),
   };
 
   let pairCount = 0;
@@ -108,8 +103,8 @@ export async function main() {
       const skillId = `skill-${src}-${tgt}-${skill.key}`;
       await prisma.skill.upsert({
         where: { id: skillId },
-        update: { name: skill.name[src], cefr: skill.cefr, orderIdx: s, pairId },
-        create: { id: skillId, pairId, cefr: skill.cefr, name: skill.name[src], orderIdx: s },
+        update: { name: skill.name[src]!, cefr: skill.cefr, orderIdx: s, pairId },
+        create: { id: skillId, pairId, cefr: skill.cefr, name: skill.name[src]!, orderIdx: s },
       });
       skillCount++;
 
@@ -133,12 +128,12 @@ export async function main() {
                 ? "speak"
                 : "mcq";
           const payload = isFillExercise(ex)
-            ? fillPayloadSchema.parse({ stem: ex.stem[src], answers: ex.answers, tolerance: ex.tolerance })
+            ? fillPayloadSchema.parse({ stem: ex.stem[src]!, answers: ex.answers, tolerance: ex.tolerance })
             : isListenExercise(ex)
-              ? listenPayloadSchema.parse({ stem: ex.stem[src], transcript: ex.transcript, options: ex.options, correctIndex: ex.correctIndex })
+              ? listenPayloadSchema.parse({ stem: ex.stem[src]!, transcript: ex.transcript, options: ex.options, correctIndex: ex.correctIndex })
               : isSpeakExercise(ex)
-                ? speakPayloadSchema.parse({ stem: ex.stem[src], text: ex.text, tolerance: ex.tolerance })
-                : mcqPayloadSchema.parse({ stem: ex.stem[src], options: optionsFor(ex, src), correctIndex: ex.correctIndex });
+                ? speakPayloadSchema.parse({ stem: ex.stem[src]!, text: ex.text, tolerance: ex.tolerance })
+                : mcqPayloadSchema.parse({ stem: ex.stem[src]!, options: optionsFor(ex, src), correctIndex: ex.correctIndex });
           // integrity gate (all branches validated above)
           const exerciseId = `ex-${src}-${tgt}-${skill.key}-${l}-${e}`;
           await prisma.exercise.upsert({

@@ -6,23 +6,62 @@ import { z } from "zod";
 /**
  * Content pipeline (Phase 2): course content lives as validated DATA in
  * content/{target}.json — not in code. One bank per TARGET language carries
- * stems per SOURCE language (de/en), so a single bank serves every pair with
- * that target. The seed and the check script both load through this module,
- * so invalid content can never reach the database.
+ * stems per SOURCE language, so a single bank serves every pair with that
+ * target (e.g. content/ka.json serves both de→ka and en→ka; content/de.json
+ * serves es→de, ka→de, and ru→de). The seed and the check script both load
+ * through this module, so invalid content can never reach the database.
+ *
+ * Which source languages a given bank must carry stems for is derived from
+ * `PAIRS` below (single source of truth — the seed imports this same array
+ * rather than keeping its own copy), not hardcoded per-bank: `loadBank`
+ * checks coverage after parsing (see `requiredSourcesFor`).
  */
 
-export const SOURCE_LANGS = ["de", "en"] as const;
-export const TARGET_LANGS = ["es", "ka", "ru"] as const;
+const LANG_CODES = ["de", "en", "es", "ka", "ru"] as const;
+export type LangCode = (typeof LANG_CODES)[number];
+
+// Every language in this build can appear as either a source or a target
+// (de/en → es/ka/ru, and es/ka/ru → de/en), so both lists are the same set —
+// kept as separate exports because call sites read as "source" or "target".
+export const SOURCE_LANGS = LANG_CODES;
+export const TARGET_LANGS = LANG_CODES;
 export type SourceLang = (typeof SOURCE_LANGS)[number];
 export type TargetLang = (typeof TARGET_LANGS)[number];
 
-const stemsSchema = z.object({ de: z.string().min(1), en: z.string().min(1) });
+/** Every enabled pair — single source of truth for both content-coverage
+ *  validation (`requiredSourcesFor`) and DB seeding (`prisma/seed.ts`). */
+export const PAIRS: { src: SourceLang; tgt: TargetLang }[] = [
+  { src: "de", tgt: "es" },
+  { src: "en", tgt: "es" },
+  { src: "de", tgt: "ka" },
+  { src: "en", tgt: "ka" },
+  { src: "de", tgt: "ru" },
+  { src: "en", tgt: "ru" },
+  { src: "es", tgt: "de" },
+  { src: "ka", tgt: "de" },
+  { src: "ru", tgt: "de" },
+  { src: "es", tgt: "en" },
+  { src: "ka", tgt: "en" },
+  { src: "ru", tgt: "en" },
+];
+
+/** Which source languages must have a stem present for a given target's bank. */
+export function requiredSourcesFor(target: TargetLang): SourceLang[] {
+  return [...new Set(PAIRS.filter((p) => p.tgt === target).map((p) => p.src))];
+}
+
+const langCodeSchema = z.enum(LANG_CODES);
+
+// A flexible per-language-code record rather than a fixed `{de, en}` shape —
+// which keys are actually required depends on the target (see
+// `requiredSourcesFor`), checked separately in `loadBank` since zod's object
+// schema can't see PAIRS. At least one language present, always.
+const stemsSchema = z.record(langCodeSchema, z.string().min(1)).refine((s) => Object.keys(s).length > 0, {
+  message: "stem needs at least one language",
+});
 
 const optionsArraySchema = z.array(z.string().min(1)).min(2).max(6);
-const optionsSchema = z.union([
-  optionsArraySchema,
-  z.object({ de: optionsArraySchema, en: optionsArraySchema }),
-]);
+const optionsSchema = z.union([optionsArraySchema, z.record(langCodeSchema, optionsArraySchema)]);
 
 // .strict() on all three exercise schemas matters: without it, an object with
 // stray keys from another branch (e.g. a broken `listen` item that also has
@@ -36,13 +75,11 @@ const mcqExerciseSchema = z
   })
   .strict()
   .superRefine((ex, ctx) => {
-    const lengths = Array.isArray(ex.options)
-      ? [ex.options.length]
-      : [ex.options.de.length, ex.options.en.length];
-    if (!Array.isArray(ex.options) && ex.options.de.length !== ex.options.en.length) {
+    const perSourceLengths = Array.isArray(ex.options) ? [ex.options.length] : Object.values(ex.options).map((o) => o.length);
+    if (!Array.isArray(ex.options) && new Set(perSourceLengths).size > 1) {
       ctx.addIssue({ code: z.ZodIssueCode.custom, message: "per-source option sets must have equal length" });
     }
-    if (lengths.some((n) => ex.correctIndex >= n)) {
+    if (perSourceLengths.some((n) => ex.correctIndex >= n)) {
       ctx.addIssue({ code: z.ZodIssueCode.custom, message: "correctIndex out of range", path: ["correctIndex"] });
     }
   });
@@ -126,6 +163,31 @@ export const bankSchema = z
     if (dupes.length > 0) {
       ctx.addIssue({ code: z.ZodIssueCode.custom, message: `duplicate skill keys: ${[...new Set(dupes)].join(", ")}` });
     }
+
+    // Every stem/name must cover every source language actually paired with
+    // this target (PAIRS) — a missing stem would silently 500 at seed time
+    // (`ex.stem[src]` undefined) instead of failing content:check up front.
+    const required = requiredSourcesFor(bank.target);
+    for (const skill of bank.skills) {
+      const missingName = required.filter((r) => !(r in skill.name));
+      if (missingName.length > 0) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: `skill '${skill.key}' name is missing stems for: ${missingName.join(", ")}`,
+        });
+      }
+      skill.lessons.forEach((lesson, li) => {
+        lesson.exercises.forEach((ex, ei) => {
+          const missing = required.filter((r) => !(r in ex.stem));
+          if (missing.length > 0) {
+            ctx.addIssue({
+              code: z.ZodIssueCode.custom,
+              message: `skill '${skill.key}' lesson ${li} exercise ${ei} is missing stems for: ${missing.join(", ")}`,
+            });
+          }
+        });
+      });
+    }
   });
 
 export type ContentBank = z.infer<typeof bankSchema>;
@@ -161,9 +223,12 @@ export function loadBank(target: TargetLang): ContentBank {
   return bank;
 }
 
-/** Resolve an mcq exercise's options for a given source language. */
+/** Resolve an mcq exercise's options for a given source language. Callers
+ *  are expected to pass a `src` that's actually paired with this bank's
+ *  target (see `requiredSourcesFor`) — coverage for those is enforced by
+ *  `bankSchema`, so the non-null assertion below is load-time-verified. */
 export function optionsFor(ex: ContentMcqExercise, src: SourceLang): string[] {
-  return Array.isArray(ex.options) ? ex.options : ex.options[src];
+  return Array.isArray(ex.options) ? ex.options : ex.options[src]!;
 }
 
 /** Summary stats used by the check script and tests. */

@@ -1,0 +1,1561 @@
+{
+  "target": "en",
+  "skills": [
+    {
+      "key": "greetings",
+      "cefr": "A1",
+      "name": {
+        "es": "Saludos",
+        "ka": "მისალმებები",
+        "ru": "Приветствия"
+      },
+      "lessons": [
+        {
+          "exercises": [
+            {
+              "stem": {
+                "es": "¿Cómo se dice 'Hola' en inglés?",
+                "ka": "როგორ ითქმის 'გამარჯობა' ინგლისურად?",
+                "ru": "Как сказать 'Привет' по-английски?"
+              },
+              "options": [
+                "Hello",
+                "Bye",
+                "Thanks",
+                "Sorry"
+              ],
+              "correctIndex": 0
+            },
+            {
+              "stem": {
+                "es": "¿Cómo se dice 'Gracias' en inglés?",
+                "ka": "როგორ ითქმის 'მადლობა' ინგლისურად?",
+                "ru": "Как сказать 'Спасибо' по-английски?"
+              },
+              "options": [
+                "Please",
+                "Thanks",
+                "Hello",
+                "Yes"
+              ],
+              "correctIndex": 1
+            },
+            {
+              "stem": {
+                "es": "¿Cómo se dice 'Adiós' en inglés?",
+                "ka": "როგორ ითქმის 'ნახვამდის' ინგლისურად?",
+                "ru": "Как сказать 'Пока' по-английски?"
+              },
+              "options": [
+                "Good morning",
+                "Hello",
+                "Bye",
+                "Good"
+              ],
+              "correctIndex": 2
+            },
+            {
+              "stem": {
+                "es": "¿Cómo se dice 'Por favor' en inglés?",
+                "ka": "როგორ ითქმის 'თუ შეიძლება' ინგლისურად?",
+                "ru": "Как сказать 'Пожалуйста' по-английски?"
+              },
+              "options": [
+                "Thanks",
+                "Please",
+                "Bye",
+                "No"
+              ],
+              "correctIndex": 1
+            }
+          ]
+        },
+        {
+          "exercises": [
+            {
+              "stem": {
+                "es": "¿Cómo se dice 'Buenos días' en inglés?",
+                "ka": "როგორ ითქმის 'დილა მშვიდობისა' ინგლისურად?",
+                "ru": "Как сказать 'Доброе утро' по-английски?"
+              },
+              "options": [
+                "Good night",
+                "Good morning",
+                "Good afternoon",
+                "Hello"
+              ],
+              "correctIndex": 1
+            },
+            {
+              "stem": {
+                "es": "¿Cómo se dice 'Sí' en inglés?",
+                "ka": "როგორ ითქმის 'კი' ინგლისურად?",
+                "ru": "Как сказать 'Да' по-английски?"
+              },
+              "options": [
+                "No",
+                "Yes",
+                "Maybe",
+                "Never"
+              ],
+              "correctIndex": 1
+            },
+            {
+              "stem": {
+                "es": "¿Cómo se dice 'No' en inglés?",
+                "ka": "როგორ ითქმის 'არა' ინგლისურად?",
+                "ru": "Как сказать 'Нет' по-английски?"
+              },
+              "options": [
+                "Yes",
+                "Good",
+                "No",
+                "Now"
+              ],
+              "correctIndex": 2
+            },
+            {
+              "stem": {
+                "es": "¿Cómo se dice 'Agua' en inglés?",
+                "ka": "როგორ ითქმის 'წყალი' ინგლისურად?",
+                "ru": "Как сказать 'Вода' по-английски?"
+              },
+              "options": [
+                "Wine",
+                "Milk",
+                "Water",
+                "Bread"
+              ],
+              "correctIndex": 2
+            }
+          ]
+        },
+        {
+          "exercises": [
+            {
+              "stem": {
+                "es": "Traduce: 'Hola'",
+                "ka": "თარგმნე: 'გამარჯობა'",
+                "ru": "Переведи: 'Привет'"
+              },
+              "answers": [
+                "hello",
+                "hi"
+              ]
+            },
+            {
+              "stem": {
+                "es": "Traduce: 'Gracias'",
+                "ka": "თარგმნე: 'მადლობა'",
+                "ru": "Переведи: 'Спасибо'"
+              },
+              "answers": [
+                "thanks",
+                "thank you"
+              ]
+            },
+            {
+              "stem": {
+                "es": "Traduce: 'el pan'",
+                "ka": "თარგმნე: 'პური'",
+                "ru": "Переведи: 'хлеб'"
+              },
+              "answers": [
+                "bread",
+                "the bread"
+              ]
+            }
+          ]
+        },
+        {
+          "exercises": [
+            {
+              "stem": {
+                "es": "¿Qué escuchaste?",
+                "ka": "რა გაიგონე?",
+                "ru": "Что ты услышал?"
+              },
+              "transcript": "Hello, how are you?",
+              "options": [
+                "Hello, how are you?",
+                "Bye, see you soon.",
+                "Thanks for everything.",
+                "Good night."
+              ],
+              "correctIndex": 0
+            }
+          ]
+        },
+        {
+          "exercises": [
+            {
+              "stem": {
+                "es": "Lee en voz alta:",
+                "ka": "წაიკითხე ხმამაღლა:",
+                "ru": "Прочитай вслух:"
+              },
+              "text": "Hello, how are you?"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "key": "numbers",
+      "cefr": "A1",
+      "name": {
+        "es": "Números",
+        "ka": "რიცხვები",
+        "ru": "Числа"
+      },
+      "lessons": [
+        {
+          "exercises": [
+            {
+              "stem": {
+                "es": "¿Cómo se dice 'uno' en inglés?",
+                "ka": "როგორ ითქმის 'ერთი' ინგლისურად?",
+                "ru": "Как сказать 'один' по-английски?"
+              },
+              "options": [
+                "two",
+                "one",
+                "three",
+                "zero"
+              ],
+              "correctIndex": 1
+            },
+            {
+              "stem": {
+                "es": "¿Cómo se dice 'dos' en inglés?",
+                "ka": "როგორ ითქმის 'ორი' ინგლისურად?",
+                "ru": "Как сказать 'два' по-английски?"
+              },
+              "options": [
+                "one",
+                "two",
+                "four",
+                "six"
+              ],
+              "correctIndex": 1
+            },
+            {
+              "stem": {
+                "es": "¿Cómo se dice 'tres' en inglés?",
+                "ka": "როგორ ითქმის 'სამი' ინგლისურად?",
+                "ru": "Как сказать 'три' по-английски?"
+              },
+              "options": [
+                "two",
+                "four",
+                "three",
+                "five"
+              ],
+              "correctIndex": 2
+            },
+            {
+              "stem": {
+                "es": "¿Cómo se dice 'cuatro' en inglés?",
+                "ka": "როგორ ითქმის 'ოთხი' ინგლისურად?",
+                "ru": "Как сказать 'четыре' по-английски?"
+              },
+              "options": [
+                "three",
+                "four",
+                "five",
+                "six"
+              ],
+              "correctIndex": 1
+            }
+          ]
+        },
+        {
+          "exercises": [
+            {
+              "stem": {
+                "es": "¿Cómo se dice 'cinco' en inglés?",
+                "ka": "როგორ ითქმის 'ხუთი' ინგლისურად?",
+                "ru": "Как сказать 'пять' по-английски?"
+              },
+              "options": [
+                "four",
+                "five",
+                "six",
+                "seven"
+              ],
+              "correctIndex": 1
+            },
+            {
+              "stem": {
+                "es": "¿Cómo se dice 'seis' en inglés?",
+                "ka": "როგორ ითქმის 'ექვსი' ინგლისურად?",
+                "ru": "Как сказать 'шесть' по-английски?"
+              },
+              "options": [
+                "five",
+                "six",
+                "seven",
+                "eight"
+              ],
+              "correctIndex": 1
+            },
+            {
+              "stem": {
+                "es": "¿Cómo se dice 'diez' en inglés?",
+                "ka": "როგორ ითქმის 'ათი' ინგლისურად?",
+                "ru": "Как сказать 'десять' по-английски?"
+              },
+              "options": [
+                "nine",
+                "ten",
+                "eleven",
+                "twenty"
+              ],
+              "correctIndex": 1
+            },
+            {
+              "stem": {
+                "es": "¿Cómo se dice 'cero' en inglés?",
+                "ka": "როგორ ითქმის 'ნული' ინგლისურად?",
+                "ru": "Как сказать 'ноль' по-английски?"
+              },
+              "options": [
+                "zero",
+                "one",
+                "ten",
+                "hundred"
+              ],
+              "correctIndex": 0
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "key": "colors",
+      "cefr": "A1",
+      "name": {
+        "es": "Colores",
+        "ka": "ფერები",
+        "ru": "Цвета"
+      },
+      "lessons": [
+        {
+          "exercises": [
+            {
+              "stem": {
+                "es": "¿Cómo se dice 'rojo' en inglés?",
+                "ka": "როგორ ითქმის 'წითელი' ინგლისურად?",
+                "ru": "Как сказать 'красный' по-английски?"
+              },
+              "options": [
+                "blue",
+                "red",
+                "green",
+                "black"
+              ],
+              "correctIndex": 1
+            },
+            {
+              "stem": {
+                "es": "¿Cómo se dice 'azul' en inglés?",
+                "ka": "როგორ ითქმის 'ლურჯი' ინგლისურად?",
+                "ru": "Как сказать 'синий' по-английски?"
+              },
+              "options": [
+                "yellow",
+                "blue",
+                "white",
+                "gray"
+              ],
+              "correctIndex": 1
+            },
+            {
+              "stem": {
+                "es": "¿Cómo se dice 'verde' en inglés?",
+                "ka": "როგორ ითქმის 'მწვანე' ინგლისურად?",
+                "ru": "Как сказать 'зелёный' по-английски?"
+              },
+              "options": [
+                "red",
+                "green",
+                "orange",
+                "pink"
+              ],
+              "correctIndex": 1
+            },
+            {
+              "stem": {
+                "es": "¿Cómo se dice 'negro' en inglés?",
+                "ka": "როგორ ითქმის 'შავი' ინგლისურად?",
+                "ru": "Как сказать 'чёрный' по-английски?"
+              },
+              "options": [
+                "white",
+                "black",
+                "gray",
+                "brown"
+              ],
+              "correctIndex": 1
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "key": "alphabet",
+      "cefr": "A1",
+      "name": {
+        "es": "Ortografía y pronunciación",
+        "ka": "ორთოგრაფია და გამოთქმა",
+        "ru": "Орфография и произношение"
+      },
+      "lessons": [
+        {
+          "exercises": [
+            {
+              "stem": {
+                "es": "¿Qué letra es muda en 'knife' (cuchillo)?",
+                "ka": "რომელი ასოა უხმო სიტყვაში 'knife' (დანა)?",
+                "ru": "Какая буква немая в слове 'knife' (нож)?"
+              },
+              "options": [
+                "n",
+                "k",
+                "i",
+                "f"
+              ],
+              "correctIndex": 1
+            },
+            {
+              "stem": {
+                "es": "¿Qué letra es muda en 'write' (escribir)?",
+                "ka": "რომელი ასოა უხმო სიტყვაში 'write' (წერა)?",
+                "ru": "Какая буква немая в слове 'write' (писать)?"
+              },
+              "options": [
+                "w",
+                "r",
+                "i",
+                "t"
+              ],
+              "correctIndex": 0
+            },
+            {
+              "stem": {
+                "es": "¿Qué letra es muda en 'comb' (peine)?",
+                "ka": "რომელი ასოა უხმო სიტყვაში 'comb' (სავარცხელი)?",
+                "ru": "Какая буква немая в слове 'comb' (расчёска)?"
+              },
+              "options": [
+                "c",
+                "o",
+                "m",
+                "b"
+              ],
+              "correctIndex": 3
+            },
+            {
+              "stem": {
+                "es": "¿Cómo se pronuncia la 'th' en 'think'?",
+                "ka": "როგორ იკითხება 'th' სიტყვაში 'think'?",
+                "ru": "Как произносится 'th' в слове 'think'?"
+              },
+              "options": [
+                "como una 's'",
+                "sonido interdental sordo",
+                "como una 't'",
+                "como una 'f'"
+              ],
+              "correctIndex": 1
+            }
+          ]
+        },
+        {
+          "exercises": [
+            {
+              "stem": {
+                "es": "¿Qué palabra se lee /naɪt/?",
+                "ka": "რომელი სიტყვა იკითხება /naɪt/?",
+                "ru": "Какое слово читается /naɪt/?"
+              },
+              "options": [
+                "night",
+                "not",
+                "net",
+                "neat"
+              ],
+              "correctIndex": 0
+            },
+            {
+              "stem": {
+                "es": "¿Qué palabra se lee /raɪt/? (puede ser 'right' o 'write')",
+                "ka": "რომელი სიტყვა იკითხება /raɪt/? ('right' ან 'write')",
+                "ru": "Какое слово читается /raɪt/? ('right' или 'write')"
+              },
+              "options": [
+                "rat",
+                "right",
+                "rot",
+                "rit"
+              ],
+              "correctIndex": 1
+            },
+            {
+              "stem": {
+                "es": "¿Cuál de estas letras NO se pronuncia en 'island' (isla)?",
+                "ka": "რომელი ასო არ იკითხება სიტყვაში 'island' (კუნძული)?",
+                "ru": "Какая буква не произносится в слове 'island' (остров)?"
+              },
+              "options": [
+                "i",
+                "s",
+                "l",
+                "n"
+              ],
+              "correctIndex": 1
+            },
+            {
+              "stem": {
+                "es": "En inglés, ¿los sustantivos comunes se escriben con mayúscula inicial?",
+                "ka": "ინგლისურში, ჩვეულებრივი არსებითი სახელები იწერება დიდი ასოთი?",
+                "ru": "В английском обычные существительные пишутся с большой буквы?"
+              },
+              "options": [
+                "Sí, siempre",
+                "No, solo los nombres propios",
+                "Solo los verbos",
+                "Solo al principio de una oración"
+              ],
+              "correctIndex": 1
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "key": "food",
+      "cefr": "A2",
+      "name": {
+        "es": "Comida",
+        "ka": "საკვები",
+        "ru": "Еда"
+      },
+      "lessons": [
+        {
+          "exercises": [
+            {
+              "stem": {
+                "es": "¿Cómo se dice 'el pan' en inglés?",
+                "ka": "როგორ ითქმის 'პური' ინგლისურად?",
+                "ru": "Как сказать 'хлеб' по-английски?"
+              },
+              "options": [
+                "Milk",
+                "Water",
+                "Bread",
+                "Cheese"
+              ],
+              "correctIndex": 2
+            },
+            {
+              "stem": {
+                "es": "¿Cómo se dice 'la manzana' en inglés?",
+                "ka": "როგორ ითქმის 'ვაშლი' ინგლისურად?",
+                "ru": "Как сказать 'яблоко' по-английски?"
+              },
+              "options": [
+                "Orange",
+                "Apple",
+                "Banana",
+                "Pear"
+              ],
+              "correctIndex": 1
+            },
+            {
+              "stem": {
+                "es": "¿Cómo se dice 'el agua' en inglés?",
+                "ka": "როგორ ითქმის 'წყალი' ინგლისურად?",
+                "ru": "Как сказать 'вода' по-английски?"
+              },
+              "options": [
+                "Wine",
+                "Beer",
+                "Water",
+                "Juice"
+              ],
+              "correctIndex": 2
+            },
+            {
+              "stem": {
+                "es": "¿Cómo se dice 'el queso' en inglés?",
+                "ka": "როგორ ითქმის 'ყველი' ინგლისურად?",
+                "ru": "Как сказать 'сыр' по-английски?"
+              },
+              "options": [
+                "Cheese",
+                "Ham",
+                "Egg",
+                "Salt"
+              ],
+              "correctIndex": 0
+            }
+          ]
+        },
+        {
+          "exercises": [
+            {
+              "stem": {
+                "es": "¿Cómo se dice 'Quiero un café' en inglés?",
+                "ka": "როგორ ითქმის 'ყავა მინდა' ინგლისურად?",
+                "ru": "Как сказать 'Я хочу кофе' по-английски?"
+              },
+              "options": [
+                "I want a tea",
+                "I would like a coffee",
+                "I have a coffee",
+                "I drink water"
+              ],
+              "correctIndex": 1
+            },
+            {
+              "stem": {
+                "es": "¿Cómo se dice 'el desayuno' en inglés?",
+                "ka": "როგორ ითქმის 'საუზმე' ინგლისურად?",
+                "ru": "Как сказать 'завтрак' по-английски?"
+              },
+              "options": [
+                "Dinner",
+                "Lunch",
+                "Breakfast",
+                "Snack"
+              ],
+              "correctIndex": 2
+            },
+            {
+              "stem": {
+                "es": "¿Cómo se dice 'rico/sabroso' en inglés?",
+                "ka": "როგორ ითქმის 'გემრიელი' ინგლისურად?",
+                "ru": "Как сказать 'вкусный' по-английски?"
+              },
+              "options": [
+                "Tasty",
+                "Expensive",
+                "Cold",
+                "Bad"
+              ],
+              "correctIndex": 0
+            },
+            {
+              "stem": {
+                "es": "¿Cómo se dice 'la cuenta (restaurante)' en inglés?",
+                "ka": "როგორ ითქმის 'ანგარიში (რესტორანში)' ინგლისურად?",
+                "ru": "Как сказать 'счёт (в ресторане)' по-английски?"
+              },
+              "options": [
+                "Table",
+                "The bill",
+                "Menu",
+                "Tip"
+              ],
+              "correctIndex": 1
+            }
+          ]
+        },
+        {
+          "exercises": [
+            {
+              "stem": {
+                "es": "Traduce: 'el pan'",
+                "ka": "თარგმნე: 'პური'",
+                "ru": "Переведи: 'хлеб'"
+              },
+              "answers": [
+                "bread",
+                "the bread"
+              ]
+            },
+            {
+              "stem": {
+                "es": "Traduce: 'Quiero un café'",
+                "ka": "თარგმნე: 'ყავა მინდა'",
+                "ru": "Переведи: 'Я хочу кофе'"
+              },
+              "answers": [
+                "i would like a coffee",
+                "i want a coffee"
+              ],
+              "tolerance": 2
+            }
+          ]
+        },
+        {
+          "exercises": [
+            {
+              "stem": {
+                "es": "¿Qué escuchaste?",
+                "ka": "რა გაიგონე?",
+                "ru": "Что ты услышал?"
+              },
+              "transcript": "I would like a coffee, please.",
+              "options": [
+                "I would like a coffee, please.",
+                "I would like a tea, please.",
+                "The bill, please.",
+                "I would like water, please."
+              ],
+              "correctIndex": 0
+            }
+          ]
+        },
+        {
+          "exercises": [
+            {
+              "stem": {
+                "es": "Lee en voz alta:",
+                "ka": "წაიკითხე ხმამაღლა:",
+                "ru": "Прочитай вслух:"
+              },
+              "text": "I would like a coffee, please.",
+              "tolerance": 2
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "key": "travel",
+      "cefr": "A2",
+      "name": {
+        "es": "Viajar",
+        "ka": "მოგზაურობა",
+        "ru": "Путешествия"
+      },
+      "lessons": [
+        {
+          "exercises": [
+            {
+              "stem": {
+                "es": "¿Cómo se dice 'la estación de tren' en inglés?",
+                "ka": "როგორ ითქმის 'სადგური' ინგლისურად?",
+                "ru": "Как сказать 'вокзал' по-английски?"
+              },
+              "options": [
+                "Airport",
+                "Train station",
+                "Bus stop",
+                "Port"
+              ],
+              "correctIndex": 1
+            },
+            {
+              "stem": {
+                "es": "¿Cómo se dice 'el hotel' en inglés?",
+                "ka": "როგორ ითქმის 'სასტუმრო' ინგლისურად?",
+                "ru": "Как сказать 'гостиница' по-английски?"
+              },
+              "options": [
+                "Hotel",
+                "Shop",
+                "Restaurant",
+                "Museum"
+              ],
+              "correctIndex": 0
+            },
+            {
+              "stem": {
+                "es": "¿Cómo se dice 'el aeropuerto' en inglés?",
+                "ka": "როგორ ითქმის 'აეროპორტი' ინგლისურად?",
+                "ru": "Как сказать 'аэропорт' по-английски?"
+              },
+              "options": [
+                "Train station",
+                "Airport",
+                "Port",
+                "Hotel"
+              ],
+              "correctIndex": 1
+            },
+            {
+              "stem": {
+                "es": "¿Cómo se dice 'el billete' en inglés?",
+                "ka": "როგორ ითქმის 'ბილეთი' ინგლისურად?",
+                "ru": "Как сказать 'билет' по-английски?"
+              },
+              "options": [
+                "Ticket",
+                "Passport",
+                "Map",
+                "Suitcase"
+              ],
+              "correctIndex": 0
+            }
+          ]
+        },
+        {
+          "exercises": [
+            {
+              "stem": {
+                "es": "'¿Dónde está el hotel?'",
+                "ka": "'სად არის სასტუმრო?'",
+                "ru": "'Где гостиница?'"
+              },
+              "options": [
+                "How are you?",
+                "Where is the hotel?",
+                "What is that?",
+                "When is the bus?"
+              ],
+              "correctIndex": 1
+            },
+            {
+              "stem": {
+                "es": "'¿Cuánto cuesta esto?'",
+                "ka": "'რა ღირს ეს?'",
+                "ru": "'Сколько это стоит?'"
+              },
+              "options": [
+                "How much does it cost?",
+                "Where is it?",
+                "What time is it?",
+                "Who is that?"
+              ],
+              "correctIndex": 0
+            },
+            {
+              "stem": {
+                "es": "¿Cómo se dice 'ayer' en inglés?",
+                "ka": "როგორ ითქმის 'გუშინ' ინგლისურად?",
+                "ru": "Как сказать 'вчера' по-английски?"
+              },
+              "options": [
+                "Tomorrow",
+                "Today",
+                "Yesterday",
+                "Now"
+              ],
+              "correctIndex": 2
+            },
+            {
+              "stem": {
+                "es": "¿Cómo se dice 'mañana' en inglés?",
+                "ka": "როგორ ითქმის 'ხვალ' ინგლისურად?",
+                "ru": "Как сказать 'завтра' по-английски?"
+              },
+              "options": [
+                "Tomorrow",
+                "Yesterday",
+                "Today",
+                "Soon"
+              ],
+              "correctIndex": 0
+            }
+          ]
+        },
+        {
+          "exercises": [
+            {
+              "stem": {
+                "es": "¿Qué escuchaste?",
+                "ka": "რა გაიგონე?",
+                "ru": "Что ты услышал?"
+              },
+              "transcript": "Where is the train station?",
+              "options": [
+                "Where is the bathroom?",
+                "Where is the train station?",
+                "How much does it cost?",
+                "What time is it?"
+              ],
+              "correctIndex": 1
+            }
+          ]
+        },
+        {
+          "exercises": [
+            {
+              "stem": {
+                "es": "Lee en voz alta:",
+                "ka": "წაიკითხე ხმამაღლა:",
+                "ru": "Прочитай вслух:"
+              },
+              "text": "How much does it cost?",
+              "tolerance": 2
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "key": "b1-structures",
+      "cefr": "B1",
+      "name": {
+        "es": "Estructuras y expresión",
+        "ka": "სტრუქტურები და გამოხატვა",
+        "ru": "Структуры и выражение"
+      },
+      "lessons": [
+        {
+          "exercises": [
+            {
+              "stem": {
+                "es": "'Si tuviera tiempo, viajaría.'",
+                "ka": "'რომ მქონდეს დრო, ვიმოგზაურებდი.'",
+                "ru": "'Если бы у меня было время, я бы путешествовал.'"
+              },
+              "options": [
+                "If I have time, I travel",
+                "If I had time, I would travel",
+                "When I had time, I traveled",
+                "I will travel if I have time"
+              ],
+              "correctIndex": 1
+            },
+            {
+              "stem": {
+                "es": "Elige el sinónimo de 'happy'.",
+                "ka": "აირჩიე სინონიმი 'happy'-ისთვის.",
+                "ru": "Выбери синоним 'happy'."
+              },
+              "options": [
+                "sad",
+                "glad",
+                "tired",
+                "angry"
+              ],
+              "correctIndex": 1
+            },
+            {
+              "stem": {
+                "es": "'Llevo dos años aprendiendo inglés.' — elige la forma correcta.",
+                "ka": "'ორი წელია ინგლისურს ვსწავლობ.' — აირჩიე სწორი ფორმა.",
+                "ru": "'Я уже два года учу английский.' — выбери правильную форму."
+              },
+              "options": [
+                "I learn English for two years",
+                "I have been learning English for two years",
+                "I will learn English for two years",
+                "I learned English two years"
+              ],
+              "correctIndex": 1
+            },
+            {
+              "stem": {
+                "es": "¿Cómo se dice 'renunciar (trabajo)' en inglés?",
+                "ka": "როგორ ითქმის 'სამსახურის დატოვება' ინგლისურად?",
+                "ru": "Как сказать 'увольняться (с работы)' по-английски?"
+              },
+              "options": [
+                "Resign",
+                "Hire",
+                "Promote",
+                "Earn"
+              ],
+              "correctIndex": 0
+            },
+            {
+              "stem": {
+                "es": "'Me arrepiento de no haber ido.'",
+                "ka": "'ვნანობ, რომ არ წავედი.'",
+                "ru": "'Я жалею, что не пошёл.'"
+              },
+              "options": [
+                "I regret not going",
+                "I'm glad I went",
+                "I'm thinking of going",
+                "I forgot to go"
+              ],
+              "correctIndex": 0
+            }
+          ]
+        },
+        {
+          "exercises": [
+            {
+              "stem": {
+                "es": "Traduce: 'Me gustaría una habitación.'",
+                "ka": "თარგმნე: 'ოთახი მინდა.'",
+                "ru": "Переведи: 'Я хотел бы номер.'"
+              },
+              "answers": [
+                "i would like a room"
+              ],
+              "tolerance": 2
+            },
+            {
+              "stem": {
+                "es": "Traduce: 'No estoy de acuerdo contigo.'",
+                "ka": "თარგმნე: 'შენ არ დაგეთანხმები.'",
+                "ru": "Переведи: 'Я не согласен с тобой.'"
+              },
+              "answers": [
+                "i don't agree with you",
+                "i do not agree with you"
+              ],
+              "tolerance": 2
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "key": "cases",
+      "cefr": "B1",
+      "name": {
+        "es": "Pronombres de caso (sujeto/objeto/posesivo)",
+        "ka": "ნაცვალსახელთა ბრუნვები (სუბიექტი/ობიექტი/კუთვნილებითი)",
+        "ru": "Падежи местоимений (субъект/объект/притяжательный)"
+      },
+      "lessons": [
+        {
+          "exercises": [
+            {
+              "stem": {
+                "es": "Elige la forma correcta: '___ saw the movie.' (sujeto, he/him)",
+                "ka": "აირჩიე სწორი ფორმა: '___ saw the movie.' (სუბიექტი, he/him)",
+                "ru": "Выбери правильную форму: '___ saw the movie.' (субъект, he/him)"
+              },
+              "options": [
+                "Him",
+                "He",
+                "His",
+                "Himself"
+              ],
+              "correctIndex": 1
+            },
+            {
+              "stem": {
+                "es": "Elige la forma correcta: 'I saw ___ at the party.' (objeto, he/him)",
+                "ka": "აირჩიე სწორი ფორმა: 'I saw ___ at the party.' (ობიექტი, he/him)",
+                "ru": "Выбери правильную форму: 'I saw ___ at the party.' (объект, he/him)"
+              },
+              "options": [
+                "He",
+                "Him",
+                "His",
+                "Himself"
+              ],
+              "correctIndex": 1
+            },
+            {
+              "stem": {
+                "es": "Elige la forma correcta: '___ book is on the table.' (posesivo, she/her)",
+                "ka": "აირჩიე სწორი ფორმა: '___ book is on the table.' (კუთვნილებითი, she/her)",
+                "ru": "Выбери правильную форму: '___ book is on the table.' (притяжательный, she/her)"
+              },
+              "options": [
+                "She",
+                "Her",
+                "Hers",
+                "Herself"
+              ],
+              "correctIndex": 1
+            },
+            {
+              "stem": {
+                "es": "Elige la forma correcta: 'This book is ___.' (pronombre posesivo independiente, she/her)",
+                "ka": "აირჩიე სწორი ფორმა: 'This book is ___.' (დამოუკიდებელი კუთვნილებითი ნაცვალსახელი, she/her)",
+                "ru": "Выбери правильную форму: 'This book is ___.' (независимое притяжательное местоимение, she/her)"
+              },
+              "options": [
+                "her",
+                "hers",
+                "she",
+                "herself"
+              ],
+              "correctIndex": 1
+            }
+          ]
+        },
+        {
+          "exercises": [
+            {
+              "stem": {
+                "es": "Elige la forma correcta: '___ are going to the park.' (sujeto, they/them)",
+                "ka": "აირჩიე სწორი ფორმა: '___ are going to the park.' (სუბიექტი, they/them)",
+                "ru": "Выбери правильную форму: '___ are going to the park.' (субъект, they/them)"
+              },
+              "options": [
+                "Them",
+                "They",
+                "Their",
+                "Theirs"
+              ],
+              "correctIndex": 1
+            },
+            {
+              "stem": {
+                "es": "Elige la forma correcta: 'I gave the book to ___.' (objeto, they/them)",
+                "ka": "აირჩიე სწორი ფორმა: 'I gave the book to ___.' (ობიექტი, they/them)",
+                "ru": "Выбери правильную форму: 'I gave the book to ___.' (объект, they/them)"
+              },
+              "options": [
+                "They",
+                "Them",
+                "Their",
+                "Theirs"
+              ],
+              "correctIndex": 1
+            },
+            {
+              "stem": {
+                "es": "Elige la forma correcta: '___ is asking about the schedule.' (interrogativo, sujeto)",
+                "ka": "აირჩიე სწორი ფორმა: '___ is asking about the schedule.' (კითხვითი, სუბიექტი)",
+                "ru": "Выбери правильную форму: '___ is asking about the schedule.' (вопросительное, субъект)"
+              },
+              "options": [
+                "Whom",
+                "Who",
+                "Whose",
+                "Which"
+              ],
+              "correctIndex": 1
+            },
+            {
+              "stem": {
+                "es": "Elige la forma correcta: 'To ___ did you give the letter?' (interrogativo, objeto)",
+                "ka": "აირჩიე სწორი ფორმა: 'To ___ did you give the letter?' (კითხვითი, ობიექტი)",
+                "ru": "Выбери правильную форму: 'To ___ did you give the letter?' (вопросительное, объект)"
+              },
+              "options": [
+                "who",
+                "whom",
+                "whose",
+                "which"
+              ],
+              "correctIndex": 1
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "key": "verbs",
+      "cefr": "B1",
+      "name": {
+        "es": "Verbos irregulares y phrasal verbs",
+        "ka": "არარეგულარული ზმნები და ფრაზული ზმნები",
+        "ru": "Неправильные глаголы и фразовые глаголы"
+      },
+      "lessons": [
+        {
+          "exercises": [
+            {
+              "stem": {
+                "es": "Elige el pasado correcto de 'go'.",
+                "ka": "აირჩიე სწორი წარსული ზმნისთვის 'go'.",
+                "ru": "Выбери правильное прошедшее время глагола 'go'."
+              },
+              "options": [
+                "goed",
+                "went",
+                "gone",
+                "going"
+              ],
+              "correctIndex": 1
+            },
+            {
+              "stem": {
+                "es": "Elige el participio correcto de 'go'.",
+                "ka": "აირჩიე სწორი მიმღეობა ზმნისთვის 'go'.",
+                "ru": "Выбери правильное причастие глагола 'go'."
+              },
+              "options": [
+                "went",
+                "gone",
+                "goed",
+                "going"
+              ],
+              "correctIndex": 1
+            },
+            {
+              "stem": {
+                "es": "'I ___ this book already.' (finish, presente perfecto)",
+                "ka": "'I ___ this book already.' (finish, აწმყო-სრული)",
+                "ru": "'I ___ this book already.' (finish, настоящее совершенное)"
+              },
+              "options": [
+                "finish",
+                "finished",
+                "have finished",
+                "finishing"
+              ],
+              "correctIndex": 2
+            },
+            {
+              "stem": {
+                "es": "'Yesterday I ___ this book.' (finish, pasado simple)",
+                "ka": "'Yesterday I ___ this book.' (finish, უბრალო წარსული)",
+                "ru": "'Yesterday I ___ this book.' (finish, простое прошедшее)"
+              },
+              "options": [
+                "finish",
+                "finished",
+                "have finished",
+                "finishing"
+              ],
+              "correctIndex": 1
+            }
+          ]
+        },
+        {
+          "exercises": [
+            {
+              "stem": {
+                "es": "Phrasal verb: 'give up' significa…",
+                "ka": "ფრაზული ზმნა: 'give up' ნიშნავს…",
+                "ru": "Фразовый глагол: 'give up' означает…"
+              },
+              "options": [
+                "rendirse",
+                "seguir intentando",
+                "empezar",
+                "celebrar"
+              ],
+              "correctIndex": 0
+            },
+            {
+              "stem": {
+                "es": "Phrasal verb: 'look forward to' significa…",
+                "ka": "ფრაზული ზმნა: 'look forward to' ნიშნავს…",
+                "ru": "Фразовый глагол: 'look forward to' означает…"
+              },
+              "options": [
+                "esperar con ganas algo",
+                "olvidar algo",
+                "buscar algo perdido",
+                "evitar algo"
+              ],
+              "correctIndex": 0
+            },
+            {
+              "stem": {
+                "es": "'She ___ to the store every day.' (go, tercera persona singular)",
+                "ka": "'She ___ to the store every day.' (go, მესამე პირი მხოლობითი)",
+                "ru": "'She ___ to the store every day.' (go, третье лицо единственное)"
+              },
+              "options": [
+                "go",
+                "goes",
+                "going",
+                "gone"
+              ],
+              "correctIndex": 1
+            },
+            {
+              "stem": {
+                "es": "Elige la forma correcta: 'By next year, I ___ here for a decade.' (live, futuro perfecto)",
+                "ka": "აირჩიე სწორი ფორმა: 'By next year, I ___ here for a decade.' (live, მომავალი-სრული)",
+                "ru": "Выбери правильную форму: 'By next year, I ___ here for a decade.' (live, будущее совершенное)"
+              },
+              "options": [
+                "will live",
+                "will have lived",
+                "have lived",
+                "lived"
+              ],
+              "correctIndex": 1
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "key": "b2-nuance",
+      "cefr": "B2",
+      "name": {
+        "es": "Matices y conectores",
+        "ka": "ნიუანსები და კავშირები",
+        "ru": "Нюансы и союзы"
+      },
+      "lessons": [
+        {
+          "exercises": [
+            {
+              "stem": {
+                "es": "Registro: el verbo más formal para 'say'.",
+                "ka": "რეგისტრი: ყველაზე ფორმალური ზმნა 'say'-სთვის.",
+                "ru": "Регистр: самый формальный глагол для 'say'."
+              },
+              "options": [
+                "say",
+                "state",
+                "mention",
+                "chat"
+              ],
+              "correctIndex": 1
+            },
+            {
+              "stem": {
+                "es": "Elige el conector: '___ the rain, we went for a walk.' (a pesar de)",
+                "ka": "აირჩიე კავშირი: '___ the rain, we went for a walk.' (მიუხედავად)",
+                "ru": "Выбери союз: '___ the rain, we went for a walk.' (несмотря на)"
+              },
+              "options": [
+                "Despite",
+                "Because of",
+                "Instead of",
+                "Thanks to"
+              ],
+              "correctIndex": 0
+            },
+            {
+              "stem": {
+                "es": "Idioma: 'to put your foot in it' significa…",
+                "ka": "იდიომა: 'to put your foot in it' ნიშნავს…",
+                "ru": "Идиома: 'to put your foot in it' означает…"
+              },
+              "options": [
+                "cometer una torpeza social",
+                "tener suerte",
+                "darse prisa",
+                "rendirse"
+              ],
+              "correctIndex": 0
+            },
+            {
+              "stem": {
+                "es": "Rección: 'to be interested ___ something'.",
+                "ka": "მართვა: 'to be interested ___ something'.",
+                "ru": "Управление: 'to be interested ___ something'."
+              },
+              "options": [
+                "in",
+                "on",
+                "at",
+                "with"
+              ],
+              "correctIndex": 0
+            },
+            {
+              "stem": {
+                "es": "¿Qué significa 'nonetheless'?",
+                "ka": "რას ნიშნავს 'nonetheless'?",
+                "ru": "Что означает 'nonetheless'?"
+              },
+              "options": {
+                "es": [
+                  "sin embargo / no obstante",
+                  "por lo tanto",
+                  "nunca",
+                  "a veces"
+                ],
+                "ka": [
+                  "მიუხედავად ამისა",
+                  "ამიტომ",
+                  "არასდროს",
+                  "ხანდახან"
+                ],
+                "ru": [
+                  "тем не менее",
+                  "поэтому",
+                  "никогда",
+                  "иногда"
+                ]
+              },
+              "correctIndex": 0
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "key": "c1-idiom",
+      "cefr": "C1",
+      "name": {
+        "es": "Idiomática y registro",
+        "ka": "იდიომატიკა და რეგისტრი",
+        "ru": "Идиоматика и регистр"
+      },
+      "lessons": [
+        {
+          "exercises": [
+            {
+              "stem": {
+                "es": "Idioma: 'to buy a pig in a poke' significa…",
+                "ka": "იდიომა: 'to buy a pig in a poke' ნიშნავს…",
+                "ru": "Идиома: 'to buy a pig in a poke' означает…"
+              },
+              "options": {
+                "es": [
+                  "comprar algo sin verlo antes",
+                  "hacer una buena compra",
+                  "regatear",
+                  "devolver algo"
+                ],
+                "ka": [
+                  "ყიდვა ნახვის გარეშე",
+                  "წარმატებული შენაძენი",
+                  "ვაჭრობა",
+                  "დაბრუნება"
+                ],
+                "ru": [
+                  "купить не глядя",
+                  "выгодно купить",
+                  "торговаться",
+                  "вернуть покупку"
+                ]
+              },
+              "correctIndex": 0
+            },
+            {
+              "stem": {
+                "es": "Registro: el verbo más elevado (literario) para 'say'.",
+                "ka": "რეგისტრი: ყველაზე მაღალი (ლიტერატურული) ზმნა 'say'-სთვის.",
+                "ru": "Регистр: самый возвышенный (литературный) глагол для 'say'."
+              },
+              "options": [
+                "say",
+                "utter",
+                "mean",
+                "chat"
+              ],
+              "correctIndex": 1
+            },
+            {
+              "stem": {
+                "es": "¿Qué significa 'notwithstanding'?",
+                "ka": "რას ნიშნავს 'notwithstanding'?",
+                "ru": "Что означает 'notwithstanding'?"
+              },
+              "options": {
+                "es": [
+                  "sin embargo / a pesar de ello",
+                  "por lo tanto",
+                  "de ninguna manera",
+                  "de repente"
+                ],
+                "ka": [
+                  "მიუხედავად ამისა",
+                  "ამიტომ",
+                  "არავითარ შემთხვევაში",
+                  "უცებ"
+                ],
+                "ru": [
+                  "тем не менее",
+                  "поэтому",
+                  "ни в коем случае",
+                  "внезапно"
+                ]
+              },
+              "correctIndex": 0
+            },
+            {
+              "stem": {
+                "es": "Rección: 'to remind someone ___ something'.",
+                "ka": "მართვა: 'to remind someone ___ something'.",
+                "ru": "Управление: 'to remind someone ___ something'."
+              },
+              "options": [
+                "of",
+                "for",
+                "with",
+                "at"
+              ],
+              "correctIndex": 0
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "key": "c2-mastery",
+      "cefr": "C2",
+      "name": {
+        "es": "Maestría",
+        "ka": "ოსტატობა",
+        "ru": "Мастерство"
+      },
+      "lessons": [
+        {
+          "exercises": [
+            {
+              "stem": {
+                "es": "Idioma: 'to pull the wool over someone's eyes' significa…",
+                "ka": "იდიომა: 'to pull the wool over someone's eyes' ნიშნავს…",
+                "ru": "Идиома: 'to pull the wool over someone's eyes' означает…"
+              },
+              "options": {
+                "es": [
+                  "engañar a alguien",
+                  "ayudar a alguien",
+                  "felicitar a alguien",
+                  "advertir a alguien"
+                ],
+                "ka": [
+                  "მოტყუება",
+                  "დახმარება",
+                  "მილოცვა",
+                  "გაფრთხილება"
+                ],
+                "ru": [
+                  "обмануть кого-то",
+                  "помочь кому-то",
+                  "поздравить кого-то",
+                  "предупредить кого-то"
+                ]
+              },
+              "correctIndex": 0
+            },
+            {
+              "stem": {
+                "es": "Elige la palabra arcaica/poética para 'eyes'.",
+                "ka": "აირჩიე არქაული/პოეტური სიტყვა 'eyes'-სთვის.",
+                "ru": "Выбери архаичное/поэтичное слово для 'eyes'."
+              },
+              "options": [
+                "eyes",
+                "orbs",
+                "peepers",
+                "lookers"
+              ],
+              "correctIndex": 1
+            },
+            {
+              "stem": {
+                "es": "¿Qué significa 'heretofore'?",
+                "ka": "რას ნიშნავს 'heretofore'?",
+                "ru": "Что означает 'heretofore'?"
+              },
+              "options": {
+                "es": [
+                  "hasta ahora / anteriormente",
+                  "de ahora en adelante",
+                  "jamás",
+                  "de vez en cuando"
+                ],
+                "ka": [
+                  "აქამდე",
+                  "ამიერიდან",
+                  "არასდროს",
+                  "ხანდახან"
+                ],
+                "ru": [
+                  "до сих пор / ранее",
+                  "отныне",
+                  "никогда",
+                  "иногда"
+                ]
+              },
+              "correctIndex": 0
+            },
+            {
+              "stem": {
+                "es": "Rección: 'to insist ___ something'.",
+                "ka": "მართვა: 'to insist ___ something'.",
+                "ru": "Управление: 'to insist ___ something'."
+              },
+              "options": [
+                "on",
+                "at",
+                "in",
+                "with"
+              ],
+              "correctIndex": 0
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

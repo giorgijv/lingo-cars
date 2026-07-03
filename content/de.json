@@ -1,0 +1,1559 @@
+{
+  "target": "de",
+  "skills": [
+    {
+      "key": "greetings",
+      "cefr": "A1",
+      "name": {
+        "es": "Saludos",
+        "ka": "მისალმებები",
+        "ru": "Приветствия"
+      },
+      "lessons": [
+        {
+          "exercises": [
+            {
+              "stem": {
+                "es": "¿Cómo se dice 'Hola' en alemán?",
+                "ka": "როგორ ითქმის 'გამარჯობა' გერმანულად?",
+                "ru": "Как сказать 'Привет' по-немецки?"
+              },
+              "options": [
+                "Hallo",
+                "Tschüss",
+                "Danke",
+                "Entschuldigung"
+              ],
+              "correctIndex": 0
+            },
+            {
+              "stem": {
+                "es": "¿Cómo se dice 'Gracias' en alemán?",
+                "ka": "როგორ ითქმის 'მადლობა' გერმანულად?",
+                "ru": "Как сказать 'Спасибо' по-немецки?"
+              },
+              "options": [
+                "Bitte",
+                "Danke",
+                "Hallo",
+                "Ja"
+              ],
+              "correctIndex": 1
+            },
+            {
+              "stem": {
+                "es": "¿Cómo se dice 'Adiós' en alemán?",
+                "ka": "როგორ ითქმის 'ნახვამდის' გერმანულად?",
+                "ru": "Как сказать 'Пока' по-немецки?"
+              },
+              "options": [
+                "Guten Morgen",
+                "Hallo",
+                "Tschüss",
+                "Gut"
+              ],
+              "correctIndex": 2
+            },
+            {
+              "stem": {
+                "es": "¿Cómo se dice 'Por favor' en alemán?",
+                "ka": "როგორ ითქმის 'თუ შეიძლება' გერმანულად?",
+                "ru": "Как сказать 'Пожалуйста' по-немецки?"
+              },
+              "options": [
+                "Danke",
+                "Bitte",
+                "Tschüss",
+                "Nein"
+              ],
+              "correctIndex": 1
+            }
+          ]
+        },
+        {
+          "exercises": [
+            {
+              "stem": {
+                "es": "¿Cómo se dice 'Buenos días' en alemán?",
+                "ka": "როგორ ითქმის 'დილა მშვიდობისა' გერმანულად?",
+                "ru": "Как сказать 'Доброе утро' по-немецки?"
+              },
+              "options": [
+                "Gute Nacht",
+                "Guten Morgen",
+                "Guten Tag",
+                "Hallo"
+              ],
+              "correctIndex": 1
+            },
+            {
+              "stem": {
+                "es": "¿Cómo se dice 'Sí' en alemán?",
+                "ka": "როგორ ითქმის 'კი' გერმანულად?",
+                "ru": "Как сказать 'Да' по-немецки?"
+              },
+              "options": [
+                "Nein",
+                "Ja",
+                "Vielleicht",
+                "Nie"
+              ],
+              "correctIndex": 1
+            },
+            {
+              "stem": {
+                "es": "¿Cómo se dice 'No' en alemán?",
+                "ka": "როგორ ითქმის 'არა' გერმანულად?",
+                "ru": "Как сказать 'Нет' по-немецки?"
+              },
+              "options": [
+                "Ja",
+                "Gut",
+                "Nein",
+                "Jetzt"
+              ],
+              "correctIndex": 2
+            },
+            {
+              "stem": {
+                "es": "¿Cómo se dice 'Agua' en alemán?",
+                "ka": "როგორ ითქმის 'წყალი' გერმანულად?",
+                "ru": "Как сказать 'Вода' по-немецки?"
+              },
+              "options": [
+                "Wein",
+                "Milch",
+                "Wasser",
+                "Brot"
+              ],
+              "correctIndex": 2
+            }
+          ]
+        },
+        {
+          "exercises": [
+            {
+              "stem": {
+                "es": "Traduce: 'Hola'",
+                "ka": "თარგმნე: 'გამარჯობა'",
+                "ru": "Переведи: 'Привет'"
+              },
+              "answers": [
+                "hallo"
+              ]
+            },
+            {
+              "stem": {
+                "es": "Traduce: 'Gracias'",
+                "ka": "თარგმნე: 'მადლობა'",
+                "ru": "Переведи: 'Спасибо'"
+              },
+              "answers": [
+                "danke"
+              ]
+            },
+            {
+              "stem": {
+                "es": "Traduce: 'el pan'",
+                "ka": "თარგმნე: 'პური'",
+                "ru": "Переведи: 'хлеб'"
+              },
+              "answers": [
+                "das brot",
+                "brot"
+              ]
+            }
+          ]
+        },
+        {
+          "exercises": [
+            {
+              "stem": {
+                "es": "¿Qué escuchaste?",
+                "ka": "რა გაიგონე?",
+                "ru": "Что ты услышал?"
+              },
+              "transcript": "Hallo, wie geht's?",
+              "options": [
+                "Hallo, wie geht's?",
+                "Tschüss, bis bald.",
+                "Danke für alles.",
+                "Gute Nacht."
+              ],
+              "correctIndex": 0
+            }
+          ]
+        },
+        {
+          "exercises": [
+            {
+              "stem": {
+                "es": "Lee en voz alta:",
+                "ka": "წაიკითხე ხმამაღლა:",
+                "ru": "Прочитай вслух:"
+              },
+              "text": "Hallo, wie geht's?"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "key": "numbers",
+      "cefr": "A1",
+      "name": {
+        "es": "Números",
+        "ka": "რიცხვები",
+        "ru": "Числа"
+      },
+      "lessons": [
+        {
+          "exercises": [
+            {
+              "stem": {
+                "es": "¿Cómo se dice 'uno' en alemán?",
+                "ka": "როგორ ითქმის 'ერთი' გერმანულად?",
+                "ru": "Как сказать 'один' по-немецки?"
+              },
+              "options": [
+                "zwei",
+                "eins",
+                "drei",
+                "null"
+              ],
+              "correctIndex": 1
+            },
+            {
+              "stem": {
+                "es": "¿Cómo se dice 'dos' en alemán?",
+                "ka": "როგორ ითქმის 'ორი' გერმანულად?",
+                "ru": "Как сказать 'два' по-немецки?"
+              },
+              "options": [
+                "eins",
+                "zwei",
+                "vier",
+                "sechs"
+              ],
+              "correctIndex": 1
+            },
+            {
+              "stem": {
+                "es": "¿Cómo se dice 'tres' en alemán?",
+                "ka": "როგორ ითქმის 'სამი' გერმანულად?",
+                "ru": "Как сказать 'три' по-немецки?"
+              },
+              "options": [
+                "zwei",
+                "vier",
+                "drei",
+                "fünf"
+              ],
+              "correctIndex": 2
+            },
+            {
+              "stem": {
+                "es": "¿Cómo se dice 'cuatro' en alemán?",
+                "ka": "როგორ ითქმის 'ოთხი' გერმანულად?",
+                "ru": "Как сказать 'четыре' по-немецки?"
+              },
+              "options": [
+                "drei",
+                "vier",
+                "fünf",
+                "sechs"
+              ],
+              "correctIndex": 1
+            }
+          ]
+        },
+        {
+          "exercises": [
+            {
+              "stem": {
+                "es": "¿Cómo se dice 'cinco' en alemán?",
+                "ka": "როგორ ითქმის 'ხუთი' გერმანულად?",
+                "ru": "Как сказать 'пять' по-немецки?"
+              },
+              "options": [
+                "vier",
+                "fünf",
+                "sechs",
+                "sieben"
+              ],
+              "correctIndex": 1
+            },
+            {
+              "stem": {
+                "es": "¿Cómo se dice 'seis' en alemán?",
+                "ka": "როგორ ითქმის 'ექვსი' გერმანულად?",
+                "ru": "Как сказать 'шесть' по-немецки?"
+              },
+              "options": [
+                "fünf",
+                "sechs",
+                "sieben",
+                "acht"
+              ],
+              "correctIndex": 1
+            },
+            {
+              "stem": {
+                "es": "¿Cómo se dice 'diez' en alemán?",
+                "ka": "როგორ ითქმის 'ათი' გერმანულად?",
+                "ru": "Как сказать 'десять' по-немецки?"
+              },
+              "options": [
+                "neun",
+                "zehn",
+                "elf",
+                "zwanzig"
+              ],
+              "correctIndex": 1
+            },
+            {
+              "stem": {
+                "es": "¿Cómo se dice 'cero' en alemán?",
+                "ka": "როგორ ითქმის 'ნული' გერმანულად?",
+                "ru": "Как сказать 'ноль' по-немецки?"
+              },
+              "options": [
+                "null",
+                "eins",
+                "zehn",
+                "hundert"
+              ],
+              "correctIndex": 0
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "key": "colors",
+      "cefr": "A1",
+      "name": {
+        "es": "Colores",
+        "ka": "ფერები",
+        "ru": "Цвета"
+      },
+      "lessons": [
+        {
+          "exercises": [
+            {
+              "stem": {
+                "es": "¿Cómo se dice 'rojo' en alemán?",
+                "ka": "როგორ ითქმის 'წითელი' გერმანულად?",
+                "ru": "Как сказать 'красный' по-немецки?"
+              },
+              "options": [
+                "blau",
+                "rot",
+                "grün",
+                "schwarz"
+              ],
+              "correctIndex": 1
+            },
+            {
+              "stem": {
+                "es": "¿Cómo se dice 'azul' en alemán?",
+                "ka": "როგორ ითქმის 'ლურჯი' გერმანულად?",
+                "ru": "Как сказать 'синий' по-немецки?"
+              },
+              "options": [
+                "gelb",
+                "blau",
+                "weiß",
+                "grau"
+              ],
+              "correctIndex": 1
+            },
+            {
+              "stem": {
+                "es": "¿Cómo se dice 'verde' en alemán?",
+                "ka": "როგორ ითქმის 'მწვანე' გერმანულად?",
+                "ru": "Как сказать 'зелёный' по-немецки?"
+              },
+              "options": [
+                "rot",
+                "grün",
+                "orange",
+                "rosa"
+              ],
+              "correctIndex": 1
+            },
+            {
+              "stem": {
+                "es": "¿Cómo se dice 'negro' en alemán?",
+                "ka": "როგორ ითქმის 'შავი' გერმანულად?",
+                "ru": "Как сказать 'чёрный' по-немецки?"
+              },
+              "options": [
+                "weiß",
+                "schwarz",
+                "grau",
+                "braun"
+              ],
+              "correctIndex": 1
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "key": "alphabet",
+      "cefr": "A1",
+      "name": {
+        "es": "Alfabeto y ortografía",
+        "ka": "ანბანი და ორთოგრაფია",
+        "ru": "Алфавит и орфография"
+      },
+      "lessons": [
+        {
+          "exercises": [
+            {
+              "stem": {
+                "es": "¿Qué letra es una 'a' con diéresis en alemán?",
+                "ka": "რომელი ასოა გერმანული დიერეზისებური 'a'?",
+                "ru": "Какая буква — немецкое 'a' с умлаутом?"
+              },
+              "options": [
+                "ä",
+                "à",
+                "â",
+                "á"
+              ],
+              "correctIndex": 0
+            },
+            {
+              "stem": {
+                "es": "¿Qué letra es una 'o' con diéresis en alemán?",
+                "ka": "რომელი ასოა გერმანული დიერეზისებური 'o'?",
+                "ru": "Какая буква — немецкое 'o' с умлаутом?"
+              },
+              "options": [
+                "ö",
+                "ô",
+                "õ",
+                "ó"
+              ],
+              "correctIndex": 0
+            },
+            {
+              "stem": {
+                "es": "¿Qué letra es una 'u' con diéresis en alemán?",
+                "ka": "რომელი ასოა გერმანული დიერეზისებური 'u'?",
+                "ru": "Какая буква — немецкое 'u' с умлаутом?"
+              },
+              "options": [
+                "ü",
+                "û",
+                "ú",
+                "ù"
+              ],
+              "correctIndex": 0
+            },
+            {
+              "stem": {
+                "es": "¿Cómo se llama la letra 'ß'?",
+                "ka": "როგორ ჰქვია ასოს 'ß'?",
+                "ru": "Как называется буква 'ß'?"
+              },
+              "options": [
+                "Eszett (scharfes S)",
+                "Doppel-S",
+                "Beta",
+                "Sigma"
+              ],
+              "correctIndex": 0
+            }
+          ]
+        },
+        {
+          "exercises": [
+            {
+              "stem": {
+                "es": "En alemán, ¿qué tipo de palabra se escribe siempre con mayúscula inicial?",
+                "ka": "გერმანულში რომელი სიტყვები იწერება ყოველთვის დიდი ასოთი?",
+                "ru": "В немецком какие слова всегда пишутся с большой буквы?"
+              },
+              "options": [
+                "los verbos",
+                "los sustantivos",
+                "los adjetivos",
+                "los artículos"
+              ],
+              "correctIndex": 1
+            },
+            {
+              "stem": {
+                "es": "¿Cómo suena 'ie' en alemán (como en 'die')?",
+                "ka": "როგორ იკითხება 'ie' გერმანულში (როგორც 'die'-ში)?",
+                "ru": "Как звучит 'ie' в немецком (как в 'die')?"
+              },
+              "options": [
+                "como 'ei'",
+                "como una 'i' larga",
+                "como 'oi'",
+                "como 'au'"
+              ],
+              "correctIndex": 1
+            },
+            {
+              "stem": {
+                "es": "¿Cómo suena 'ei' en alemán (como en 'eins')?",
+                "ka": "როგორ იკითხება 'ei' გერმანულში (როგორც 'eins'-ში)?",
+                "ru": "Как звучит 'ei' в немецком (как в 'eins')?"
+              },
+              "options": [
+                "como una 'i' larga",
+                "como 'ai'",
+                "como una 'e' corta",
+                "como 'oi'"
+              ],
+              "correctIndex": 1
+            },
+            {
+              "stem": {
+                "es": "¿Qué palabra se lee 'Buch' (libro)?",
+                "ka": "რომელი სიტყვა იკითხება 'Buch' (წიგნი)?",
+                "ru": "Какое слово читается 'Buch' (книга)?"
+              },
+              "options": [
+                "Buch",
+                "Bach",
+                "Buche",
+                "Bock"
+              ],
+              "correctIndex": 0
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "key": "food",
+      "cefr": "A2",
+      "name": {
+        "es": "Comida",
+        "ka": "საკვები",
+        "ru": "Еда"
+      },
+      "lessons": [
+        {
+          "exercises": [
+            {
+              "stem": {
+                "es": "¿Cómo se dice 'el pan' en alemán?",
+                "ka": "როგორ ითქმის 'პური' გერმანულად?",
+                "ru": "Как сказать 'хлеб' по-немецки?"
+              },
+              "options": [
+                "die Milch",
+                "das Wasser",
+                "das Brot",
+                "der Käse"
+              ],
+              "correctIndex": 2
+            },
+            {
+              "stem": {
+                "es": "¿Cómo se dice 'la manzana' en alemán?",
+                "ka": "როგორ ითქმის 'ვაშლი' გერმანულად?",
+                "ru": "Как сказать 'яблоко' по-немецки?"
+              },
+              "options": [
+                "die Orange",
+                "der Apfel",
+                "die Banane",
+                "die Birne"
+              ],
+              "correctIndex": 1
+            },
+            {
+              "stem": {
+                "es": "¿Cómo se dice 'el agua' en alemán?",
+                "ka": "როგორ ითქმის 'წყალი' გერმანულად?",
+                "ru": "Как сказать 'вода' по-немецки?"
+              },
+              "options": [
+                "der Wein",
+                "das Bier",
+                "das Wasser",
+                "der Saft"
+              ],
+              "correctIndex": 2
+            },
+            {
+              "stem": {
+                "es": "¿Cómo se dice 'el queso' en alemán?",
+                "ka": "როგორ ითქმის 'ყველი' გერმანულად?",
+                "ru": "Как сказать 'сыр' по-немецки?"
+              },
+              "options": [
+                "der Käse",
+                "der Schinken",
+                "das Ei",
+                "das Salz"
+              ],
+              "correctIndex": 0
+            }
+          ]
+        },
+        {
+          "exercises": [
+            {
+              "stem": {
+                "es": "¿Cómo se dice 'Quiero un café' en alemán?",
+                "ka": "როგორ ითქმის 'ყავა მინდა' გერმანულად?",
+                "ru": "Как сказать 'Я хочу кофе' по-немецки?"
+              },
+              "options": [
+                "Ich möchte einen Tee",
+                "Ich möchte einen Kaffee",
+                "Ich habe einen Kaffee",
+                "Ich trinke Wasser"
+              ],
+              "correctIndex": 1
+            },
+            {
+              "stem": {
+                "es": "¿Cómo se dice 'el desayuno' en alemán?",
+                "ka": "როგორ ითქმის 'საუზმე' გერმანულად?",
+                "ru": "Как сказать 'завтрак' по-немецки?"
+              },
+              "options": [
+                "das Abendessen",
+                "das Mittagessen",
+                "das Frühstück",
+                "der Nachmittagssnack"
+              ],
+              "correctIndex": 2
+            },
+            {
+              "stem": {
+                "es": "¿Cómo se dice 'rico/sabroso' en alemán?",
+                "ka": "როგორ ითქმის 'გემრიელი' გერმანულად?",
+                "ru": "Как сказать 'вкусный' по-немецки?"
+              },
+              "options": [
+                "lecker",
+                "teuer",
+                "kalt",
+                "schlecht"
+              ],
+              "correctIndex": 0
+            },
+            {
+              "stem": {
+                "es": "¿Cómo se dice 'la cuenta (restaurante)' en alemán?",
+                "ka": "როგორ ითქმის 'ანგარიში (რესტორანში)' გერმანულად?",
+                "ru": "Как сказать 'счёт (в ресторане)' по-немецки?"
+              },
+              "options": [
+                "der Tisch",
+                "die Rechnung",
+                "die Speisekarte",
+                "das Trinkgeld"
+              ],
+              "correctIndex": 1
+            }
+          ]
+        },
+        {
+          "exercises": [
+            {
+              "stem": {
+                "es": "Traduce: 'el pan'",
+                "ka": "თარგმნე: 'პური'",
+                "ru": "Переведи: 'хлеб'"
+              },
+              "answers": [
+                "das brot",
+                "brot"
+              ]
+            },
+            {
+              "stem": {
+                "es": "Traduce: 'Quiero un café'",
+                "ka": "თარგმნე: 'ყავა მინდა'",
+                "ru": "Переведи: 'Я хочу кофе'"
+              },
+              "answers": [
+                "ich möchte einen kaffee",
+                "ich will einen kaffee"
+              ],
+              "tolerance": 2
+            }
+          ]
+        },
+        {
+          "exercises": [
+            {
+              "stem": {
+                "es": "¿Qué escuchaste?",
+                "ka": "რა გაიგონე?",
+                "ru": "Что ты услышал?"
+              },
+              "transcript": "Ich möchte einen Kaffee, bitte.",
+              "options": [
+                "Ich möchte einen Kaffee, bitte.",
+                "Ich möchte einen Tee, bitte.",
+                "Die Rechnung, bitte.",
+                "Ich möchte Wasser, bitte."
+              ],
+              "correctIndex": 0
+            }
+          ]
+        },
+        {
+          "exercises": [
+            {
+              "stem": {
+                "es": "Lee en voz alta:",
+                "ka": "წაიკითხე ხმამაღლა:",
+                "ru": "Прочитай вслух:"
+              },
+              "text": "Ich möchte einen Kaffee, bitte.",
+              "tolerance": 2
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "key": "travel",
+      "cefr": "A2",
+      "name": {
+        "es": "Viajar",
+        "ka": "მოგზაურობა",
+        "ru": "Путешествия"
+      },
+      "lessons": [
+        {
+          "exercises": [
+            {
+              "stem": {
+                "es": "¿Cómo se dice 'la estación de tren' en alemán?",
+                "ka": "როგორ ითქმის 'სადგური' გერმანულად?",
+                "ru": "Как сказать 'вокзал' по-немецки?"
+              },
+              "options": [
+                "der Flughafen",
+                "der Bahnhof",
+                "die Haltestelle",
+                "der Hafen"
+              ],
+              "correctIndex": 1
+            },
+            {
+              "stem": {
+                "es": "¿Cómo se dice 'el hotel' en alemán?",
+                "ka": "როგორ ითქმის 'სასტუმრო' გერმანულად?",
+                "ru": "Как сказать 'гостиница' по-немецки?"
+              },
+              "options": [
+                "das Hotel",
+                "der Laden",
+                "das Restaurant",
+                "das Museum"
+              ],
+              "correctIndex": 0
+            },
+            {
+              "stem": {
+                "es": "¿Cómo se dice 'el aeropuerto' en alemán?",
+                "ka": "როგორ ითქმის 'აეროპორტი' გერმანულად?",
+                "ru": "Как сказать 'аэропорт' по-немецки?"
+              },
+              "options": [
+                "der Bahnhof",
+                "der Flughafen",
+                "der Hafen",
+                "das Hotel"
+              ],
+              "correctIndex": 1
+            },
+            {
+              "stem": {
+                "es": "¿Cómo se dice 'el billete' en alemán?",
+                "ka": "როგორ ითქმის 'ბილეთი' გერმანულად?",
+                "ru": "Как сказать 'билет' по-немецки?"
+              },
+              "options": [
+                "das Ticket",
+                "der Pass",
+                "die Karte",
+                "der Koffer"
+              ],
+              "correctIndex": 0
+            }
+          ]
+        },
+        {
+          "exercises": [
+            {
+              "stem": {
+                "es": "'¿Dónde está el hotel?'",
+                "ka": "'სად არის სასტუმრო?'",
+                "ru": "'Где гостиница?'"
+              },
+              "options": [
+                "Wie geht es dir?",
+                "Wo ist das Hotel?",
+                "Was ist das?",
+                "Wann kommt der Bus?"
+              ],
+              "correctIndex": 1
+            },
+            {
+              "stem": {
+                "es": "'¿Cuánto cuesta esto?'",
+                "ka": "'რა ღირს ეს?'",
+                "ru": "'Сколько это стоит?'"
+              },
+              "options": [
+                "Wie viel kostet das?",
+                "Wo ist das?",
+                "Wie spät ist es?",
+                "Wer ist das?"
+              ],
+              "correctIndex": 0
+            },
+            {
+              "stem": {
+                "es": "¿Cómo se dice 'ayer' en alemán?",
+                "ka": "როგორ ითქმის 'გუშინ' გერმანულად?",
+                "ru": "Как сказать 'вчера' по-немецки?"
+              },
+              "options": [
+                "morgen",
+                "heute",
+                "gestern",
+                "jetzt"
+              ],
+              "correctIndex": 2
+            },
+            {
+              "stem": {
+                "es": "¿Cómo se dice 'mañana' en alemán?",
+                "ka": "როგორ ითქმის 'ხვალ' გერმანულად?",
+                "ru": "Как сказать 'завтра' по-немецки?"
+              },
+              "options": [
+                "morgen",
+                "gestern",
+                "heute",
+                "bald"
+              ],
+              "correctIndex": 0
+            }
+          ]
+        },
+        {
+          "exercises": [
+            {
+              "stem": {
+                "es": "¿Qué escuchaste?",
+                "ka": "რა გაიგონე?",
+                "ru": "Что ты услышал?"
+              },
+              "transcript": "Wo ist der Bahnhof?",
+              "options": [
+                "Wo ist die Toilette?",
+                "Wo ist der Bahnhof?",
+                "Wie viel kostet das?",
+                "Wie spät ist es?"
+              ],
+              "correctIndex": 1
+            }
+          ]
+        },
+        {
+          "exercises": [
+            {
+              "stem": {
+                "es": "Lee en voz alta:",
+                "ka": "წაიკითხე ხმამაღლა:",
+                "ru": "Прочитай вслух:"
+              },
+              "text": "Wie viel kostet das?",
+              "tolerance": 2
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "key": "b1-structures",
+      "cefr": "B1",
+      "name": {
+        "es": "Estructuras y expresión",
+        "ka": "სტრუქტურები და გამოხატვა",
+        "ru": "Структуры и выражение"
+      },
+      "lessons": [
+        {
+          "exercises": [
+            {
+              "stem": {
+                "es": "'Si tuviera tiempo, viajaría.'",
+                "ka": "'რომ მქონდეს დრო, ვიმოგზაურებდი.'",
+                "ru": "'Если бы у меня было время, я бы путешествовал.'"
+              },
+              "options": [
+                "Wenn ich Zeit habe, reise ich",
+                "Wenn ich Zeit hätte, würde ich reisen",
+                "Als ich Zeit hatte, reiste ich",
+                "Ich werde reisen, wenn ich Zeit habe"
+              ],
+              "correctIndex": 1
+            },
+            {
+              "stem": {
+                "es": "Elige el sinónimo de 'glücklich' (feliz).",
+                "ka": "აირჩიე სინონიმი 'glücklich'-ისთვის (ბედნიერი).",
+                "ru": "Выбери синоним 'glücklich' (счастливый)."
+              },
+              "options": [
+                "traurig",
+                "froh",
+                "müde",
+                "wütend"
+              ],
+              "correctIndex": 1
+            },
+            {
+              "stem": {
+                "es": "'Llevo dos años aprendiendo alemán.' — elige la forma correcta.",
+                "ka": "'ორი წელია გერმანულს ვსწავლობ.' — აირჩიე სწორი ფორმა.",
+                "ru": "'Я уже два года учу немецкий.' — выбери правильную форму."
+              },
+              "options": [
+                "Ich lerne seit zwei Jahren Deutsch",
+                "Ich lernte zwei Jahre Deutsch",
+                "Ich werde zwei Jahre Deutsch lernen",
+                "Ich habe zwei Jahre Deutsch gelernt und höre auf"
+              ],
+              "correctIndex": 0
+            },
+            {
+              "stem": {
+                "es": "¿Cómo se dice 'renunciar (trabajo)' en alemán?",
+                "ka": "როგორ ითქმის 'სამსახურის დატოვება' გერმანულად?",
+                "ru": "Как сказать 'увольняться (с работы)' по-немецки?"
+              },
+              "options": [
+                "kündigen",
+                "einstellen",
+                "befördern",
+                "bekommen"
+              ],
+              "correctIndex": 0
+            },
+            {
+              "stem": {
+                "es": "'Me arrepiento de no haber ido.'",
+                "ka": "'ვნანობ, რომ არ წავედი.'",
+                "ru": "'Я жалею, что не пошёл.'"
+              },
+              "options": [
+                "Ich bereue es, nicht gegangen zu sein",
+                "Ich freue mich, gegangen zu sein",
+                "Ich denke daran zu gehen",
+                "Ich habe vergessen zu gehen"
+              ],
+              "correctIndex": 0
+            }
+          ]
+        },
+        {
+          "exercises": [
+            {
+              "stem": {
+                "es": "Traduce: 'Me gustaría una habitación.'",
+                "ka": "თარგმნე: 'ოთახი მინდა.'",
+                "ru": "Переведи: 'Я хотел бы номер.'"
+              },
+              "answers": [
+                "ich hätte gern ein zimmer",
+                "ich möchte ein zimmer"
+              ],
+              "tolerance": 2
+            },
+            {
+              "stem": {
+                "es": "Traduce: 'No estoy de acuerdo contigo.'",
+                "ka": "თარგმნე: 'შენ არ დაგეთანხმები.'",
+                "ru": "Переведи: 'Я не согласен с тобой.'"
+              },
+              "answers": [
+                "ich stimme dir nicht zu"
+              ],
+              "tolerance": 2
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "key": "cases",
+      "cefr": "B1",
+      "name": {
+        "es": "Casos (Nominativ, Akkusativ, Dativ, Genitiv)",
+        "ka": "ბრუნვები (Nominativ, Akkusativ, Dativ, Genitiv)",
+        "ru": "Падежи (Nominativ, Akkusativ, Dativ, Genitiv)"
+      },
+      "lessons": [
+        {
+          "exercises": [
+            {
+              "stem": {
+                "es": "Elige la forma correcta: '___ Mann liest ein Buch.' (der Mann, Nominativ)",
+                "ka": "აირჩიე სწორი ფორმა: '___ Mann liest ein Buch.' (der Mann, Nominativ)",
+                "ru": "Выбери правильную форму: '___ Mann liest ein Buch.' (der Mann, именительный)"
+              },
+              "options": [
+                "Der",
+                "Den",
+                "Dem",
+                "Des"
+              ],
+              "correctIndex": 0
+            },
+            {
+              "stem": {
+                "es": "Elige la forma correcta: 'Ich sehe ___ Mann.' (der Mann, Akkusativ, objeto directo)",
+                "ka": "აირჩიე სწორი ფორმა: 'Ich sehe ___ Mann.' (der Mann, Akkusativ, პირდაპირი დამატება)",
+                "ru": "Выбери правильную форму: 'Ich sehe ___ Mann.' (der Mann, винительный, прямое дополнение)"
+              },
+              "options": [
+                "Der",
+                "Den",
+                "Dem",
+                "Des"
+              ],
+              "correctIndex": 1
+            },
+            {
+              "stem": {
+                "es": "Elige la forma correcta: 'Ich gebe ___ Mann das Buch.' (der Mann, Dativ)",
+                "ka": "აირჩიე სწორი ფორმა: 'Ich gebe ___ Mann das Buch.' (der Mann, Dativ)",
+                "ru": "Выбери правильную форму: 'Ich gebe ___ Mann das Buch.' (der Mann, дательный)"
+              },
+              "options": [
+                "Der",
+                "Den",
+                "Dem",
+                "Des"
+              ],
+              "correctIndex": 2
+            },
+            {
+              "stem": {
+                "es": "Elige la forma correcta: 'Das ist das Auto ___ Mannes.' (der Mann, Genitiv, posesión)",
+                "ka": "აირჩიე სწორი ფორმა: 'Das ist das Auto ___ Mannes.' (der Mann, Genitiv, კუთვნილება)",
+                "ru": "Выбери правильную форму: 'Das ist das Auto ___ Mannes.' (der Mann, родительный, притяжательность)"
+              },
+              "options": [
+                "der",
+                "den",
+                "dem",
+                "des"
+              ],
+              "correctIndex": 3
+            }
+          ]
+        },
+        {
+          "exercises": [
+            {
+              "stem": {
+                "es": "Elige la preposición: 'Ich gehe ___ Schule.' (a, Akkusativ, dirección)",
+                "ka": "აირჩიე თანდებული: 'Ich gehe ___ Schule.' (-სკენ, Akkusativ, მიმართულება)",
+                "ru": "Выбери предлог: 'Ich gehe ___ Schule.' (в, винительный, направление)"
+              },
+              "options": [
+                "in die",
+                "in der",
+                "der",
+                "die"
+              ],
+              "correctIndex": 0
+            },
+            {
+              "stem": {
+                "es": "Elige la preposición: 'Ich bin ___ Schule.' (en, Dativ, ubicación)",
+                "ka": "აირჩიე თანდებული: 'Ich bin ___ Schule.' (-ში, Dativ, ადგილმდებარეობა)",
+                "ru": "Выбери предлог: 'Ich bin ___ Schule.' (в, дательный, местоположение)"
+              },
+              "options": [
+                "in der",
+                "in die",
+                "die",
+                "der"
+              ],
+              "correctIndex": 0
+            },
+            {
+              "stem": {
+                "es": "Elige la forma correcta: 'mit ___ Freund' (der Freund, Dativ, siempre tras 'mit')",
+                "ka": "აირჩიე სწორი ფორმა: 'mit ___ Freund' (der Freund, Dativ, ყოველთვის 'mit'-ის შემდეგ)",
+                "ru": "Выбери правильную форму: 'mit ___ Freund' (der Freund, дательный, всегда после 'mit')"
+              },
+              "options": [
+                "der",
+                "den",
+                "dem",
+                "des"
+              ],
+              "correctIndex": 2
+            },
+            {
+              "stem": {
+                "es": "Elige el artículo correcto: '___ Frau' (die Frau, Nominativ femenino)",
+                "ka": "აირჩიე სწორი არტიკლი: '___ Frau' (die Frau, Nominativ, მდედრობითი)",
+                "ru": "Выбери правильный артикль: '___ Frau' (die Frau, именительный, женский род)"
+              },
+              "options": [
+                "Der",
+                "Die",
+                "Das",
+                "Den"
+              ],
+              "correctIndex": 1
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "key": "verbs",
+      "cefr": "B1",
+      "name": {
+        "es": "Verbos separables y modales",
+        "ka": "განცალკევებადი და მოდალური ზმნები",
+        "ru": "Отделяемые и модальные глаголы"
+      },
+      "lessons": [
+        {
+          "exercises": [
+            {
+              "stem": {
+                "es": "'Ich stehe um sieben Uhr ___.' (aufstehen, verbo separable)",
+                "ka": "'Ich stehe um sieben Uhr ___.' (aufstehen, განცალკევებადი ზმნა)",
+                "ru": "'Ich stehe um sieben Uhr ___.' (aufstehen, отделяемый глагол)"
+              },
+              "options": [
+                "auf",
+                "ab",
+                "an",
+                "aus"
+              ],
+              "correctIndex": 0
+            },
+            {
+              "stem": {
+                "es": "Elige la forma correcta: 'Ich ___ Deutsch sprechen.' (können, presente, yo)",
+                "ka": "აირჩიე სწორი ფორმა: 'Ich ___ Deutsch sprechen.' (können, awdmyo, მე)",
+                "ru": "Выбери правильную форму: 'Ich ___ Deutsch sprechen.' (können, настоящее, я)"
+              },
+              "options": [
+                "kann",
+                "kannst",
+                "können",
+                "könnt"
+              ],
+              "correctIndex": 0
+            },
+            {
+              "stem": {
+                "es": "Elige la forma correcta: 'Du ___ jetzt gehen.' (müssen, tú)",
+                "ka": "აირჩიე სწორი ფორმა: 'Du ___ jetzt gehen.' (müssen, შენ)",
+                "ru": "Выбери правильную форму: 'Du ___ jetzt gehen.' (müssen, ты)"
+              },
+              "options": [
+                "muss",
+                "musst",
+                "müssen",
+                "müsst"
+              ],
+              "correctIndex": 1
+            },
+            {
+              "stem": {
+                "es": "En una oración principal, ¿dónde va el verbo conjugado en alemán?",
+                "ka": "მთავარ წინადადებაში, სად დგას შეთანხმებული ზმნა გერმანულში?",
+                "ru": "В главном предложении, где стоит спрягаемый глагол в немецком?"
+              },
+              "options": [
+                "al final",
+                "en segunda posición",
+                "al principio siempre",
+                "no importa"
+              ],
+              "correctIndex": 1
+            }
+          ]
+        },
+        {
+          "exercises": [
+            {
+              "stem": {
+                "es": "'Ich rufe meinen Freund ___.' (anrufen, verbo separable)",
+                "ka": "'Ich rufe meinen Freund ___.' (anrufen, განცალკევებადი ზმნა)",
+                "ru": "'Ich rufe meinen Freund ___.' (anrufen, отделяемый глагол)"
+              },
+              "options": [
+                "an",
+                "auf",
+                "ab",
+                "aus"
+              ],
+              "correctIndex": 0
+            },
+            {
+              "stem": {
+                "es": "Elige la forma correcta: 'Wir ___ nach Berlin fahren.' (wollen, nosotros)",
+                "ka": "აირჩიე სწორი ფორმა: 'Wir ___ nach Berlin fahren.' (wollen, ჩვენ)",
+                "ru": "Выбери правильную форму: 'Wir ___ nach Berlin fahren.' (wollen, мы)"
+              },
+              "options": [
+                "will",
+                "wollt",
+                "wollen",
+                "willst"
+              ],
+              "correctIndex": 2
+            },
+            {
+              "stem": {
+                "es": "Elige el participio correcto: 'Ich habe das Buch ___.' (lesen, participio irregular)",
+                "ka": "აირჩიე სწორი მიმღეობა: 'Ich habe das Buch ___.' (lesen, არარეგულარული მიმღეობა)",
+                "ru": "Выбери правильное причастие: 'Ich habe das Buch ___.' (lesen, неправильное причастие)"
+              },
+              "options": [
+                "gelesen",
+                "gelest",
+                "lesen",
+                "las"
+              ],
+              "correctIndex": 0
+            },
+            {
+              "stem": {
+                "es": "Elige el verbo auxiliar correcto: 'Ich ___ nach Hause gegangen.' (gehen usa 'sein')",
+                "ka": "აირჩიე სწორი დამხმარე ზმნა: 'Ich ___ nach Hause gegangen.' (gehen იყენებს 'sein'-ს)",
+                "ru": "Выбери правильный вспомогательный глагол: 'Ich ___ nach Hause gegangen.' (gehen использует 'sein')"
+              },
+              "options": [
+                "habe",
+                "bin",
+                "hatte",
+                "war"
+              ],
+              "correctIndex": 1
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "key": "b2-nuance",
+      "cefr": "B2",
+      "name": {
+        "es": "Matices y conectores",
+        "ka": "ნიუანსები და კავშირები",
+        "ru": "Нюансы и союзы"
+      },
+      "lessons": [
+        {
+          "exercises": [
+            {
+              "stem": {
+                "es": "Registro: el verbo más formal para 'decir'.",
+                "ka": "რეგისტრი: ყველაზე ფორმალური ზმნა 'თქმისთვის'.",
+                "ru": "Регистр: самый формальный глагол для 'сказать'."
+              },
+              "options": [
+                "sagen",
+                "erklären",
+                "erwähnen",
+                "quatschen"
+              ],
+              "correctIndex": 1
+            },
+            {
+              "stem": {
+                "es": "Elige el conector: '___ des Regens gingen wir spazieren.' (a pesar de)",
+                "ka": "აირჩიე კავშირი: '___ des Regens gingen wir spazieren.' (მიუხედავად)",
+                "ru": "Выбери союз: '___ des Regens gingen wir spazieren.' (несмотря на)"
+              },
+              "options": [
+                "Trotz",
+                "Wegen",
+                "Statt",
+                "Dank"
+              ],
+              "correctIndex": 0
+            },
+            {
+              "stem": {
+                "es": "Idioma: 'ins Fettnäpfchen treten' significa…",
+                "ka": "იდიომა: 'ins Fettnäpfchen treten' ნიშნავს…",
+                "ru": "Идиома: 'ins Fettnäpfchen treten' означает…"
+              },
+              "options": [
+                "cometer una torpeza social",
+                "tener suerte",
+                "darse prisa",
+                "rendirse"
+              ],
+              "correctIndex": 0
+            },
+            {
+              "stem": {
+                "es": "Rección: 'sich freuen ___ etwas' (alegrarse de algo, Akkusativ).",
+                "ka": "მართვა: 'sich freuen ___ etwas' (Akkusativ).",
+                "ru": "Управление: 'sich freuen ___ etwas' (радоваться чему-то, винительный)."
+              },
+              "options": [
+                "auf",
+                "über",
+                "an",
+                "mit"
+              ],
+              "correctIndex": 0
+            },
+            {
+              "stem": {
+                "es": "¿Qué significa 'ohnehin'?",
+                "ka": "რას ნიშნავს 'ohnehin'?",
+                "ru": "Что означает 'ohnehin'?"
+              },
+              "options": {
+                "es": [
+                  "de todos modos",
+                  "raramente",
+                  "nunca",
+                  "a veces"
+                ],
+                "ka": [
+                  "ისედაც",
+                  "იშვიათად",
+                  "არასდროს",
+                  "ხანდახან"
+                ],
+                "ru": [
+                  "в любом случае",
+                  "редко",
+                  "никогда",
+                  "иногда"
+                ]
+              },
+              "correctIndex": 0
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "key": "c1-idiom",
+      "cefr": "C1",
+      "name": {
+        "es": "Idiomática y registro",
+        "ka": "იდიომატიკა და რეგისტრი",
+        "ru": "Идиоматика и регистр"
+      },
+      "lessons": [
+        {
+          "exercises": [
+            {
+              "stem": {
+                "es": "Idioma: 'die Katze im Sack kaufen' significa…",
+                "ka": "იდიომა: 'die Katze im Sack kaufen' ნიშნავს…",
+                "ru": "Идиома: 'die Katze im Sack kaufen' означает…"
+              },
+              "options": {
+                "es": [
+                  "comprar algo sin verlo antes",
+                  "hacer una buena compra",
+                  "regatear",
+                  "devolver algo"
+                ],
+                "ka": [
+                  "ყიდვა ნახვის გარეშე",
+                  "წარმატებული შენაძენი",
+                  "ვაჭრობა",
+                  "დაბრუნება"
+                ],
+                "ru": [
+                  "купить не глядя",
+                  "выгодно купить",
+                  "торговаться",
+                  "вернуть покупку"
+                ]
+              },
+              "correctIndex": 0
+            },
+            {
+              "stem": {
+                "es": "Registro: el verbo más elevado (literario) para 'decir'.",
+                "ka": "რეგისტრი: ყველაზე მაღალი (ლიტერატურული) ზმნა 'თქმისთვის'.",
+                "ru": "Регистр: самый возвышенный (литературный) глагол для 'сказать'."
+              },
+              "options": [
+                "sagen",
+                "äußern",
+                "meinen",
+                "quatschen"
+              ],
+              "correctIndex": 1
+            },
+            {
+              "stem": {
+                "es": "¿Qué significa 'nichtsdestotrotz'?",
+                "ka": "რას ნიშნავს 'nichtsdestotrotz'?",
+                "ru": "Что означает 'nichtsdestotrotz'?"
+              },
+              "options": {
+                "es": [
+                  "sin embargo / a pesar de ello",
+                  "por lo tanto",
+                  "de ninguna manera",
+                  "de repente"
+                ],
+                "ka": [
+                  "მიუხედავად ამისა",
+                  "ამიტომ",
+                  "არავითარ შემთხვევაში",
+                  "უცებ"
+                ],
+                "ru": [
+                  "тем не менее",
+                  "поэтому",
+                  "ни в коем случае",
+                  "внезапно"
+                ]
+              },
+              "correctIndex": 0
+            },
+            {
+              "stem": {
+                "es": "Rección: 'sich erinnern ___ etwas' (recordar algo, Akkusativ).",
+                "ka": "მართვა: 'sich erinnern ___ etwas' (Akkusativ).",
+                "ru": "Управление: 'sich erinnern ___ etwas' (помнить о чём-то, винительный)."
+              },
+              "options": [
+                "an",
+                "auf",
+                "mit",
+                "von"
+              ],
+              "correctIndex": 0
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "key": "c2-mastery",
+      "cefr": "C2",
+      "name": {
+        "es": "Maestría",
+        "ka": "ოსტატობა",
+        "ru": "Мастерство"
+      },
+      "lessons": [
+        {
+          "exercises": [
+            {
+              "stem": {
+                "es": "Idioma: 'jemandem einen Bären aufbinden' significa…",
+                "ka": "იდიომა: 'jemandem einen Bären aufbinden' ნიშნავს…",
+                "ru": "Идиома: 'jemandem einen Bären aufbinden' означает…"
+              },
+              "options": {
+                "es": [
+                  "engañar a alguien con una mentira",
+                  "ayudar a alguien",
+                  "felicitar a alguien",
+                  "advertir a alguien"
+                ],
+                "ka": [
+                  "ტყუილის მოსმენინება",
+                  "დახმარება",
+                  "მილოცვა",
+                  "გაფრთხილება"
+                ],
+                "ru": [
+                  "обмануть кого-то небылицей",
+                  "помочь кому-то",
+                  "поздравить кого-то",
+                  "предупредить кого-то"
+                ]
+              },
+              "correctIndex": 0
+            },
+            {
+              "stem": {
+                "es": "Elige la palabra arcaica/poética para 'ojos'.",
+                "ka": "აირჩიე არქაული/პოეტური სიტყვა 'თვალებისთვის'.",
+                "ru": "Выбери архаичное/поэтичное слово для 'глаза'."
+              },
+              "options": [
+                "Augen",
+                "Gucker",
+                "Sehorgane",
+                "Äuglein"
+              ],
+              "correctIndex": 0
+            },
+            {
+              "stem": {
+                "es": "¿Qué significa 'gleichwohl'?",
+                "ka": "რას ნიშნავს 'gleichwohl'?",
+                "ru": "Что означает 'gleichwohl'?"
+              },
+              "options": {
+                "es": [
+                  "no obstante / aun así",
+                  "por tanto",
+                  "jamás",
+                  "de vez en cuando"
+                ],
+                "ka": [
+                  "მიუხედავად ამისა",
+                  "ამიტომ",
+                  "არასდროს",
+                  "ხანდახან"
+                ],
+                "ru": [
+                  "тем не менее / всё же",
+                  "поэтому",
+                  "никогда",
+                  "иногда"
+                ]
+              },
+              "correctIndex": 0
+            },
+            {
+              "stem": {
+                "es": "Rección: 'bestehen ___ etwas' (insistir en algo, Akkusativ 'auf').",
+                "ka": "მართვა: 'bestehen ___ etwas' (დაჟინება, 'auf' + Akkusativ).",
+                "ru": "Управление: 'bestehen ___ etwas' (настаивать на чём-то, 'auf' + винительный)."
+              },
+              "options": [
+                "auf",
+                "an",
+                "in",
+                "mit"
+              ],
+              "correctIndex": 0
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
