@@ -16,15 +16,20 @@
 > (`BANKS`, ~45–50 items/language, including dedicated grammar items —
 > ser/estar, gender agreement, the Georgian case system, ergative/dative/
 > instrumental marking, the Russian case system, verb aspect) and study mode
-> (`STUDY_BANKS`, **200 items per target language**, A1–C2, roughly half
+> (`STUDY_BANKS`, **500 items per target language**, A1–C2, roughly half
 > vocabulary/phrases and half verb conjugation, agreement, and case-system
 > grammar drills) are disjoint arrays with zero item overlap, so a learner
-> never sees the exact same question in both modes back to back. Study items
-> also carry a `why` explanation in every source language for that target
-> (bilingual de/en for the es/ka/ru banks, trilingual es/ka/ru for the de/en
-> banks), shown under the feedback line whenever an answer is wrong.
-> Georgian, Russian, and the reverse-direction German/English content above
-> A2 is, like the rest of this build's `ka`/`ru` content, not yet reviewed
+> never sees the exact same question in both modes back to back. Within a
+> proficiency tier, the next study question is picked at random from every
+> not-yet-mastered item in that tier's pool (not a narrow, easily-repeated
+> subset), and each answer option's on-screen position is reshuffled every
+> time a question renders, so the correct answer isn't predictably in the
+> same slot. Study items also carry a `why` explanation in every source
+> language for that target (bilingual de/en for the es/ka/ru banks,
+> trilingual es/ka/ru for the de/en banks), shown under the feedback line
+> whenever an answer is wrong. Georgian, Russian, and the reverse-direction
+> German/English content above A2 is, like the rest of this build's `ka`/`ru`
+> content, not yet reviewed
 > by a native speaker.
 >
 > **Login (👤, top right) syncs progress across devices.** The demo works
