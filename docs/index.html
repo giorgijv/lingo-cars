@@ -42,18 +42,53 @@
   .card{background:linear-gradient(180deg,var(--panel) 0%,var(--panel2) 100%);border:1px solid var(--line);border-radius:var(--radius);padding:20px;box-shadow:0 10px 40px rgba(0,0,0,.35)}
   .garage{position:relative;overflow:hidden}
   .garage .cefr{position:absolute;top:14px;right:16px;background:#0d1420;border:1px solid var(--line);border-radius:999px;padding:6px 12px;font-weight:700;font-size:13px;color:var(--accent);z-index:2}
-  .carstage{display:flex;justify-content:center;align-items:flex-end;padding:6px 0 2px;overflow:hidden}
-  .carstage svg{width:100%;max-width:480px;height:auto;filter:drop-shadow(0 18px 18px rgba(0,0,0,.45))}
+  .carstage{position:relative;display:flex;justify-content:center;align-items:flex-end;padding:6px 0 2px;overflow:hidden;border-radius:14px;--car-glow:#5aa7ff}
+  /* garage backdrop: a soft wall→floor gradient plus a light pool under the
+     car (tinted by the current paint colour via --car-glow where color-mix
+     is available). Static, behind the car SVG — the car drives in over it. */
+  .carstage::before{content:"";position:absolute;inset:0;z-index:0;pointer-events:none;
+    background:
+      radial-gradient(66% 42% at 50% 95%, rgba(150,190,240,.12), transparent 62%),
+      linear-gradient(180deg,#0f141c 0%,#131a25 52%,#18202e 78%,#1e2839 90%,#243044 100%);}
+  @supports (background:color-mix(in srgb,red,blue)){
+    .carstage::before{background:
+      radial-gradient(58% 38% at 50% 95%, color-mix(in srgb,var(--car-glow) 26%,transparent), transparent 60%),
+      radial-gradient(72% 46% at 50% 96%, rgba(160,196,240,.08), transparent 66%),
+      linear-gradient(180deg,#0f141c 0%,#131a25 52%,#18202e 78%,#1e2839 90%,#243044 100%);}
+  }
+  /* faint sheen along the floor line */
+  .carstage::after{content:"";position:absolute;left:0;right:0;bottom:0;height:15%;z-index:0;pointer-events:none;
+    background:linear-gradient(180deg,transparent,rgba(255,255,255,.055));}
+  .carstage svg{position:relative;z-index:1;width:100%;max-width:480px;height:auto;filter:drop-shadow(0 18px 18px rgba(0,0,0,.45))}
   .carstage.drive svg{animation:driveIn .95s cubic-bezier(.22,.9,.32,1)}
   @keyframes driveIn{0%{transform:translateX(-135%)}70%{transform:translateX(3%)}100%{transform:translateX(0)}}
+  /* higher tiers get a weight-transfer settle (nose dips as it "brakes" into
+     place, then rocks level) instead of a flat stop */
+  .carstage.drive.settle svg{transform-origin:50% 92%;animation:driveInSettle 1.05s cubic-bezier(.22,.9,.32,1)}
+  @keyframes driveInSettle{0%{transform:translateX(-135%) rotate(0)}64%{transform:translateX(3%) rotate(-.9deg)}82%{transform:translateX(0) rotate(.55deg)}92%{transform:translateX(0) rotate(-.2deg)}100%{transform:translateX(0) rotate(0)}}
   .spokes{transform-box:fill-box;transform-origin:center}
-  .carstage.drive .spokes{animation:spin .95s linear}
-  @keyframes spin{from{transform:rotate(-540deg)}to{transform:rotate(0)}}
-  .speedlines{opacity:.9}
-  .speedlines rect{animation:zoomline 1.6s ease-in-out infinite}
-  .speedlines rect:nth-child(2){animation-delay:.5s}
-  .speedlines rect:nth-child(3){animation-delay:1s}
-  @keyframes zoomline{0%,100%{opacity:.12}50%{opacity:.55}}
+  .carstage.drive .spokes{animation:spin 1.02s cubic-bezier(.15,.72,.28,1)}
+  @keyframes spin{from{transform:rotate(-620deg)}to{transform:rotate(0)}}
+  /* ambient (idle only): a specular streak slowly sweeps across the paint
+     (clipped to the body), and the headlight glow gently breathes */
+  .shimmer{transform-box:fill-box;transform-origin:center;animation:shimmer 7.5s ease-in-out infinite}
+  @keyframes shimmer{0%{transform:translateX(-150px) skewX(-16deg);opacity:0}7%{opacity:.5}20%{opacity:.5}31%{transform:translateX(560px) skewX(-16deg);opacity:0}100%{transform:translateX(560px) skewX(-16deg);opacity:0}}
+  .hlglow{animation:hlpulse 3.6s ease-in-out infinite}
+  @keyframes hlpulse{0%,100%{opacity:.22}50%{opacity:.66}}
+  .carstage.drive .shimmer,.carstage.drive .hlglow{animation:none}
+  /* speed lines streak past; loop period is --sl-dur (set per render from the
+     same speedIntensity that drives their length). The group's intensity
+     lives in its SVG opacity attribute, so it is deliberately not set here. */
+  .speedlines rect{animation:streak var(--sl-dur,1.2s) linear infinite}
+  .speedlines rect:nth-child(2){animation-delay:calc(var(--sl-dur,1.2s) * -.34)}
+  .speedlines rect:nth-child(3){animation-delay:calc(var(--sl-dur,1.2s) * -.67)}
+  @keyframes streak{0%{transform:translateX(28px);opacity:0}20%{opacity:1}55%{opacity:1}100%{transform:translateX(-48px);opacity:0}}
+  @media (prefers-reduced-motion:reduce){
+    .shimmer{animation:none;opacity:0}
+    .hlglow{animation:none;opacity:.42}
+    .speedlines rect{animation:none;opacity:.5}
+    .carstage.drive.settle svg{animation:driveIn .95s cubic-bezier(.22,.9,.32,1)}
+  }
   .classname{text-align:center;font-weight:800;font-size:22px;margin:6px 0 2px}
   .classsub{text-align:center;color:var(--muted);font-size:13px;margin-bottom:14px}
   .stats{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:6px}
@@ -3397,6 +3432,7 @@ function carSVG(tier, p, cos={}){
   const rideDrop = (curHnd/HND_MAX) * 2.6;                              // stiffer/lower stance as handling rises
   const speedIntensity = Math.pow(Math.min(1, curSpd/SPD_MAX), 0.75);   // eased so mid-range speed still reads
   const patchScale = 1 + (curSpd/SPD_MAX) * 0.6;                        // wider contact patch as speed rises
+  const slDur = (1.5 - 1.0*speedIntensity).toFixed(2);                 // faster car → quicker speed-line streaks (Step 5)
 
   // Derived shading tones + anchor points (kept as functions of the existing
   // per-tier path data so no new geometry needs hand-tuning per class).
@@ -3455,6 +3491,8 @@ function carSVG(tier, p, cos={}){
       <radialGradient id="rimGold" cx="0.36" cy="0.3" r="0.75"><stop offset="0" stop-color="#ffefc0"/><stop offset="0.5" stop-color="#e0b64a"/><stop offset="1" stop-color="#6e5210"/></radialGradient>
       <radialGradient id="hubGrad" cx="0.4" cy="0.35" r="0.7"><stop offset="0" stop-color="#d3dae4"/><stop offset="1" stop-color="#39414e"/></radialGradient>
       <radialGradient id="specGrad" cx="0.5" cy="0.5" r="0.5"><stop offset="0" stop-color="#ffffff" stop-opacity="0.95"/><stop offset="0.6" stop-color="#ffffff" stop-opacity="0.35"/><stop offset="1" stop-color="#ffffff" stop-opacity="0"/></radialGradient>
+      <linearGradient id="shimmerGrad" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#ffffff" stop-opacity="0"/><stop offset="0.5" stop-color="#ffffff" stop-opacity="0.9"/><stop offset="1" stop-color="#ffffff" stop-opacity="0"/></linearGradient>
+      <radialGradient id="hlGrad" cx="0.5" cy="0.5" r="0.5"><stop offset="0" stop-color="#dfefff" stop-opacity="0.95"/><stop offset="1" stop-color="#dfefff" stop-opacity="0"/></radialGradient>
       <filter id="${id0}blur" x="-25%" y="-40%" width="150%" height="220%"><feGaussianBlur stdDeviation="3"/></filter>
       <clipPath id="${id0}clip"><path d="${c.body}"/></clipPath>
       <clipPath id="${id0}winclip"><path d="${c.win}"/></clipPath>
@@ -3467,7 +3505,7 @@ function carSVG(tier, p, cos={}){
 
     <!-- speed lines: opacity AND length both scale with the real interpolated
          speed stat (eased), so faster cars read as visibly faster at a glance -->
-    <g class="speedlines" opacity="${(0.10+0.75*speedIntensity).toFixed(2)}">
+    <g class="speedlines" opacity="${(0.10+0.75*speedIntensity).toFixed(2)}" style="--sl-dur:${slDur}s">
       <rect x="${(6-14*speedIntensity).toFixed(1)}"  y="104" width="${(52+30*speedIntensity).toFixed(1)}" height="4" rx="2" fill="${c.ac}"/>
       <rect x="${(18-14*speedIntensity).toFixed(1)}" y="122" width="${(64+34*speedIntensity).toFixed(1)}" height="4" rx="2" fill="${c.ac}"/>
       <rect x="${(2-14*speedIntensity).toFixed(1)}"  y="140" width="${(44+26*speedIntensity).toFixed(1)}" height="4" rx="2" fill="${c.ac}"/>
@@ -3492,6 +3530,8 @@ function carSVG(tier, p, cos={}){
       <circle cx="${c.wheels[1].x}" cy="152" r="${c.wheels[1].r+4}" fill="none" stroke="#000" stroke-width="5" opacity="0.24"/>
       <circle cx="${c.wheels[1].x}" cy="152" r="${c.wheels[1].r+1.5}" fill="none" stroke="#000" stroke-width="1.4" opacity="0.4"/>
       ${pearlBand}
+      <!-- ambient specular streak (Step 5) — swept across the paint by CSS -->
+      <rect class="shimmer" x="0" y="54" width="90" height="150" fill="url(#shimmerGrad)"/>
     </g>
     ${stripeEl}
 
@@ -3515,6 +3555,7 @@ function carSVG(tier, p, cos={}){
     <path d="M${nx-19} ${ny+0.5} L${nx-1} ${ny-1.5} L${nx-1} ${ny+5.5} L${nx-16} ${ny+5.5} Z" fill="url(#${id0}head)"/>
     <circle cx="${nx-8}" cy="${ny+2.6}" r="2.6" fill="#eaf4ff"/><circle cx="${nx-8}" cy="${ny+2.6}" r="1.1" fill="#bcd8ff"/>
     <rect x="${nx-18}" y="${ny+5.4}" width="17" height="1.3" rx="0.6" fill="#8fd0ff" opacity="0.9"/>
+    <circle class="hlglow" cx="${nx-8}" cy="${ny+2.6}" r="10" fill="url(#hlGrad)"/>
     <!-- taillight cluster (rear) -->
     <path d="M${tx} ${ty-2} L${tx+15} ${ty-1} L${tx+16} ${ty+7} L${tx} ${ty+7} Z" fill="url(#${id0}tail)" stroke="#3a0d08" stroke-width="0.7"/>
     <rect x="${tx+2}" y="${ty+1}" width="12" height="1.6" rx="0.8" fill="#ff9a86" opacity="0.85"/>
@@ -3825,10 +3866,16 @@ function renderShop(){
 function renderGarage(animate){
   const st = P(); const t = st.tier, p = inTierProgress(t);
   const c = CARS[t], next = CARS[Math.min(t+1,CARS.length-1)];
-  $("carStage").innerHTML = carSVG(t, p, cosmeticsOf(st));
+  const cos = cosmeticsOf(st);
+  const stage=$("carStage");
+  // Tint the garage floor light-pool with the car's current paint colour (Step 5).
+  stage.style.setProperty("--car-glow", (cos.paint && cos.paint.c1) || c.c1);
+  stage.innerHTML = carSVG(t, p, cos);
   if(animate){
-    const stage=$("carStage"); stage.classList.remove("drive"); void stage.offsetWidth; stage.classList.add("drive");
-    stage.addEventListener("animationend",()=>stage.classList.remove("drive"),{once:true});
+    stage.classList.remove("drive","settle"); void stage.offsetWidth;
+    if(t>=3) stage.classList.add("settle");   // heavier performance classes get the weight-transfer settle
+    stage.classList.add("drive");
+    stage.addEventListener("animationend",()=>stage.classList.remove("drive","settle"),{once:true});
   }
   $("className").textContent = c.name;
   $("classSub").textContent = c.sub;
