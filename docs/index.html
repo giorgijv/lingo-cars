@@ -3342,6 +3342,29 @@ const FINISH_CFG = {
   metallic: {spec1:0.55, spec2:0.34, hiAmt:0.58, sheenAmt:0.26},
 };
 
+/* Step 4 — "performance feel": purely cosmetic render tweaks driven ONLY by
+   a tier's existing spd/hnd numbers and its position in the ladder. Never
+   shop-purchasable and never a new stat (D5) — these are a *visualization*
+   of proficiency-derived numbers that already exist, not a new lever. */
+
+/* Exhaust-tip count/size scales with tier alone (1 tip at A1/A2, 2 at
+   B1/B2, 4 at C1/C2) — mounted at the rear (tail side), just past the
+   bumper edge, ahead of the rear wheel. */
+function exhaustSVG(c, tier){
+  const n = tier<=1 ? 1 : tier<=3 ? 2 : 4;
+  const r = 2.6 + tier*0.55;
+  const spacing = r*2.3;
+  const startX = c.tail.x + 9;
+  const y = 148;
+  let out = "";
+  for(let i=0;i<n;i++){
+    const cx = startX + i*spacing;
+    out += `<ellipse cx="${cx.toFixed(1)}" cy="${y}" rx="${(r*0.62).toFixed(1)}" ry="${(r*0.46).toFixed(1)}" fill="#1a1d22" stroke="#4a5058" stroke-width="0.7"/>
+      <ellipse cx="${(cx-r*0.12).toFixed(1)}" cy="${(y-r*0.1).toFixed(1)}" rx="${(r*0.36).toFixed(1)}" ry="${(r*0.24).toFixed(1)}" fill="#05060a"/>`;
+  }
+  return `<g data-perf="exhaust">${out}</g>`;
+}
+
 function carSVG(tier, p, cos={}){
   const base = CARS[tier];
   const c = cos.paint ? Object.assign({}, base, cos.paint) : base;
@@ -3361,6 +3384,19 @@ function carSVG(tier, p, cos={}){
     : decalShape==="stripes" ? (decalPurchased ? "#ffffff" : c.ac)
     : "#ffffff";
   const aeroFill = aeroShape==="carbonwing" ? "#15181d" : c.c2;
+
+  // "Performance feel" (Step 4): purely cosmetic, driven only by the car's
+  // EXISTING interpolated speed/handling numbers (same formula renderGarage
+  // uses to display them) — never purchasable, never a new stat (D5: stats
+  // are a pure read-only projection of proficiency; cosmetics only
+  // visualize them, they can never feed back into spd/hnd themselves).
+  const nextC = CARS[Math.min(tier+1, CARS.length-1)];
+  const topTier = tier===CARS.length-1;
+  const curSpd = topTier ? c.spd : lerp(c.spd, nextC.spd, p);
+  const curHnd = topTier ? c.hnd : lerp(c.hnd, nextC.hnd, p);
+  const rideDrop = (curHnd/HND_MAX) * 2.6;                              // stiffer/lower stance as handling rises
+  const speedIntensity = Math.pow(Math.min(1, curSpd/SPD_MAX), 0.75);   // eased so mid-range speed still reads
+  const patchScale = 1 + (curSpd/SPD_MAX) * 0.6;                        // wider contact patch as speed rises
 
   // Derived shading tones + anchor points (kept as functions of the existing
   // per-tier path data so no new geometry needs hand-tuning per class).
@@ -3386,9 +3422,12 @@ function carSVG(tier, p, cos={}){
   const stripeEl = decalShape ? decalShapeSVG(decalShape, c, creaseY, decalColor, id0) : "";
   const pearlBand = cos.finish==="metallic"
     ? `<rect x="-40" y="90" width="60" height="200" fill="#ffffff" opacity="0.22" transform="skewX(-30)"/>` : "";
-  const speedIntensity = Math.min(1, (c.spd/5) + p*0.3);
   const mirror = `<path d="M${mx.toFixed(1)} ${my} q6 -3 12 -1 l0 7 q-7 -1.5 -12 1 Z" fill="url(#${id0}p)" stroke="${bodyStroke}" stroke-width="0.7"/>
     <path d="M${(mx+2).toFixed(1)} ${my+0.6} q4 -1.8 8 -0.6 l0 4.6 q-5 -0.8 -8 0.6 Z" fill="#0e1520"/>`;
+  const exhaust = exhaustSVG(c, tier);
+  const contactPatches = c.wheels.map(w=>
+    `<ellipse cx="${w.x}" cy="${(152+w.r-2.2).toFixed(1)}" rx="${(w.r*0.5*patchScale).toFixed(1)}" ry="2" fill="#000" opacity="0.4"/>`
+  ).join("");
 
   return `
   <svg viewBox="0 0 480 190" role="img" aria-label="${c.name}">
@@ -3426,12 +3465,18 @@ function carSVG(tier, p, cos={}){
     <ellipse cx="${c.wheels[0].x}" cy="178" rx="${c.wheels[0].r+7}" ry="6" fill="#000" opacity="0.34" filter="url(#${id0}blur)"/>
     <ellipse cx="${c.wheels[1].x}" cy="178" rx="${c.wheels[1].r+7}" ry="6" fill="#000" opacity="0.34" filter="url(#${id0}blur)"/>
 
-    <g class="speedlines" opacity="${(0.12+0.7*speedIntensity*p).toFixed(2)}">
-      <rect x="6"  y="104" width="52" height="4" rx="2" fill="${c.ac}"/>
-      <rect x="18" y="122" width="64" height="4" rx="2" fill="${c.ac}"/>
-      <rect x="2"  y="140" width="44" height="4" rx="2" fill="${c.ac}"/>
+    <!-- speed lines: opacity AND length both scale with the real interpolated
+         speed stat (eased), so faster cars read as visibly faster at a glance -->
+    <g class="speedlines" opacity="${(0.10+0.75*speedIntensity).toFixed(2)}">
+      <rect x="${(6-14*speedIntensity).toFixed(1)}"  y="104" width="${(52+30*speedIntensity).toFixed(1)}" height="4" rx="2" fill="${c.ac}"/>
+      <rect x="${(18-14*speedIntensity).toFixed(1)}" y="122" width="${(64+34*speedIntensity).toFixed(1)}" height="4" rx="2" fill="${c.ac}"/>
+      <rect x="${(2-14*speedIntensity).toFixed(1)}"  y="140" width="${(44+26*speedIntensity).toFixed(1)}" height="4" rx="2" fill="${c.ac}"/>
     </g>
 
+    <!-- ride height: the body/glass/lights/aero group drops slightly as the
+         real handling stat rises (a lower, stiffer-looking stance) — the
+         wheels/tyres/ground-plane stay fixed so the car doesn't float or sink -->
+    <g transform="translate(0, ${rideDrop.toFixed(2)})">
     ${wing}
 
     <!-- body + clipped paint shading (specular, horizon band already in gradient) -->
@@ -3476,6 +3521,12 @@ function carSVG(tier, p, cos={}){
 
     ${splitter}
     ${aeroKit}
+    ${exhaust}
+    </g>
+
+    <!-- tyre contact patch: widens as the real speed stat rises, fixed to
+         the (unshifted) wheel position rather than the ride-height group -->
+    ${contactPatches}
     ${wheels}
   </svg>`;
 }
