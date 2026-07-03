@@ -1,0 +1,499 @@
+{
+  "target": "ru",
+  "skills": [
+    {
+      "key": "greetings",
+      "cefr": "A1",
+      "name": { "de": "Begrüßungen", "en": "Greetings" },
+      "lessons": [
+        {
+          "exercises": [
+            {
+              "stem": { "de": "Wie sagt man 'Hallo' auf Russisch?", "en": "How do you say 'hello' in Russian?" },
+              "options": ["Привет", "Пока", "Спасибо", "Извините"],
+              "correctIndex": 0
+            },
+            {
+              "stem": { "de": "Wie sagt man 'Danke' auf Russisch?", "en": "How do you say 'thank you' in Russian?" },
+              "options": ["Пожалуйста", "Спасибо", "Привет", "Да"],
+              "correctIndex": 1
+            },
+            {
+              "stem": { "de": "Wie sagt man 'Tschüss' auf Russisch?", "en": "How do you say 'bye' in Russian?" },
+              "options": ["Доброе утро", "Привет", "Пока", "Хорошо"],
+              "correctIndex": 2
+            },
+            {
+              "stem": { "de": "Wie sagt man 'Bitte' auf Russisch?", "en": "How do you say 'please' in Russian?" },
+              "options": ["Спасибо", "Пожалуйста", "Пока", "Нет"],
+              "correctIndex": 1
+            }
+          ]
+        },
+        {
+          "exercises": [
+            {
+              "stem": { "de": "Wie sagt man 'Guten Morgen' auf Russisch?", "en": "How do you say 'good morning' in Russian?" },
+              "options": ["Доброй ночи", "Доброе утро", "Добрый день", "Привет"],
+              "correctIndex": 1
+            },
+            {
+              "stem": { "de": "Wie sagt man 'ja' auf Russisch?", "en": "How do you say 'yes' in Russian?" },
+              "options": ["Нет", "Да", "Может быть", "Никогда"],
+              "correctIndex": 1
+            },
+            {
+              "stem": { "de": "Wie sagt man 'nein' auf Russisch?", "en": "How do you say 'no' in Russian?" },
+              "options": ["Да", "Хорошо", "Нет", "Сейчас"],
+              "correctIndex": 2
+            },
+            {
+              "stem": { "de": "Wie sagt man 'Wasser' auf Russisch?", "en": "How do you say 'water' in Russian?" },
+              "options": ["Вино", "Молоко", "Вода", "Хлеб"],
+              "correctIndex": 2
+            }
+          ]
+        },
+        {
+          "exercises": [
+            { "stem": { "de": "Übersetze: 'Hallo'", "en": "Translate: 'hello'" }, "answers": ["привет"] },
+            { "stem": { "de": "Übersetze: 'Danke'", "en": "Translate: 'thank you'" }, "answers": ["спасибо"] },
+            { "stem": { "de": "Übersetze: 'das Brot'", "en": "Translate: 'the bread'" }, "answers": ["хлеб"] }
+          ]
+        },
+        {
+          "exercises": [
+            {
+              "stem": { "de": "Was hast du gehört?", "en": "What did you hear?" },
+              "transcript": "Привет, как дела?",
+              "options": ["Привет, как дела?", "Пока, до встречи.", "Спасибо за всё.", "Спокойной ночи."],
+              "correctIndex": 0
+            }
+          ]
+        },
+        {
+          "exercises": [
+            { "stem": { "de": "Lies laut vor:", "en": "Read aloud:" }, "text": "Привет, как дела?" }
+          ]
+        }
+      ]
+    },
+    {
+      "key": "numbers",
+      "cefr": "A1",
+      "name": { "de": "Zahlen", "en": "Numbers" },
+      "lessons": [
+        {
+          "exercises": [
+            { "stem": { "de": "Wie sagt man 'eins'?", "en": "How do you say 'one'?" }, "options": ["два", "один", "три", "ноль"], "correctIndex": 1 },
+            { "stem": { "de": "Wie sagt man 'zwei'?", "en": "How do you say 'two'?" }, "options": ["один", "два", "четыре", "шесть"], "correctIndex": 1 },
+            { "stem": { "de": "Wie sagt man 'drei'?", "en": "How do you say 'three'?" }, "options": ["два", "четыре", "три", "пять"], "correctIndex": 2 },
+            { "stem": { "de": "Wie sagt man 'vier'?", "en": "How do you say 'four'?" }, "options": ["три", "четыре", "пять", "шесть"], "correctIndex": 1 }
+          ]
+        },
+        {
+          "exercises": [
+            { "stem": { "de": "Wie sagt man 'fünf'?", "en": "How do you say 'five'?" }, "options": ["четыре", "пять", "шесть", "семь"], "correctIndex": 1 },
+            { "stem": { "de": "Wie sagt man 'sechs'?", "en": "How do you say 'six'?" }, "options": ["пять", "шесть", "семь", "восемь"], "correctIndex": 1 },
+            { "stem": { "de": "Wie sagt man 'zehn'?", "en": "How do you say 'ten'?" }, "options": ["девять", "десять", "одиннадцать", "двадцать"], "correctIndex": 1 },
+            { "stem": { "de": "Wie sagt man 'null'?", "en": "How do you say 'zero'?" }, "options": ["ноль", "один", "десять", "сто"], "correctIndex": 0 }
+          ]
+        }
+      ]
+    },
+    {
+      "key": "colors",
+      "cefr": "A1",
+      "name": { "de": "Farben", "en": "Colors" },
+      "lessons": [
+        {
+          "exercises": [
+            { "stem": { "de": "Wie sagt man 'rot'?", "en": "How do you say 'red'?" }, "options": ["синий", "красный", "зелёный", "чёрный"], "correctIndex": 1 },
+            { "stem": { "de": "Wie sagt man 'blau'?", "en": "How do you say 'blue'?" }, "options": ["жёлтый", "синий", "белый", "серый"], "correctIndex": 1 },
+            { "stem": { "de": "Wie sagt man 'grün'?", "en": "How do you say 'green'?" }, "options": ["красный", "зелёный", "оранжевый", "розовый"], "correctIndex": 1 },
+            { "stem": { "de": "Wie sagt man 'schwarz'?", "en": "How do you say 'black'?" }, "options": ["белый", "чёрный", "серый", "коричневый"], "correctIndex": 1 }
+          ]
+        }
+      ]
+    },
+    {
+      "key": "alphabet",
+      "cefr": "A1",
+      "name": { "de": "Alphabet (Kyrillisch)", "en": "Alphabet (Cyrillic)" },
+      "lessons": [
+        {
+          "exercises": [
+            { "stem": { "de": "Welcher Buchstabe ist 'b'?", "en": "Which letter is 'b'?" }, "options": ["б", "в", "д", "р"], "correctIndex": 0 },
+            { "stem": { "de": "Welcher Buchstabe ist 'g'?", "en": "Which letter is 'g'?" }, "options": ["п", "г", "ф", "з"], "correctIndex": 1 },
+            { "stem": { "de": "Welcher Buchstabe ist 'm'?", "en": "Which letter is 'm'?" }, "options": ["н", "ш", "м", "о"], "correctIndex": 2 },
+            { "stem": { "de": "Welcher Buchstabe ist 'i'?", "en": "Which letter is 'i'?" }, "options": ["и", "е", "у", "я"], "correctIndex": 0 }
+          ]
+        },
+        {
+          "exercises": [
+            { "stem": { "de": "Wie liest man 'ж'?", "en": "How is 'ж' read?" }, "options": ["zh", "z", "j", "sh"], "correctIndex": 0 },
+            { "stem": { "de": "Wie liest man 'ц'?", "en": "How is 'ц' read?" }, "options": ["ch", "ts", "s", "k"], "correctIndex": 1 },
+            {
+              "stem": { "de": "Wie liest man den Buchstaben 'Р' (sieht aus wie lateinisches 'P')?", "en": "How is the letter 'Р' read (looks like Latin 'P')?" },
+              "options": ["p", "r", "g", "n"],
+              "correctIndex": 1
+            },
+            { "stem": { "de": "Welches Wort liest man 'dom' (Haus)?", "en": "Which word reads 'dom' (house)?" }, "options": ["дом", "том", "сом", "ком"], "correctIndex": 0 }
+          ]
+        }
+      ]
+    },
+    {
+      "key": "food",
+      "cefr": "A2",
+      "name": { "de": "Essen", "en": "Food" },
+      "lessons": [
+        {
+          "exercises": [
+            { "stem": { "de": "Wie sagt man 'das Brot' auf Russisch?", "en": "How do you say 'bread' in Russian?" }, "options": ["хлеб", "молоко", "вода", "сыр"], "correctIndex": 0 },
+            { "stem": { "de": "Wie sagt man 'der Apfel' auf Russisch?", "en": "How do you say 'apple' in Russian?" }, "options": ["апельсин", "яблоко", "банан", "груша"], "correctIndex": 1 },
+            { "stem": { "de": "Wie sagt man 'das Wasser' auf Russisch?", "en": "How do you say 'water' in Russian?" }, "options": ["вино", "пиво", "вода", "сок"], "correctIndex": 2 },
+            { "stem": { "de": "Wie sagt man 'der Käse' auf Russisch?", "en": "How do you say 'cheese' in Russian?" }, "options": ["сыр", "ветчина", "яйцо", "соль"], "correctIndex": 0 }
+          ]
+        },
+        {
+          "exercises": [
+            {
+              "stem": { "de": "Was bedeutet 'Ich möchte einen Kaffee' auf Russisch?", "en": "How do you say 'I would like a coffee' in Russian?" },
+              "options": ["Я хочу чай", "Я хочу кофе", "У меня есть кофе", "Я пью воду"],
+              "correctIndex": 1
+            },
+            { "stem": { "de": "Wie sagt man 'das Frühstück' auf Russisch?", "en": "How do you say 'breakfast' in Russian?" }, "options": ["ужин", "обед", "завтрак", "полдник"], "correctIndex": 2 },
+            { "stem": { "de": "Wie sagt man 'lecker' auf Russisch?", "en": "How do you say 'tasty' in Russian?" }, "options": ["вкусный", "дорогой", "холодный", "плохой"], "correctIndex": 0 },
+            {
+              "stem": { "de": "Wie sagt man 'die Rechnung' (im Restaurant) auf Russisch?", "en": "How do you say 'the bill' (restaurant) in Russian?" },
+              "options": ["стол", "счёт", "меню", "чаевые"],
+              "correctIndex": 1
+            }
+          ]
+        },
+        {
+          "exercises": [
+            { "stem": { "de": "Übersetze: 'das Brot'", "en": "Translate: 'the bread'" }, "answers": ["хлеб"] },
+            {
+              "stem": { "de": "Übersetze: 'Ich möchte einen Kaffee.'", "en": "Translate: 'I would like a coffee.'" },
+              "answers": ["я хочу кофе", "я хотел бы кофе"],
+              "tolerance": 2
+            }
+          ]
+        },
+        {
+          "exercises": [
+            {
+              "stem": { "de": "Was hast du gehört?", "en": "What did you hear?" },
+              "transcript": "Я хочу кофе, пожалуйста.",
+              "options": ["Я хочу кофе, пожалуйста.", "Я хочу чай, пожалуйста.", "Дайте счёт, пожалуйста.", "Я хочу воду, пожалуйста."],
+              "correctIndex": 0
+            }
+          ]
+        },
+        {
+          "exercises": [
+            { "stem": { "de": "Lies laut vor:", "en": "Read aloud:" }, "text": "Я хочу кофе, пожалуйста.", "tolerance": 2 }
+          ]
+        }
+      ]
+    },
+    {
+      "key": "travel",
+      "cefr": "A2",
+      "name": { "de": "Reisen", "en": "Travel" },
+      "lessons": [
+        {
+          "exercises": [
+            { "stem": { "de": "Wie sagt man 'der Bahnhof' auf Russisch?", "en": "How do you say 'train station' in Russian?" }, "options": ["аэропорт", "вокзал", "остановка", "порт"], "correctIndex": 1 },
+            { "stem": { "de": "Wie sagt man 'das Hotel' auf Russisch?", "en": "How do you say 'hotel' in Russian?" }, "options": ["гостиница", "магазин", "ресторан", "музей"], "correctIndex": 0 },
+            { "stem": { "de": "Wie sagt man 'der Flughafen' auf Russisch?", "en": "How do you say 'airport' in Russian?" }, "options": ["вокзал", "аэропорт", "порт", "отель"], "correctIndex": 1 },
+            { "stem": { "de": "Wie sagt man 'die Fahrkarte' auf Russisch?", "en": "How do you say 'ticket' in Russian?" }, "options": ["билет", "паспорт", "карта", "чемодан"], "correctIndex": 0 }
+          ]
+        },
+        {
+          "exercises": [
+            { "stem": { "de": "'Wo ist das Hotel?'", "en": "'Where is the hotel?'" }, "options": ["Как дела?", "Где гостиница?", "Что это?", "Когда автобус?"], "correctIndex": 1 },
+            { "stem": { "de": "'Wie viel kostet das?'", "en": "'How much does it cost?'" }, "options": ["Сколько это стоит?", "Где это?", "Который час?", "Кто это?"], "correctIndex": 0 },
+            { "stem": { "de": "Wie sagt man 'gestern' auf Russisch?", "en": "How do you say 'yesterday' in Russian?" }, "options": ["завтра", "сегодня", "вчера", "сейчас"], "correctIndex": 2 },
+            { "stem": { "de": "Wie sagt man 'morgen' auf Russisch?", "en": "How do you say 'tomorrow' in Russian?" }, "options": ["завтра", "вчера", "сегодня", "скоро"], "correctIndex": 0 }
+          ]
+        },
+        {
+          "exercises": [
+            {
+              "stem": { "de": "Was hast du gehört?", "en": "What did you hear?" },
+              "transcript": "Где вокзал?",
+              "options": ["Где туалет?", "Где вокзал?", "Сколько это стоит?", "Который час?"],
+              "correctIndex": 1
+            }
+          ]
+        },
+        {
+          "exercises": [
+            { "stem": { "de": "Lies laut vor:", "en": "Read aloud:" }, "text": "Сколько это стоит?", "tolerance": 2 }
+          ]
+        }
+      ]
+    },
+    {
+      "key": "b1-structures",
+      "cefr": "B1",
+      "name": { "de": "Satzbau & Ausdruck", "en": "Structures & expression" },
+      "lessons": [
+        {
+          "exercises": [
+            {
+              "stem": { "de": "'Wenn ich Zeit hätte, würde ich reisen.'", "en": "'If I had time, I would travel.'" },
+              "options": ["Если у меня есть время, я путешествую", "Если бы у меня было время, я бы путешествовал", "Когда я путешествую, у меня есть время", "Я буду путешествовать, если есть время"],
+              "correctIndex": 1
+            },
+            {
+              "stem": { "de": "Wähle das Synonym für 'счастливый' (glücklich).", "en": "Pick the synonym of 'счастливый' (happy)." },
+              "options": ["грустный", "радостный", "усталый", "злой"],
+              "correctIndex": 1
+            },
+            {
+              "stem": { "de": "'Ich lerne seit zwei Jahren Russisch.' — wähle die richtige Form.", "en": "'I have been learning Russian for two years.' — pick the right form." },
+              "options": ["учу", "изучаю", "выучил", "изучил"],
+              "correctIndex": 1
+            },
+            {
+              "stem": { "de": "Wie sagt man 'kündigen' (Job) auf Russisch?", "en": "How do you say 'to resign' (job) in Russian?" },
+              "options": ["уволиться", "нанять", "повысить", "получать"],
+              "correctIndex": 0
+            },
+            {
+              "stem": { "de": "'Ich bereue es, nicht gegangen zu sein.'", "en": "'I regret not having gone.'" },
+              "options": ["Я жалею, что не пошёл", "Я рад, что пошёл", "Я думаю пойти", "Я забыл пойти"],
+              "correctIndex": 0
+            }
+          ]
+        },
+        {
+          "exercises": [
+            {
+              "stem": { "de": "Übersetze: 'Ich hätte gern ein Zimmer.'", "en": "Translate: 'I would like a room.'" },
+              "answers": ["я хотел бы номер", "мне нужен номер"],
+              "tolerance": 2
+            },
+            {
+              "stem": { "de": "Übersetze: 'Ich stimme dir nicht zu.'", "en": "Translate: \"I don't agree with you.\"" },
+              "answers": ["я не согласен с тобой", "я с тобой не согласен"],
+              "tolerance": 2
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "key": "cases",
+      "cefr": "B1",
+      "name": { "de": "Fälle (Kasussystem)", "en": "Cases (case system)" },
+      "lessons": [
+        {
+          "exercises": [
+            {
+              "stem": { "de": "Wähle die richtige Form: 'У меня нет ___.' (книга, nach Verneinung)", "en": "Pick the right form: 'I don't have a book.' (книга=book, after negation)" },
+              "options": ["книга", "книги", "книгу", "книге"],
+              "correctIndex": 1
+            },
+            {
+              "stem": { "de": "Wähle die richtige Form: 'Я читаю ___.' (газета, direktes Objekt)", "en": "Pick the right form: 'I am reading a newspaper.' (газета=newspaper, direct object)" },
+              "options": ["газета", "газеты", "газету", "газете"],
+              "correctIndex": 2
+            },
+            {
+              "stem": { "de": "Wähle die richtige Form: 'Я живу ___ Москве.' (in Moskau, Präpositiv)", "en": "Pick the right form: 'I live in Moscow.' (prepositional case)" },
+              "options": ["Москва", "Москву", "Москвы", "Москве"],
+              "correctIndex": 3
+            },
+            {
+              "stem": { "de": "Wähle die richtige Form: 'Я пишу ___.' (ручка = Stift, Instrumental: 'mit dem Stift')", "en": "Pick the right form: 'I write with a pen.' (ручка=pen, instrumental)" },
+              "options": ["ручка", "ручку", "ручкой", "ручки"],
+              "correctIndex": 2
+            }
+          ]
+        },
+        {
+          "exercises": [
+            {
+              "stem": { "de": "Wähle die richtige Form: 'Я дал книгу ___.' (друг = Freund, Dativ)", "en": "Pick the right form: 'I gave the book to a friend.' (друг=friend, dative)" },
+              "options": ["друг", "друга", "другу", "другом"],
+              "correctIndex": 2
+            },
+            {
+              "stem": { "de": "Wähle die richtige Form: 'Это книга ___.' (сестра = Schwester, Genitiv)", "en": "Pick the right form: 'This is the sister's book.' (сестра=sister, genitive)" },
+              "options": ["сестра", "сестры", "сестре", "сестрой"],
+              "correctIndex": 1
+            },
+            {
+              "stem": { "de": "Wähle die richtige Form: 'Я вижу ___.' (брат = Bruder — belebte Substantive: Akkusativ = Genitiv)", "en": "Pick the right form: 'I see my brother.' (брат=brother — animate nouns: accusative = genitive)" },
+              "options": ["брат", "брата", "брату", "брате"],
+              "correctIndex": 1
+            },
+            {
+              "stem": { "de": "Wähle die richtige Form: 'Я думаю ___ тебе.' (о + Präpositiv)", "en": "Pick the right form: 'I am thinking about you.' (о + prepositional)" },
+              "options": ["ты", "тебя", "тебе", "тобой"],
+              "correctIndex": 2
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "key": "verbs",
+      "cefr": "B1",
+      "name": { "de": "Verbaspekt & Bewegungsverben", "en": "Verb aspect & motion verbs" },
+      "lessons": [
+        {
+          "exercises": [
+            {
+              "stem": { "de": "Wähle die richtige Form: 'Я ___ письмо весь вечер.' (schreiben, unvollendeter Aspekt: andauernd)", "en": "Pick the right form: 'I was writing a letter all evening.' (imperfective: ongoing)" },
+              "options": ["написал", "писал", "напишу", "пишу"],
+              "correctIndex": 1
+            },
+            {
+              "stem": { "de": "Wähle die richtige Form: 'Я ___ письмо и пошёл спать.' (schreiben, vollendeter Aspekt: abgeschlossen)", "en": "Pick the right form: 'I wrote the letter and went to sleep.' (perfective: completed)" },
+              "options": ["писал", "написал", "пишу", "напишу"],
+              "correctIndex": 1
+            },
+            {
+              "stem": { "de": "Wähle die richtige Form: 'Она ___ по-русски.' (sprechen, sie)", "en": "Pick the right form: 'She speaks Russian.'" },
+              "options": ["говорю", "говоришь", "говорит", "говорят"],
+              "correctIndex": 2
+            },
+            {
+              "stem": { "de": "Wähle die richtige Form: 'Она ___ домой.' (gehen, Vergangenheit, feminin)", "en": "Pick the right form: 'She went home.' (past tense, feminine)" },
+              "options": ["пошёл", "пошла", "пошли", "пойдёт"],
+              "correctIndex": 1
+            }
+          ]
+        },
+        {
+          "exercises": [
+            {
+              "stem": { "de": "Wähle die richtige Form: 'Я ___ в школу каждый день.' (gehen, gewohnheitsmäßig)", "en": "Pick the right form: 'I go to school every day.' (habitual motion)" },
+              "options": ["иду", "идти", "хожу", "ходить"],
+              "correctIndex": 2
+            },
+            {
+              "stem": { "de": "Wähle die richtige Form: 'Я ___ в школу сейчас.' (gehen, gerade jetzt)", "en": "Pick the right form: 'I am going to school right now.'" },
+              "options": ["хожу", "иду", "ходил", "пойду"],
+              "correctIndex": 1
+            },
+            {
+              "stem": { "de": "Wähle die richtige Form: 'Завтра я ___ письмо.' (schreiben, Futur, vollendeter Aspekt)", "en": "Pick the right form: 'Tomorrow I will write the letter.' (perfective future)" },
+              "options": ["пишу", "писал", "напишу", "написал"],
+              "correctIndex": 2
+            },
+            {
+              "stem": { "de": "Wähle die richtige Form: '___ сюда!' (gehen, Imperativ, du)", "en": "Pick the right form: 'Come here!' (imperative)" },
+              "options": ["Идёшь", "Иди", "Идти", "Шёл"],
+              "correctIndex": 1
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "key": "b2-nuance",
+      "cefr": "B2",
+      "name": { "de": "Feinheiten & Konnektoren", "en": "Nuance & connectors" },
+      "lessons": [
+        {
+          "exercises": [
+            {
+              "stem": { "de": "Register: das formellste Verb für 'sagen'.", "en": "Register: the most formal verb for 'to say'." },
+              "options": ["сказать", "говорить", "заявить", "болтать"],
+              "correctIndex": 2
+            },
+            {
+              "stem": { "de": "'Если бы я знал, я ___ пришёл.' (Konjunktiv-Partikel)", "en": "'If I had known, I would have come.' (conditional particle)" },
+              "options": ["буду", "пришёл", "бы", "приду"],
+              "correctIndex": 2
+            },
+            {
+              "stem": { "de": "Wähle den passenden Konnektor: '___, мы всё равно продолжаем.'", "en": "Pick the right connector: '___, we're continuing anyway.'" },
+              "options": ["Несмотря на это", "Из-за этого", "Для этого", "С тех пор"],
+              "correctIndex": 0
+            },
+            {
+              "stem": { "de": "Rektion: 'обратить внимание ___ что-то'.", "en": "Case usage: 'to pay attention to something'." },
+              "options": ["на", "в", "за", "с"],
+              "correctIndex": 0
+            },
+            {
+              "stem": { "de": "Was bedeutet 'зачастую'?", "en": "What does 'зачастую' mean?" },
+              "options": { "de": ["oft / häufig", "selten", "niemals", "manchmal"], "en": ["often / frequently", "rarely", "never", "sometimes"] },
+              "correctIndex": 0
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "key": "c1-idiom",
+      "cefr": "C1",
+      "name": { "de": "Idiomatik & Register", "en": "Idiom & register" },
+      "lessons": [
+        {
+          "exercises": [
+            {
+              "stem": { "de": "Idiom: 'вешать лапшу на уши' bedeutet…", "en": "Idiom: 'вешать лапшу на уши' means…" },
+              "options": { "de": ["jemanden anlügen / Bären aufbinden", "glücklich sein", "sich beeilen", "aufgeben"], "en": ["to lie to someone / pull the wool over one's eyes", "to be happy", "to hurry", "to give up"] },
+              "correctIndex": 0
+            },
+            {
+              "stem": { "de": "Register: das gehobenste (literarische) Verb für 'sagen'.", "en": "Register: the most elevated (literary) verb for 'to say'." },
+              "options": ["сказать", "произнести", "молвить", "говорить"],
+              "correctIndex": 2
+            },
+            {
+              "stem": { "de": "Was bedeutet 'как бы то ни было'?", "en": "What does 'как бы то ни было' mean?" },
+              "options": { "de": ["wie dem auch sei / trotzdem", "zum Glück", "auf keinen Fall", "plötzlich"], "en": ["be that as it may / anyway", "luckily", "no way", "suddenly"] },
+              "correctIndex": 0
+            },
+            {
+              "stem": { "de": "Rektion: 'жениться ___ ком-то' (ein Mann heiratet).", "en": "Case usage: 'to marry someone' (said of a man)." },
+              "options": ["на", "с", "за", "к"],
+              "correctIndex": 0
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "key": "c2-mastery",
+      "cefr": "C2",
+      "name": { "de": "Meisterschaft", "en": "Mastery" },
+      "lessons": [
+        {
+          "exercises": [
+            {
+              "stem": { "de": "Idiom: 'бить баклуши' bedeutet…", "en": "Idiom: 'бить баклуши' means…" },
+              "options": { "de": ["faulenzen / nichts tun", "hart arbeiten", "sich streiten", "gewinnen"], "en": ["to loaf around / do nothing", "to work hard", "to argue", "to win"] },
+              "correctIndex": 0
+            },
+            {
+              "stem": { "de": "Wähle das archaische/poetische Wort für 'Augen'.", "en": "Pick the archaic/poetic word for 'eyes'." },
+              "options": ["глаза", "очи", "зенки", "гляделки"],
+              "correctIndex": 1
+            },
+            {
+              "stem": { "de": "Was bedeutet 'тем не менее'?", "en": "What does 'тем не менее' mean?" },
+              "options": { "de": ["nichtsdestotrotz", "deshalb", "daher", "obendrein"], "en": ["nevertheless", "therefore", "hence", "moreover"] },
+              "correctIndex": 0
+            },
+            {
+              "stem": { "de": "Rektion: 'гордиться ___ кем-то' (Instrumental).", "en": "Case usage: 'to be proud of someone' (takes instrumental)." },
+              "options": ["кем-то", "кого-то", "кому-то", "ком-то"],
+              "correctIndex": 0
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

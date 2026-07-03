@@ -3,6 +3,8 @@
   "version": "0.0.0",
   "private": true,
   "description": "Language Learner - Phase 0 (learning loop: schema + placement + FSRS). No car system.",
+  "author": "Giorgi Jvarsheishvili",
+  "license": "UNLICENSED",
   "type": "module",
   "engines": {
     "node": ">=20"

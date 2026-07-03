@@ -2,8 +2,8 @@ import { describe, expect, it } from "vitest";
 import { bankSchema, bankStats, isFillExercise, isListenExercise, isSpeakExercise, loadBank, optionsFor } from "./bank.js";
 
 describe("content pipeline", () => {
-  it("both target banks load and validate", () => {
-    for (const t of ["es", "ka"] as const) {
+  it("every target bank loads and validates", () => {
+    for (const t of ["es", "ka", "ru"] as const) {
       const bank = loadBank(t);
       expect(bank.target).toBe(t);
       expect(bank.skills.length).toBeGreaterThan(0);
@@ -11,7 +11,7 @@ describe("content pipeline", () => {
   });
 
   it("every bank spans A1..C2", () => {
-    for (const t of ["es", "ka"] as const) {
+    for (const t of ["es", "ka", "ru"] as const) {
       const s = bankStats(loadBank(t));
       for (const level of ["A1", "A2", "B1", "B2", "C1", "C2"]) {
         expect(s.perCefr[level] ?? 0, `${t} has no ${level} items`).toBeGreaterThan(0);
@@ -23,6 +23,13 @@ describe("content pipeline", () => {
     const keys = loadBank("ka").skills.map((s) => s.key);
     expect(keys).toEqual(expect.arrayContaining(["alphabet", "cases", "verbs"]));
     const stats = bankStats(loadBank("ka"));
+    expect(stats.exercises).toBeGreaterThanOrEqual(78);
+  });
+
+  it("Russian carries the same depth skills (script, cases, verb aspect)", () => {
+    const keys = loadBank("ru").skills.map((s) => s.key);
+    expect(keys).toEqual(expect.arrayContaining(["alphabet", "cases", "verbs"]));
+    const stats = bankStats(loadBank("ru"));
     expect(stats.exercises).toBeGreaterThanOrEqual(78);
   });
 
