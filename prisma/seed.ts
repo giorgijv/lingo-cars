@@ -4,7 +4,7 @@ import { fillPayloadSchema, listenPayloadSchema, mcqPayloadSchema, speakPayloadS
 import { isFillExercise, isListenExercise, isSpeakExercise, loadBank, optionsFor, type SourceLang, type TargetLang } from "../src/content/bank.js";
 
 /**
- * Seed: languages, all five pairs, the car catalog, the cosmetics catalog,
+ * Seed: languages, all six pairs, the car catalog, the cosmetics catalog,
  * and course content loaded from the content pipeline (content/{target}.json,
  * validated by src/content/bank.ts — invalid content never reaches the DB).
  *
@@ -22,6 +22,7 @@ const PAIRS: { src: SourceLang; tgt: TargetLang }[] = [
   { src: "de", tgt: "ka" },
   { src: "en", tgt: "ka" },
   { src: "de", tgt: "ru" },
+  { src: "en", tgt: "ru" },
 ];
 
 /** Car ladder anchors (§3.2 of the spec) — brand-agnostic shipped names (D4). */
