@@ -6,10 +6,11 @@
 
 > **🏎️ Live demo:** <https://giorgijv.github.io/lingo-cars/> — a standalone,
 > in-browser illustration of the car-progression concept: pick a language pair
-> (de→es, en→es, de→ka, en→ka, de→ru, en→ru), take a placement test, study multiple-choice,
-> typed, listen, and read-aloud exercises, and watch the car level up City
-> Hatch → Hypercar with milestone cosmetics along the way. It runs entirely
-> client-side and is separate from the API below.
+> from the grouped/searchable picker (de/en→es/ka/ru, **and the reverse**:
+> es/ka/ru→de/en — 12 pairs total), take a placement test, study
+> multiple-choice, typed, listen, and read-aloud exercises, and watch the car
+> level up City Hatch → Hypercar with milestone cosmetics along the way. It
+> runs entirely client-side and is separate from the API below.
 >
 > **Placement and study draw from separate pools.** The demo's placement test
 > (`BANKS`, ~45–50 items/language, including dedicated grammar items —
@@ -19,10 +20,12 @@
 > vocabulary/phrases and half verb conjugation, agreement, and case-system
 > grammar drills) are disjoint arrays with zero item overlap, so a learner
 > never sees the exact same question in both modes back to back. Study items
-> also carry a bilingual `why` explanation, shown under the feedback line
-> whenever an answer is wrong. Georgian and Russian study content above A2 is,
-> like the rest of this build's `ka`/`ru` content, not yet reviewed by a
-> native speaker.
+> also carry a `why` explanation in every source language for that target
+> (bilingual de/en for the es/ka/ru banks, trilingual es/ka/ru for the de/en
+> banks), shown under the feedback line whenever an answer is wrong.
+> Georgian, Russian, and the reverse-direction German/English content above
+> A2 is, like the rest of this build's `ka`/`ru` content, not yet reviewed
+> by a native speaker.
 >
 > **Login (👤, top right) syncs progress across devices.** The demo works
 > fully offline by default (localStorage only, one browser); signing in calls
@@ -51,17 +54,26 @@ Backend for a gamified language-learning app.
   of proficiency — a static `CarCatalog` ladder, stat interpolation within a
   tier, and intra-tier micro-milestones. No points economy, no market, no race
   (Phase 3+).
-- **Language pairs:** six pairs — **de→es, en→es, de→ka, en→ka, de→ru,
-  en→ru** — served from three target-language banks with per-source stems.
-  The engine is byte-identical across pairs.
+- **Language pairs:** twelve pairs, both directions — **de/en→es/ka/ru**
+  (learn Spanish, Georgian, or Russian) **and es/ka/ru→de/en** (learn German
+  or English) — served from five target-language banks with per-source
+  stems (`PAIRS` in `src/content/bank.ts` is the single source of truth,
+  shared by content-coverage validation and DB seeding). The engine is
+  byte-identical across pairs.
 - **Phase 2 — content pipeline + script/case depth:** course content lives as
   validated data in [`content/`](./content) (zod-gated by
   `src/content/bank.ts`; `npm run content:check` runs in CI). The Georgian
   bank carries real curriculum depth: Mkhedruli script recognition, the
   nominative/ergative/dative case system, and verb person/tense morphology.
-  The Russian bank (`content/ru.json`, served to both `de→ru` and `en→ru`)
-  mirrors that depth: Cyrillic script recognition, the six-case system, and
-  verb aspect (perfective/imperfective) + motion verbs.
+  The Russian bank (`content/ru.json`) mirrors that depth: Cyrillic script
+  recognition, the six-case system, and verb aspect
+  (perfective/imperfective) + motion verbs. The reverse-direction German
+  and English banks (`content/de.json`, `content/en.json` — stems in
+  es/ka/ru, since those are the source languages paired with them) carry
+  the same depth in the other direction: German's four-case system
+  (Nominativ/Akkusativ/Dativ/Genitiv) and separable/modal verbs; English's
+  pronoun-case system (subject/object/possessive) and irregular verbs/
+  phrasal verbs.
 - **Phase 3 — economy & agency:** points (earned from answering) can be
   **spent** on visual cosmetics, **saved**, or items **sold back** at 50%
   (secondary-market MVP). `Purchase` is an immutable ledger like `Attempt`;
@@ -152,7 +164,7 @@ Requires Node ≥ 20. Choose Docker (zero-config) or an existing Postgres ≥ 14
 npm install
 cp .env.example .env    # defaults already match docker-compose
 npm run setup           # starts Postgres, applies migrations, seeds content
-npm test                # 119 tests, incl. DB integration + e2e
+npm test                # 121 tests, incl. DB integration + e2e
 npm run dev             # http://localhost:3000
 ```
 

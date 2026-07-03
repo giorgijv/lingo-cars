@@ -3,7 +3,7 @@ import { bankSchema, bankStats, isFillExercise, isListenExercise, isSpeakExercis
 
 describe("content pipeline", () => {
   it("every target bank loads and validates", () => {
-    for (const t of ["es", "ka", "ru"] as const) {
+    for (const t of ["es", "ka", "ru", "de", "en"] as const) {
       const bank = loadBank(t);
       expect(bank.target).toBe(t);
       expect(bank.skills.length).toBeGreaterThan(0);
@@ -11,7 +11,7 @@ describe("content pipeline", () => {
   });
 
   it("every bank spans A1..C2", () => {
-    for (const t of ["es", "ka", "ru"] as const) {
+    for (const t of ["es", "ka", "ru", "de", "en"] as const) {
       const s = bankStats(loadBank(t));
       for (const level of ["A1", "A2", "B1", "B2", "C1", "C2"]) {
         expect(s.perCefr[level] ?? 0, `${t} has no ${level} items`).toBeGreaterThan(0);
@@ -31,6 +31,33 @@ describe("content pipeline", () => {
     expect(keys).toEqual(expect.arrayContaining(["alphabet", "cases", "verbs"]));
     const stats = bankStats(loadBank("ru"));
     expect(stats.exercises).toBeGreaterThanOrEqual(78);
+  });
+
+  it("German and English (reverse pairs: es/ka/ru → de/en) carry the same depth skills", () => {
+    for (const t of ["de", "en"] as const) {
+      const keys = loadBank(t).skills.map((s) => s.key);
+      expect(keys).toEqual(expect.arrayContaining(["alphabet", "cases", "verbs"]));
+      const stats = bankStats(loadBank(t));
+      expect(stats.exercises).toBeGreaterThanOrEqual(78);
+    }
+  });
+
+  it("de/en banks carry stems for all three reverse-pair sources (es, ka, ru)", () => {
+    for (const t of ["de", "en"] as const) {
+      const bank = loadBank(t);
+      for (const skill of bank.skills) {
+        for (const lang of ["es", "ka", "ru"] as const) {
+          expect(skill.name[lang], `${t}/${skill.key} name missing '${lang}'`).toBeTruthy();
+        }
+        for (const l of skill.lessons) {
+          for (const ex of l.exercises) {
+            for (const lang of ["es", "ka", "ru"] as const) {
+              expect(ex.stem[lang], `${t}/${skill.key} exercise missing '${lang}' stem`).toBeTruthy();
+            }
+          }
+        }
+      }
+    }
   });
 
   it("optionsFor resolves per-source option sets", () => {
