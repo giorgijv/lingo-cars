@@ -107,7 +107,8 @@
   .feedback{font-weight:700;font-size:14px}
   .feedback.good{color:var(--good)} .feedback.bad{color:var(--bad)}
   .explainText{margin-top:6px;font-weight:400;font-size:13px;color:var(--muted);line-height:1.4}
-  #accountBtn{background:#0f1620;border:1px solid var(--line);color:var(--ink);border-radius:999px;padding:8px 14px;font-size:13px;font-weight:700;font-family:inherit;cursor:pointer;white-space:nowrap;max-width:160px;overflow:hidden;text-overflow:ellipsis}
+  #accountBtn{background:#f5a623;border:1px solid #f5a623;color:#1a1200;border-radius:999px;padding:8px 14px;font-size:13px;font-weight:800;font-family:inherit;cursor:pointer;white-space:nowrap;max-width:220px;overflow:hidden;text-overflow:ellipsis}
+  #accountBtn:hover{background:#ffb84d;border-color:#ffb84d}
   .modalOverlay{position:fixed;inset:0;background:rgba(5,8,14,.72);display:flex;align-items:center;justify-content:center;padding:20px;z-index:50}
   .modalOverlay.hide{display:none}
   .modalCard{background:linear-gradient(180deg,var(--panel) 0%,var(--panel2) 100%);border:1px solid var(--line);border-radius:16px;padding:24px;max-width:380px;width:100%;position:relative;box-shadow:0 10px 40px rgba(0,0,0,.5)}
@@ -165,7 +166,7 @@
         </div>
       </div>
       <select id="pairSel" aria-label="Language pair" class="visually-hidden" tabindex="-1"></select>
-      <button id="accountBtn" aria-haspopup="dialog">👤 Guest</button>
+      <button id="accountBtn" aria-haspopup="dialog">👤 Log In or Sign Up</button>
     </div>
   </header>
 
@@ -1782,7 +1783,7 @@ function apiFetch(path, opts){
 }
 
 function renderAccountUI(){
-  $("accountBtn").textContent = account ? "👤 "+account.email : "👤 Guest";
+  $("accountBtn").textContent = account ? "👤 "+account.email : "👤 Log In or Sign Up";
   $("accountLoggedOut").classList.toggle("hide", !!account);
   $("accountLoggedIn").classList.toggle("hide", !account);
   if(account) $("accountEmailLabel").textContent = account.email;
