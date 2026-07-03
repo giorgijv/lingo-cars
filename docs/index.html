@@ -140,6 +140,11 @@
   .shopbtn{background:var(--accent);color:#08111f;border:none;border-radius:9px;padding:8px 10px;font-weight:800;font-size:13px;cursor:pointer;font-family:inherit}
   .shopbtn.sell{background:#1b2431;color:var(--ink);border:1px solid var(--line)}
   .shopbtn:disabled{opacity:.45;cursor:default}
+  .paintSwatches{display:flex;flex-wrap:wrap;gap:9px;margin-top:8px}
+  .swatch{width:34px;height:34px;border-radius:50%;border:2px solid var(--line);cursor:pointer;padding:0;transition:transform .1s}
+  .swatch:hover{transform:scale(1.08)}
+  .swatch.active{border-color:var(--accent);box-shadow:0 0 0 2px var(--accent)}
+  #customHexInput{width:44px;height:34px;border:1px solid var(--line);border-radius:8px;background:none;cursor:pointer;padding:2px}
   .toast{position:fixed;left:50%;top:20px;transform:translateX(-50%);background:#0d1420;border:1px solid var(--good);color:#c8f4e0;padding:12px 18px;border-radius:12px;font-weight:800;box-shadow:0 10px 40px rgba(0,0,0,.5);opacity:0;transition:opacity .3s, transform .3s;pointer-events:none;z-index:50}
   .toast.show{opacity:1;transform:translateX(-50%) translateY(6px)}
   footer{color:var(--muted);font-size:12px;text-align:center;margin-top:26px;line-height:1.6}
@@ -275,6 +280,7 @@
       <span id="shopBalance">⭐ 0 points</span>
     </div>
     <div class="shop" id="shopItems"></div>
+    <div class="hide" id="paintStudio"></div>
     <p class="lead" style="font-size:12px;margin-top:12px">Earn points by answering questions. Spend them, save them, or sell items back at 50%.
       Cosmetics are visual only — <b>new car classes unlock through mastery, never purchases.</b></p>
   </section>
@@ -3132,17 +3138,33 @@ const SPD_MAX = 5.6, HND_MAX = 4.4;
 /* Phase 3 shop — mirrors the backend cosmetics catalog. `tier` = minimum
    UNLOCKED class required to buy (gating only — never progression). */
 const SHOP = [
-  {id:"paint-crimson",  tier:0, cost:40,  kind:"paint",   name:"Crimson paint",  paint:{c1:"#d9534f", c2:"#8a1f1c", ac:"#ffd6d4"}},
-  {id:"paint-ocean",    tier:0, cost:40,  kind:"paint",   name:"Ocean paint",    paint:{c1:"#3d9be9", c2:"#175a92", ac:"#d2ecff"}},
+  {id:"paint-custom",   tier:0, cost:150, kind:"paint-unlock", name:"Custom Paint Studio"},
   {id:"decal-stripes",  tier:0, cost:60,  kind:"decal",   name:"Twin stripes"},
   {id:"wheels-gold",    tier:1, cost:120, kind:"wheels",  name:"Gold wheels"},
-  {id:"paint-sunburst", tier:1, cost:90,  kind:"paint",   name:"Sunburst paint", paint:{c1:"#f4b13e", c2:"#a3691a", ac:"#ffe9c2"}},
   {id:"decal-flames",   tier:2, cost:150, kind:"decal",   name:"Flame decal"},
   {id:"spoiler-carbon", tier:2, cost:180, kind:"spoiler", name:"Carbon spoiler"},
-  {id:"paint-midnight", tier:3, cost:220, kind:"paint",   name:"Midnight paint", paint:{c1:"#3b4a63", c2:"#141b28", ac:"#b9c7dd"}},
 ];
-const KIND_ICON = {paint:"🎨", wheels:"🛞", decal:"🏁", spoiler:"🪽"};
+const KIND_ICON = {paint:"🎨", "paint-unlock":"🎨", wheels:"🛞", decal:"🏁", spoiler:"🪽"};
 const shopItem = id => SHOP.find(s=>s.id===id);
+
+/* Curated paint-studio palette: plain hexes (converted via hexToCarPaint)
+   plus a couple of hand-tuned metallic/pearlescent duotones. */
+const PAINT_SWATCHES = [
+  {id:"crimson",   name:"Crimson",        hex:"#d9534f"},
+  {id:"ocean",     name:"Ocean",          hex:"#3d9be9"},
+  {id:"sunburst",  name:"Sunburst",       hex:"#f4b13e"},
+  {id:"midnight",  name:"Midnight",       hex:"#3b4a63"},
+  {id:"racing",    name:"Racing Green",   hex:"#2e7d32"},
+  {id:"ultra",     name:"Ultraviolet",    hex:"#7b2cbf"},
+  {id:"flamingo",  name:"Flamingo",       hex:"#ff6f91"},
+  {id:"carbon",    name:"Carbon Black",   hex:"#111318"},
+  {id:"pearl",     name:"Pearl White",    hex:"#f5f5f0"},
+  {id:"champagne", name:"Champagne Gold", hex:"#c9a24b"},
+  {id:"teal",      name:"Deep Teal",      hex:"#0f5257"},
+  {id:"sunset",    name:"Sunset Orange",  hex:"#e63946"},
+  {id:"fire",      name:"Duotone Fire",   duotone:true, paint:{c1:"#ff9d5c", c2:"#3b0d0d", ac:"#ffe3c2"}},
+  {id:"shift",     name:"Pearl Shift",    duotone:true, paint:{c1:"#e8d9ff", c2:"#5c4b8a", ac:"#ffffff"}},
+];
 
 const MILESTONES = [
   {p:0.25, kind:"wheels",  label:"🛞 Sport wheels"},
@@ -3155,6 +3177,7 @@ function _hx(c){ return [parseInt(c.slice(1,3),16),parseInt(c.slice(3,5),16),par
 function mix(a,b,t){ const A=_hx(a),B=_hx(b); return "#"+A.map((v,i)=>Math.round(v+(B[i]-v)*t).toString(16).padStart(2,"0")).join(""); }
 const lighten=(c,t)=>mix(c,"#ffffff",t);
 const darken=(c,t)=>mix(c,"#000000",t);
+function hexToCarPaint(hex){ return { c1: hex, c2: darken(hex, 0.45), ac: lighten(hex, 0.8) }; }
 
 /* One tapered alloy spoke as a filled quad, rotated to `angDeg` around (cx,cy). */
 function spokePath(cx,cy,rin,rout,hi,ho,angDeg){
@@ -3332,11 +3355,11 @@ function carSVG(tier, p, cos={}){
 const PROMOTE_AT = 0.85, MIN_COVERAGE = 0.6;
 const KEY = "lingocars.v2";
 
-function mkPairState(){ return { tier:0, strength:{}, xp:0, answered:0, correct:0, placed:false, owned:[], spent:0, refunded:0 }; }
+function mkPairState(){ return { tier:0, strength:{}, xp:0, answered:0, correct:0, placed:false, owned:[], spent:0, refunded:0, customPaint:null }; }
 function load(){ try{ const s=JSON.parse(localStorage.getItem(KEY)); if(s && s.pairs) return s; }catch(e){} return null; }
 let S = load() || { pair:"de-es", pairs:{} };
 for(const p of PAIRS) if(!S.pairs[p]) S.pairs[p] = mkPairState();
-for(const p of PAIRS){ const st=S.pairs[p]; if(!st.owned){ st.owned=[]; st.spent=0; st.refunded=0; } }
+for(const p of PAIRS){ const st=S.pairs[p]; if(!st.owned){ st.owned=[]; st.spent=0; st.refunded=0; } if(st.customPaint===undefined) st.customPaint=null; }
 if(!PAIRS.includes(S.pair)) S.pair = "de-es";
 function P(){ return S.pairs[S.pair]; }
 function save(){ localStorage.setItem(KEY, JSON.stringify(S)); scheduleSync(); }
@@ -3506,12 +3529,14 @@ function cosmeticsOf(st){
   const cos = {};
   for(const id of st.owned){
     const item = shopItem(id); if(!item) continue;
-    if(item.kind==="paint") cos.paint = item.paint;          // last-bought paint wins
     if(id==="wheels-gold") cos.goldWheels = true;
     if(id==="decal-stripes") cos.stripes = true;
     if(id==="decal-flames"){ cos.flames = true; cos.stripes = false; }
     if(id==="spoiler-carbon") cos.carbonSpoiler = true;
   }
+  // Custom Paint Studio: once unlocked, the picked colour (if any) always
+  // wins — it's a free, swappable choice, not a one-off purchased item.
+  if(st.owned.includes("paint-custom") && st.customPaint) cos.paint = st.customPaint;
   return cos;
 }
 function buyItem(id){
@@ -3524,9 +3549,42 @@ function buyItem(id){
 function sellItem(id){
   const st=P(); const item=shopItem(id);
   const i = st.owned.indexOf(id); if(i<0 || !item) return;
-  st.owned.splice(i,1); st.refunded += Math.floor(item.cost/2); save();
+  st.owned.splice(i,1); st.refunded += Math.floor(item.cost/2);
+  if(id==="paint-custom") st.customPaint = null;   // studio locked again → drop the pick
+  save();
   toast(`Sold ${item.name} (+${Math.floor(item.cost/2)} ⭐)`);
   renderGarage(false);
+}
+function selectPaintSwatch(id){
+  const st=P(); if(!st.owned.includes("paint-custom")) return;
+  const sw = PAINT_SWATCHES.find(s=>s.id===id); if(!sw) return;
+  st.customPaint = sw.duotone ? sw.paint : hexToCarPaint(sw.hex);
+  save(); renderGarage(false);
+}
+function applyCustomHex(hex){
+  const st=P(); if(!st.owned.includes("paint-custom")) return;
+  st.customPaint = hexToCarPaint(hex);
+  save(); renderGarage(false);
+}
+function renderPaintStudio(){
+  const st=P(); const owned = st.owned.includes("paint-custom");
+  const el = $("paintStudio");
+  el.classList.toggle("hide", !owned);
+  if(!owned) return;
+  const cur = st.customPaint;
+  const active = sw => cur && (sw.duotone ? (cur.c1===sw.paint.c1 && cur.c2===sw.paint.c2) : cur.c1===sw.hex);
+  el.innerHTML = `
+    <div class="qmeta" style="margin-top:14px"><span class="badge">🎨 Paint studio</span><span class="lead" style="font-size:12px">Pick any colour — free, swap anytime</span></div>
+    <div class="paintSwatches">${PAINT_SWATCHES.map(sw=>{
+      const bg = sw.duotone ? `linear-gradient(135deg, ${sw.paint.c1}, ${sw.paint.c2})` : sw.hex;
+      return `<button type="button" class="swatch${active(sw)?" active":""}" data-swatch="${sw.id}" style="background:${bg}" title="${sw.name}" aria-label="${sw.name}"></button>`;
+    }).join("")}</div>
+    <div class="row" style="margin-top:10px;align-items:center;gap:10px">
+      <label class="lead" style="font-size:12px" for="customHexInput">Custom hex:</label>
+      <input type="color" id="customHexInput" value="${cur ? cur.c1 : "#d9534f"}">
+    </div>`;
+  el.querySelectorAll("[data-swatch]").forEach(b=>b.onclick=()=>selectPaintSwatch(b.dataset.swatch));
+  $("customHexInput").oninput = e=>applyCustomHex(e.target.value);
 }
 function renderShop(){
   const st=P(); const bal=balance();
@@ -3575,6 +3633,7 @@ function renderGarage(animate){
   $("mstones").innerHTML = MILESTONES.map(m=>
     `<span class="chip ${p>=m.p?"on":""}">${m.label}</span>`).join("");
   renderShop();
+  renderPaintStudio();
 }
 
 function toast(msg){
