@@ -17,6 +17,10 @@ describe("stripAccents", () => {
   it("is a no-op on Georgian (Mkhedruli has no diacritics)", () => {
     expect(stripAccents("გამარჯობა")).toBe("გამარჯობა");
   });
+  it("folds Russian ё to е (routinely typed as е)", () => {
+    expect(stripAccents("ещё")).toBe("еще");
+    expect(stripAccents("Ёлка")).toBe("Елка");
+  });
 });
 
 describe("levenshtein", () => {
@@ -76,5 +80,10 @@ describe("gradeFillAnswer", () => {
   it("works identically for Georgian (no accent pass needed, exact match still 1.0)", () => {
     const g = gradeFillAnswer("გამარჯობა", ["გამარჯობა"], 1);
     expect(g).toMatchObject({ correct: true, score: 1 });
+  });
+
+  it("accepts Russian е typed in place of the accepted ё spelling", () => {
+    const g = gradeFillAnswer("еще", ["ещё"], 1);
+    expect(g).toMatchObject({ correct: true, score: 0.85 });
   });
 });

@@ -2,9 +2,11 @@
 
 [![CI](https://github.com/giorgijv/lingo-cars/actions/workflows/ci.yml/badge.svg)](https://github.com/giorgijv/lingo-cars/actions/workflows/ci.yml)
 
+&copy; Giorgi Jvarsheishvili. All rights reserved.
+
 > **🏎️ Live demo:** <https://giorgijv.github.io/lingo-cars/> — a standalone,
 > in-browser illustration of the car-progression concept: pick a language pair
-> (de→es, en→es, de→ka, en→ka), take a placement test, study multiple-choice,
+> (de→es, en→es, de→ka, en→ka, de→ru), take a placement test, study multiple-choice,
 > typed, listen, and read-aloud exercises, and watch the car level up City
 > Hatch → Hypercar with milestone cosmetics along the way. It runs entirely
 > client-side and is separate from the API below.
@@ -12,14 +14,14 @@
 > **Placement and study draw from separate pools.** The demo's placement test
 > (`BANKS`, ~45–50 items/language, including dedicated grammar items —
 > ser/estar, gender agreement, the Georgian case system, ergative/dative/
-> instrumental marking) and study mode (`STUDY_BANKS`, **200 items per
-> target language**, A1–C2, roughly half vocabulary/phrases and half verb
-> conjugation, agreement, and case-system grammar drills) are disjoint arrays
-> with zero item overlap, so a learner never sees the exact same question in
-> both modes back to back. Study items also carry a bilingual `why`
-> explanation, shown under the feedback line whenever an answer is wrong.
-> Georgian study content above A2 is, like the rest of this build's `ka`
-> content, not yet reviewed by a
+> instrumental marking, the Russian case system, verb aspect) and study mode
+> (`STUDY_BANKS`, **200 items per target language**, A1–C2, roughly half
+> vocabulary/phrases and half verb conjugation, agreement, and case-system
+> grammar drills) are disjoint arrays with zero item overlap, so a learner
+> never sees the exact same question in both modes back to back. Study items
+> also carry a bilingual `why` explanation, shown under the feedback line
+> whenever an answer is wrong. Georgian and Russian study content above A2 is,
+> like the rest of this build's `ka`/`ru` content, not yet reviewed by a
 > native speaker.
 >
 > **Login (👤, top right) syncs progress across devices.** The demo works
@@ -49,14 +51,17 @@ Backend for a gamified language-learning app.
   of proficiency — a static `CarCatalog` ladder, stat interpolation within a
   tier, and intra-tier micro-milestones. No points economy, no market, no race
   (Phase 3+).
-- **Language pairs:** all four pairs — **de→es, en→es, de→ka, en→ka** — served
-  from two target-language banks with per-source stems. The engine is
-  byte-identical across pairs.
-- **Phase 2 — content pipeline + Georgian depth:** course content lives as
+- **Language pairs:** five pairs — **de→es, en→es, de→ka, en→ka, de→ru** —
+  served from three target-language banks with per-source stems. The engine
+  is byte-identical across pairs.
+- **Phase 2 — content pipeline + script/case depth:** course content lives as
   validated data in [`content/`](./content) (zod-gated by
   `src/content/bank.ts`; `npm run content:check` runs in CI). The Georgian
   bank carries real curriculum depth: Mkhedruli script recognition, the
   nominative/ergative/dative case system, and verb person/tense morphology.
+  The Russian bank (`content/ru.json`, `de→ru`) mirrors that depth: Cyrillic
+  script recognition, the six-case system, and verb aspect
+  (perfective/imperfective) + motion verbs.
 - **Phase 3 — economy & agency:** points (earned from answering) can be
   **spent** on visual cosmetics, **saved**, or items **sold back** at 50%
   (secondary-market MVP). `Purchase` is an immutable ledger like `Attempt`;
@@ -147,7 +152,7 @@ Requires Node ≥ 20. Choose Docker (zero-config) or an existing Postgres ≥ 14
 npm install
 cp .env.example .env    # defaults already match docker-compose
 npm run setup           # starts Postgres, applies migrations, seeds content
-npm test                # 116 tests, incl. DB integration + e2e
+npm test                # 119 tests, incl. DB integration + e2e
 npm run dev             # http://localhost:3000
 ```
 
@@ -281,7 +286,7 @@ never receive `correctIndex`.
 
 ## Not built yet (later phases)
 
-Points economy & allocation choices, cosmetic market, race minigame, Georgian
-(`ka`) backend content, English-source backend content, speaking/listening
-exercises, and any C-level checkpoint (`assessments` table).
+Points economy & allocation choices, cosmetic market, race minigame,
+English-source backend content for `ru` (only `de→ru` is seeded), and any
+C-level checkpoint (`assessments` table).
 Per [`CLAUDE.md`](./CLAUDE.md) §8.

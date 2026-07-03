@@ -2,7 +2,9 @@
  * Grading for productive (typed) exercises — see plans/placement-modalities.md
  * §2a. Deterministic, pure, and language-agnostic (Spanish accents; Georgian
  * Mkhedruli has no case/accents, so the accent-insensitive pass is a no-op
- * for it — same code path, no per-language branching needed).
+ * for it — same code path, no per-language branching needed; Russian ё is
+ * folded to е in the same pass, since ё is routinely typed as е and, unlike
+ * Spanish accents, isn't a combining diacritic NFD would strip on its own).
  *
  * Score buckets (drive both "is it correct" and FSRS grade quality):
  *   1.00  exact match after normalization
@@ -25,9 +27,14 @@ export function normalizeAnswer(s: string): string {
     .replace(/^[¿¡]+|[.,!?¡¿;:]+$/g, "");
 }
 
-/** Strip combining diacritics (á→a, ñ→n, …). No-op for scripts without them. */
+/** Strip combining diacritics (á→a, ñ→n, …) and fold Russian ё→е. No-op for
+ *  scripts with neither. */
 export function stripAccents(s: string): string {
-  return s.normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+  return s
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .replace(/\u0451/g, "\u0435")
+    .replace(/\u0401/g, "\u0415");
 }
 
 /** Levenshtein edit distance (insert/delete/substitute), O(n*m), fine at short answer lengths. */

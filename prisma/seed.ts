@@ -4,7 +4,7 @@ import { fillPayloadSchema, listenPayloadSchema, mcqPayloadSchema, speakPayloadS
 import { isFillExercise, isListenExercise, isSpeakExercise, loadBank, optionsFor, type SourceLang, type TargetLang } from "../src/content/bank.js";
 
 /**
- * Seed: languages, all four pairs, the car catalog, the cosmetics catalog,
+ * Seed: languages, all five pairs, the car catalog, the cosmetics catalog,
  * and course content loaded from the content pipeline (content/{target}.json,
  * validated by src/content/bank.ts — invalid content never reaches the DB).
  *
@@ -21,6 +21,7 @@ const PAIRS: { src: SourceLang; tgt: TargetLang }[] = [
   { src: "en", tgt: "es" },
   { src: "de", tgt: "ka" },
   { src: "en", tgt: "ka" },
+  { src: "de", tgt: "ru" },
 ];
 
 /** Car ladder anchors (§3.2 of the spec) — brand-agnostic shipped names (D4). */
@@ -61,6 +62,7 @@ export async function main() {
     ["en", "English"],
     ["es", "Spanish"],
     ["ka", "Georgian"],
+    ["ru", "Russian"],
   ] as const) {
     await prisma.language.upsert({ where: { code }, update: { name }, create: { code, name } });
   }
@@ -78,6 +80,7 @@ export async function main() {
   const banks = {
     es: loadBank("es"),
     ka: loadBank("ka"),
+    ru: loadBank("ru"),
   };
 
   let pairCount = 0;
@@ -156,7 +159,7 @@ export async function main() {
 
   // eslint-disable-next-line no-console
   console.log(
-    `Seeded: 4 languages, ${pairCount} pairs, 6 car tiers, ${skillCount} skills, ${lessonCount} lessons, ${exerciseCount} exercises`,
+    `Seeded: 5 languages, ${pairCount} pairs, 6 car tiers, ${skillCount} skills, ${lessonCount} lessons, ${exerciseCount} exercises`,
   );
 }
 

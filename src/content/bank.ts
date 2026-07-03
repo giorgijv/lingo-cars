@@ -12,7 +12,7 @@ import { z } from "zod";
  */
 
 export const SOURCE_LANGS = ["de", "en"] as const;
-export const TARGET_LANGS = ["es", "ka"] as const;
+export const TARGET_LANGS = ["es", "ka", "ru"] as const;
 export type SourceLang = (typeof SOURCE_LANGS)[number];
 export type TargetLang = (typeof TARGET_LANGS)[number];
 
