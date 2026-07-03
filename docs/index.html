@@ -145,6 +145,11 @@
   .swatch:hover{transform:scale(1.08)}
   .swatch.active{border-color:var(--accent);box-shadow:0 0 0 2px var(--accent)}
   #customHexInput{width:44px;height:34px;border:1px solid var(--line);border-radius:8px;background:none;cursor:pointer;padding:2px}
+  .equipGroup{margin-top:14px}
+  .equipLabel{font-weight:800;font-size:13px;margin-bottom:6px}
+  .equipChips{display:flex;flex-wrap:wrap;gap:6px}
+  .equipChip{background:#0f1620;border:1px solid var(--line);color:var(--ink);border-radius:999px;padding:6px 12px;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit}
+  .equipChip.active{background:var(--accent);color:#08111f;border-color:var(--accent)}
   .toast{position:fixed;left:50%;top:20px;transform:translateX(-50%);background:#0d1420;border:1px solid var(--good);color:#c8f4e0;padding:12px 18px;border-radius:12px;font-weight:800;box-shadow:0 10px 40px rgba(0,0,0,.5);opacity:0;transition:opacity .3s, transform .3s;pointer-events:none;z-index:50}
   .toast.show{opacity:1;transform:translateX(-50%) translateY(6px)}
   footer{color:var(--muted);font-size:12px;text-align:center;margin-top:26px;line-height:1.6}
@@ -281,6 +286,7 @@
     </div>
     <div class="shop" id="shopItems"></div>
     <div class="hide" id="paintStudio"></div>
+    <div class="hide" id="equipPanel"></div>
     <p class="lead" style="font-size:12px;margin-top:12px">Earn points by answering questions. Spend them, save them, or sell items back at 50%.
       Cosmetics are visual only — <b>new car classes unlock through mastery, never purchases.</b></p>
   </section>
@@ -3136,16 +3142,42 @@ const CARS = [
 const SPD_MAX = 5.6, HND_MAX = 4.4;
 
 /* Phase 3 shop — mirrors the backend cosmetics catalog. `tier` = minimum
-   UNLOCKED class required to buy (gating only — never progression). */
+   UNLOCKED class required to buy (gating only — never progression).
+   `category` groups items into a select-and-equip slot (buying unlocks;
+   only one item per category is the active, rendered choice at a time —
+   see `equipped` in mkPairState()). Items with no `category` are simple
+   owned/unowned toggles (paint-studio unlock, gold recolor). */
 const SHOP = [
-  {id:"paint-custom",   tier:0, cost:150, kind:"paint-unlock", name:"Custom Paint Studio"},
-  {id:"decal-stripes",  tier:0, cost:60,  kind:"decal",   name:"Twin stripes"},
-  {id:"wheels-gold",    tier:1, cost:120, kind:"wheels",  name:"Gold wheels"},
-  {id:"decal-flames",   tier:2, cost:150, kind:"decal",   name:"Flame decal"},
-  {id:"spoiler-carbon", tier:2, cost:180, kind:"spoiler", name:"Carbon spoiler"},
+  {id:"paint-custom",     tier:0, cost:150, kind:"paint-unlock", name:"Custom Paint Studio"},
+  {id:"wheels-gold",      tier:1, cost:120, kind:"wheels",  name:"Gold wheels"},
+
+  {id:"wheels-mesh",       tier:1, cost:110, kind:"wheelstyle", category:"wheelstyle", name:"Mesh wheels",        wheelstyle:"mesh"},
+  {id:"wheels-deepdish",   tier:2, cost:160, kind:"wheelstyle", category:"wheelstyle", name:"Deep-dish wheels",   wheelstyle:"deepdish"},
+  {id:"wheels-multispoke", tier:3, cost:210, kind:"wheelstyle", category:"wheelstyle", name:"Multi-spoke wheels", wheelstyle:"multispoke"},
+
+  {id:"finish-matte",     tier:1, cost:130, kind:"finish", category:"finish", name:"Matte finish",   finish:"matte"},
+  {id:"finish-metallic",  tier:2, cost:170, kind:"finish", category:"finish", name:"Metallic pearl", finish:"metallic"},
+
+  {id:"decal-stripes",    tier:0, cost:60,  kind:"decal", category:"decal", name:"Twin stripes",     decal:"stripes"},
+  {id:"decal-pinstripe",  tier:0, cost:50,  kind:"decal", category:"decal", name:"Pinstripe",        decal:"pinstripe"},
+  {id:"decal-checkered",  tier:1, cost:90,  kind:"decal", category:"decal", name:"Checkered accent", decal:"checkered"},
+  {id:"decal-flames",     tier:2, cost:150, kind:"decal", category:"decal", name:"Flame decal",      decal:"flames"},
+  {id:"decal-roundel",    tier:2, cost:120, kind:"decal", category:"decal", name:"Number roundel",   decal:"roundel"},
+
+  {id:"aero-lip",         tier:1, cost:100, kind:"aero", category:"aero", name:"Lip spoiler",   aero:"lip"},
+  {id:"spoiler-carbon",   tier:2, cost:180, kind:"aero", category:"aero", name:"Carbon wing",   aero:"carbonwing"},
+  {id:"aero-diffuser",    tier:2, cost:140, kind:"aero", category:"aero", name:"Rear diffuser", aero:"diffuser"},
+  {id:"aero-bigwing",     tier:3, cost:220, kind:"aero", category:"aero", name:"GT wing",       aero:"bigwing"},
 ];
-const KIND_ICON = {paint:"🎨", "paint-unlock":"🎨", wheels:"🛞", decal:"🏁", spoiler:"🪽"};
+const KIND_ICON = {paint:"🎨", "paint-unlock":"🎨", wheels:"🛞", wheelstyle:"🛞", finish:"✨", decal:"🏁", aero:"🪽"};
 const shopItem = id => SHOP.find(s=>s.id===id);
+/* Equip categories shown in the Garage as select-and-equip chip rows. */
+const EQUIP_CATS = [
+  {key:"wheelstyle", label:"🛞 Wheel style", defaultLabel:"Standard / milestone"},
+  {key:"finish",      label:"✨ Paint finish", defaultLabel:"Gloss"},
+  {key:"decal",       label:"🏁 Decal",        defaultLabel:"None / milestone stripe"},
+  {key:"aero",        label:"🪽 Aero",         defaultLabel:"None / milestone kit"},
+];
 
 /* Curated paint-studio palette: plain hexes (converted via hexToCarPaint)
    plus a couple of hand-tuned metallic/pearlescent duotones. */
@@ -3186,21 +3218,41 @@ function spokePath(cx,cy,rin,rout,hi,ho,angDeg){
   return `M${pt(rin,-hi)} L${pt(rout,-ho)} L${pt(rout,ho)} L${pt(rin,hi)} Z`;
 }
 
+/* Wheel-style catalog: N = spoke count, hi/ho = spoke taper widths (see
+   spokePath), caliper = whether a fixed brake caliper shows through the
+   spokes, mesh = adds a second crossing spoke layer, deepRing = adds an
+   extra dark barrel ring for a "deep dish" look. */
+const WHEEL_STYLES = {
+  standard:   {N:5,  hi:6.5, ho:9,   caliper:false},
+  sport:      {N:10, hi:3.5, ho:4.5, caliper:true},
+  mesh:       {N:8,  hi:2.4, ho:3.4, caliper:false, mesh:true},
+  deepdish:   {N:5,  hi:7.5, ho:11,  caliper:true,  deepRing:true},
+  multispoke: {N:14, hi:1.6, ho:2.4, caliper:true},
+};
+
 /* Realistic alloy wheel: rubber tyre (radial-shaded), a metallic rim lip, a
    brake disc + fixed caliper visible between tapered spokes, and a hub cap.
    Only the spokes/hub sit in the `.spokes` group (they spin during the drive
-   animation); tyre, rim lip, disc and caliper stay put like real hardware. */
-function wheelSVG(w, tier, sporty, accent, cos){
+   animation); tyre, rim lip, disc and caliper stay put like real hardware.
+   `style` selects the spoke pattern (see WHEEL_STYLES); gold recolouring
+   (cos.goldWheels) is an orthogonal finish applied on top of any style. */
+function wheelSVG(w, tier, style, accent, cos){
   const cx=w.x, cy=152, R=w.r;
   const gold = !!(cos && cos.goldWheels);
-  const N = sporty ? 10 : 5;
+  const cfg = WHEEL_STYLES[style] || WHEEL_STYLES.standard;
+  const N = cfg.N;
   const face = gold ? "url(#rimGold)" : "url(#rimSilver)";
   const edge = gold ? "#8a6a1a" : "#39424f";
-  const rin=6, rout=R-6, hi = sporty?3.5:6.5, ho = sporty?4.5:9;
+  const rin=6, rout=R-6, hi=cfg.hi, ho=cfg.ho;
   let spokes="";
   for(let i=0;i<N;i++) spokes += `<path d="${spokePath(cx,cy,rin,rout,hi,ho,i*360/N-90)}" fill="${face}" stroke="${edge}" stroke-width="0.5"/>`;
+  if(cfg.mesh){
+    // second, thinner spoke layer offset half a step — crosses the first for a lattice look
+    for(let i=0;i<N;i++) spokes += `<path d="${spokePath(cx,cy,rin,rout-4,1.3,1.9,i*360/N-90+180/N)}" fill="${face}" stroke="${edge}" stroke-width="0.4" opacity="0.85"/>`;
+  }
+  const deepRing = cfg.deepRing ? `<circle cx="${cx}" cy="${cy}" r="${(R-3.4).toFixed(1)}" fill="none" stroke="${edge}" stroke-width="3" opacity="0.55"/>` : "";
   const cA=-0.55, cB=0.35, rc=R-9;
-  const caliper = sporty
+  const caliper = cfg.caliper
     ? `<path d="M${(cx+Math.cos(cA)*rc).toFixed(1)} ${(cy+Math.sin(cA)*rc).toFixed(1)} A ${rc} ${rc} 0 0 1 ${(cx+Math.cos(cB)*rc).toFixed(1)} ${(cy+Math.sin(cB)*rc).toFixed(1)}" fill="none" stroke="${gold?'#f5c542':'#c0392b'}" stroke-width="4" stroke-linecap="round"/>`
     : "";
   return `
@@ -3210,6 +3262,7 @@ function wheelSVG(w, tier, sporty, accent, cos){
     <circle cx="${cx}" cy="${cy}" r="${(R-5.4).toFixed(1)}" fill="#0c1017"/>
     <circle cx="${cx}" cy="${cy}" r="${(R-9).toFixed(1)}" fill="#5b636f"/>
     <circle cx="${cx}" cy="${cy}" r="${(R-13).toFixed(1)}" fill="#40474f"/>
+    ${deepRing}
     ${caliper}
     <g class="spokes">
       ${spokes}
@@ -3218,22 +3271,101 @@ function wheelSVG(w, tier, sporty, accent, cos){
     </g>`;
 }
 
+/* Aero-shape catalog: "kit" is the original milestone-earned default (a low
+   rear wing on wing-tier cars, a ducktail lip otherwise); the rest are
+   purchasable alternatives, all rendered from existing anchor points. */
+function aeroShapeSVG(shape, c, tier, fill){
+  switch(shape){
+    case "lip":
+      return `<rect data-cosmetic="aero" x="${c.tail.x-2}" y="${c.tail.y-9}" width="${c.rearTop.x-c.tail.x+18}" height="4" rx="2" fill="${fill}"/>`;
+    case "carbonwing": {
+      const wx=c.wheels[0].x-72, barY = tier===5?92:100;
+      return `<g data-cosmetic="aero">
+        <rect x="${wx}" y="${barY-16}" width="4" height="16" fill="${fill}"/>
+        <rect x="${wx+52}" y="${barY-16}" width="4" height="16" fill="${fill}"/>
+        <rect x="${wx-4}" y="${barY-20}" width="64" height="7" rx="3" fill="${fill}"/>
+      </g>`;
+    }
+    case "bigwing": {
+      const wx=c.wheels[0].x-80, barY = tier===5?86:94;
+      return `<g data-cosmetic="aero">
+        <rect x="${wx}" y="${barY-22}" width="5" height="22" fill="${fill}"/>
+        <rect x="${wx+70}" y="${barY-22}" width="5" height="22" fill="${fill}"/>
+        <rect x="${wx-6}" y="${barY-28}" width="88" height="9" rx="4" fill="${fill}"/>
+      </g>`;
+    }
+    case "diffuser":
+      return `<g data-cosmetic="aero">${Array.from({length:5},(_,i)=>`<rect x="${(c.wheels[1].x-8-i*9).toFixed(1)}" y="147" width="6" height="6" fill="${fill}"/>`).join("")}</g>`;
+    default: // "kit"
+      return c.wing
+        ? `<rect data-cosmetic="aero" x="${c.wheels[0].x+c.wheels[0].r+6}" y="147" width="${c.wheels[1].x-c.wheels[0].x-2*c.wheels[0].r-12}" height="5" rx="2.5" fill="${fill}"/>`
+        : `<path data-cosmetic="aero" d="M${c.rearTop.x-16} ${c.rearTop.y} q14 -10 34 -6 l0 6 q-18 -3 -34 4 Z" fill="${fill}"/>`;
+  }
+}
+
+/* Decal-pattern catalog. "stripes"/"flames" share geometry (colour differs);
+   the rest are new patterns clipped to the body silhouette like the originals. */
+function decalShapeSVG(shape, c, creaseY, color, id0){
+  switch(shape){
+    case "stripes":
+    case "flames":
+      return `<g data-cosmetic="decal" clip-path="url(#${id0}clip)">
+        <rect x="30" y="${creaseY-4}" width="440" height="6" fill="${color}" opacity="0.85"/>
+        <rect x="30" y="${creaseY+3}" width="440" height="2.5" fill="${color}" opacity="0.5"/>
+      </g>`;
+    case "pinstripe":
+      return `<g data-cosmetic="decal" clip-path="url(#${id0}clip)">
+        <rect x="30" y="${creaseY-1}" width="440" height="1.4" fill="${color}" opacity="0.85"/>
+      </g>`;
+    case "checkered": {
+      let squares=""; const y=creaseY+10, sq=7;
+      for(let i=0;i<18;i++) squares += `<rect x="${60+i*sq}" y="${y}" width="${sq}" height="${sq}" fill="${i%2?'#111318':'#ffffff'}"/>`;
+      return `<g data-cosmetic="decal" clip-path="url(#${id0}clip)">${squares}</g>`;
+    }
+    case "roundel": {
+      const rx=(c.seam+c.rearTop.x)/2, ry=128;
+      return `<g data-cosmetic="decal" clip-path="url(#${id0}clip)">
+        <circle cx="${rx}" cy="${ry}" r="17" fill="#ffffff" opacity="0.92"/>
+        <circle cx="${rx}" cy="${ry}" r="17" fill="none" stroke="#111318" stroke-width="2"/>
+        <text x="${rx}" y="${ry+6}" font-size="16" font-weight="800" text-anchor="middle" fill="#111318" font-family="inherit">7</text>
+      </g>`;
+    }
+    default: return "";
+  }
+}
+
+/* Paint-finish catalog: gloss (default) vs. matte (flattened specular) vs.
+   metallic/pearlescent (stronger, wider specular + a diagonal sheen band). */
+const FINISH_CFG = {
+  gloss:    {spec1:0.40, spec2:0.24, hiAmt:0.5,  sheenAmt:0.16},
+  matte:    {spec1:0.10, spec2:0.06, hiAmt:0.22, sheenAmt:0.06},
+  metallic: {spec1:0.55, spec2:0.34, hiAmt:0.58, sheenAmt:0.26},
+};
+
 function carSVG(tier, p, cos={}){
   const base = CARS[tier];
   const c = cos.paint ? Object.assign({}, base, cos.paint) : base;
   const id0 = "c"+tier+"_"+c.c1.slice(1);
   const has = kind => MILESTONES.some(m=>m.kind===kind && p>=m.p);
-  const sportWheels = has("wheels") || cos.goldWheels;
-  const stripe = has("decal") || cos.stripes || cos.flames;
-  const aero = has("spoiler") || cos.carbonSpoiler;
+
+  // Select-and-equip categories: an explicit purchase+equip always wins;
+  // otherwise fall back to the original free milestone-earned defaults.
+  const wheelStyle = cos.wheelStyleEquip || (has("wheels") ? "sport" : "standard");
+  const decalShape = cos.decalEquip || (has("decal") ? "stripes" : null);
+  const aeroShape = cos.aeroEquip || (has("spoiler") ? "kit" : null);
+  const finish = FINISH_CFG[cos.finish] || FINISH_CFG.gloss;
+
   const wheelAccent = cos.goldWheels ? "#f5c542" : c.ac;
-  const stripeColor = cos.flames ? "#ff7a1a" : (cos.stripes ? "#ffffff" : c.ac);
-  const spoilerFill = cos.carbonSpoiler ? "#15181d" : c.c2;
+  const decalPurchased = !!cos.decalEquip;
+  const decalColor = decalShape==="flames" ? "#ff7a1a"
+    : decalShape==="stripes" ? (decalPurchased ? "#ffffff" : c.ac)
+    : "#ffffff";
+  const aeroFill = aeroShape==="carbonwing" ? "#15181d" : c.c2;
 
   // Derived shading tones + anchor points (kept as functions of the existing
   // per-tier path data so no new geometry needs hand-tuning per class).
-  const paintHi = lighten(c.c1, 0.5);
-  const paintSheen = lighten(c.c1, 0.16);
+  const paintHi = lighten(c.c1, finish.hiAmt);
+  const paintSheen = lighten(c.c1, finish.sheenAmt);
   const paintLo = darken(c.c2, 0.14);
   const bodyStroke = darken(c.c2, 0.5);
   const glassEdge = darken(c.c2, 0.4);
@@ -3244,20 +3376,16 @@ function carSVG(tier, p, cos={}){
   const bpX = (c.rearTop.x + c.seam)/2;
   const mx = c.seam + (c.nose.x - c.seam)*0.30, my = c.rearTop.y + 9;
 
-  const wheels = c.wheels.map(w=>wheelSVG(w, tier, sportWheels, wheelAccent, cos)).join("");
+  const wheels = c.wheels.map(w=>wheelSVG(w, tier, wheelStyle, wheelAccent, cos)).join("");
 
   // Standing wing for the top classes; earned ducktail / skirt via the aero milestone.
   const wing = c.wing ? `<rect x="${c.wheels[0].x-70}" y="${tier===5?96:104}" width="46" height="7" rx="3" fill="${c.c2}"/>
     <rect x="${c.wheels[0].x-30}" y="${tier===5?96:104}" width="6" height="18" fill="${c.c2}"/>`:"";
-  const aeroKit = !aero ? "" : (c.wing
-    ? `<rect data-cosmetic="spoiler" x="${c.wheels[0].x+c.wheels[0].r+6}" y="147" width="${c.wheels[1].x-c.wheels[0].x-2*c.wheels[0].r-12}" height="5" rx="2.5" fill="${spoilerFill}"/>`
-    : `<path data-cosmetic="spoiler" d="M${c.rearTop.x-16} ${c.rearTop.y} q14 -10 34 -6 l0 6 q-18 -3 -34 4 Z" fill="${spoilerFill}"/>`);
+  const aeroKit = aeroShape ? aeroShapeSVG(aeroShape, c, tier, aeroFill) : "";
   const splitter = c.splitter ? `<rect x="${c.wheels[1].x-8}" y="146" width="70" height="6" rx="3" fill="#0c0f14"/>`:"";
-  const stripeEl = !stripe ? "" : `
-    <g data-cosmetic="decal" clip-path="url(#${id0}clip)">
-      <rect x="30" y="${creaseY-4}" width="440" height="6" fill="${stripeColor}" opacity="0.85"/>
-      <rect x="30" y="${creaseY+3}" width="440" height="2.5" fill="${stripeColor}" opacity="0.5"/>
-    </g>`;
+  const stripeEl = decalShape ? decalShapeSVG(decalShape, c, creaseY, decalColor, id0) : "";
+  const pearlBand = cos.finish==="metallic"
+    ? `<rect x="-40" y="90" width="60" height="200" fill="#ffffff" opacity="0.22" transform="skewX(-30)"/>` : "";
   const speedIntensity = Math.min(1, (c.spd/5) + p*0.3);
   const mirror = `<path d="M${mx.toFixed(1)} ${my} q6 -3 12 -1 l0 7 q-7 -1.5 -12 1 Z" fill="url(#${id0}p)" stroke="${bodyStroke}" stroke-width="0.7"/>
     <path d="M${(mx+2).toFixed(1)} ${my+0.6} q4 -1.8 8 -0.6 l0 4.6 q-5 -0.8 -8 0.6 Z" fill="#0e1520"/>`;
@@ -3267,7 +3395,7 @@ function carSVG(tier, p, cos={}){
     <defs>
       <linearGradient id="${id0}p" x1="0" y1="0" x2="0" y2="1">
         <stop offset="0" stop-color="${paintHi}"/>
-        <stop offset="0.13" stop-color="${lighten(c.c1,0.12)}"/>
+        <stop offset="0.13" stop-color="${lighten(c.c1,finish.hiAmt*0.24)}"/>
         <stop offset="0.34" stop-color="${c.c1}"/>
         <stop offset="0.5" stop-color="${paintSheen}"/>
         <stop offset="0.63" stop-color="${c.c1}"/>
@@ -3309,8 +3437,8 @@ function carSVG(tier, p, cos={}){
     <!-- body + clipped paint shading (specular, horizon band already in gradient) -->
     <path d="${c.body}" fill="url(#${id0}p)" stroke="${bodyStroke}" stroke-width="1.6" stroke-linejoin="round"/>
     <g clip-path="url(#${id0}clip)">
-      <ellipse cx="${specX.toFixed(1)}" cy="113" rx="80" ry="17" fill="url(#specGrad)" opacity="0.4"/>
-      <ellipse cx="${nx-34}" cy="126" rx="46" ry="11" fill="url(#specGrad)" opacity="0.24"/>
+      <ellipse cx="${specX.toFixed(1)}" cy="113" rx="80" ry="17" fill="url(#specGrad)" opacity="${finish.spec1}"/>
+      <ellipse cx="${nx-34}" cy="126" rx="46" ry="11" fill="url(#specGrad)" opacity="${finish.spec2}"/>
       <rect x="${(tx+22).toFixed(1)}" y="${creaseY}" width="${(nx-tx-44).toFixed(1)}" height="1.4" fill="${lighten(c.c1,0.3)}" opacity="0.5"/>
       <rect x="${(tx+22).toFixed(1)}" y="${creaseY+2}" width="${(nx-tx-44).toFixed(1)}" height="1.4" fill="${darken(c.c2,0.25)}" opacity="0.4"/>
       <rect x="0" y="149" width="480" height="4" fill="#000" opacity="0.22"/>
@@ -3318,6 +3446,7 @@ function carSVG(tier, p, cos={}){
       <circle cx="${c.wheels[0].x}" cy="152" r="${c.wheels[0].r+1.5}" fill="none" stroke="#000" stroke-width="1.4" opacity="0.4"/>
       <circle cx="${c.wheels[1].x}" cy="152" r="${c.wheels[1].r+4}" fill="none" stroke="#000" stroke-width="5" opacity="0.24"/>
       <circle cx="${c.wheels[1].x}" cy="152" r="${c.wheels[1].r+1.5}" fill="none" stroke="#000" stroke-width="1.4" opacity="0.4"/>
+      ${pearlBand}
     </g>
     ${stripeEl}
 
@@ -3355,11 +3484,16 @@ function carSVG(tier, p, cos={}){
 const PROMOTE_AT = 0.85, MIN_COVERAGE = 0.6;
 const KEY = "lingocars.v2";
 
-function mkPairState(){ return { tier:0, strength:{}, xp:0, answered:0, correct:0, placed:false, owned:[], spent:0, refunded:0, customPaint:null }; }
+function mkPairState(){ return { tier:0, strength:{}, xp:0, answered:0, correct:0, placed:false, owned:[], spent:0, refunded:0, customPaint:null, equipped:{wheelstyle:null,finish:null,decal:null,aero:null} }; }
 function load(){ try{ const s=JSON.parse(localStorage.getItem(KEY)); if(s && s.pairs) return s; }catch(e){} return null; }
 let S = load() || { pair:"de-es", pairs:{} };
 for(const p of PAIRS) if(!S.pairs[p]) S.pairs[p] = mkPairState();
-for(const p of PAIRS){ const st=S.pairs[p]; if(!st.owned){ st.owned=[]; st.spent=0; st.refunded=0; } if(st.customPaint===undefined) st.customPaint=null; }
+for(const p of PAIRS){
+  const st=S.pairs[p];
+  if(!st.owned){ st.owned=[]; st.spent=0; st.refunded=0; }
+  if(st.customPaint===undefined) st.customPaint=null;
+  if(!st.equipped) st.equipped={wheelstyle:null,finish:null,decal:null,aero:null};
+}
 if(!PAIRS.includes(S.pair)) S.pair = "de-es";
 function P(){ return S.pairs[S.pair]; }
 function save(){ localStorage.setItem(KEY, JSON.stringify(S)); scheduleSync(); }
@@ -3527,22 +3661,29 @@ let lastMilestoneCount = -1;
 function balance(){ const st=P(); return st.xp - st.spent + st.refunded; }
 function cosmeticsOf(st){
   const cos = {};
-  for(const id of st.owned){
-    const item = shopItem(id); if(!item) continue;
-    if(id==="wheels-gold") cos.goldWheels = true;
-    if(id==="decal-stripes") cos.stripes = true;
-    if(id==="decal-flames"){ cos.flames = true; cos.stripes = false; }
-    if(id==="spoiler-carbon") cos.carbonSpoiler = true;
-  }
+  if(st.owned.includes("wheels-gold")) cos.goldWheels = true;
   // Custom Paint Studio: once unlocked, the picked colour (if any) always
   // wins — it's a free, swappable choice, not a one-off purchased item.
   if(st.owned.includes("paint-custom") && st.customPaint) cos.paint = st.customPaint;
+  // Select-and-equip categories: only take effect if the equipped id is
+  // still actually owned (selling an item silently falls back to default).
+  const eq = st.equipped || {};
+  const pick = (cat, field) => {
+    const id = eq[cat]; if(!id || !st.owned.includes(id)) return null;
+    const item = shopItem(id); return item ? item[field] : null;
+  };
+  cos.wheelStyleEquip = pick("wheelstyle", "wheelstyle");
+  cos.finish = pick("finish", "finish");
+  cos.decalEquip = pick("decal", "decal");
+  cos.aeroEquip = pick("aero", "aero");
   return cos;
 }
 function buyItem(id){
   const st=P(); const item=shopItem(id);
   if(!item || st.owned.includes(id) || st.tier<item.tier || balance()<item.cost) return;
-  st.owned.push(id); st.spent += item.cost; save();
+  st.owned.push(id); st.spent += item.cost;
+  if(item.category) st.equipped[item.category] = id;   // auto-equip on purchase
+  save();
   toast(`${KIND_ICON[item.kind]} ${item.name} installed!`);
   renderGarage(false); if(!$("quizPanel").classList.contains("hide")) updateQuizKpis();
 }
@@ -3551,9 +3692,32 @@ function sellItem(id){
   const i = st.owned.indexOf(id); if(i<0 || !item) return;
   st.owned.splice(i,1); st.refunded += Math.floor(item.cost/2);
   if(id==="paint-custom") st.customPaint = null;   // studio locked again → drop the pick
+  if(item.category && st.equipped[item.category]===id) st.equipped[item.category] = null;
   save();
   toast(`Sold ${item.name} (+${Math.floor(item.cost/2)} ⭐)`);
   renderGarage(false);
+}
+function equipItem(cat, id){
+  const st=P();
+  if(id && !st.owned.includes(id)) return;
+  st.equipped[cat] = id || null;
+  save(); renderGarage(false);
+}
+function renderEquipPanel(){
+  const st=P();
+  const el = $("equipPanel");
+  const groups = EQUIP_CATS.map(cat=>{
+    const items = SHOP.filter(s=>s.category===cat.key && st.owned.includes(s.id));
+    if(!items.length) return "";
+    const eq = st.equipped[cat.key];
+    const chips = [`<button type="button" class="equipChip${!eq?" active":""}" data-cat="${cat.key}" data-equip="">${cat.defaultLabel}</button>`]
+      .concat(items.map(it=>`<button type="button" class="equipChip${eq===it.id?" active":""}" data-cat="${cat.key}" data-equip="${it.id}">${it.name}</button>`))
+      .join("");
+    return `<div class="equipGroup"><div class="equipLabel">${cat.label}</div><div class="equipChips">${chips}</div></div>`;
+  }).join("");
+  el.innerHTML = groups;
+  el.classList.toggle("hide", !groups.trim());
+  el.querySelectorAll("[data-equip]").forEach(b=>b.onclick=()=>equipItem(b.dataset.cat, b.dataset.equip));
 }
 function selectPaintSwatch(id){
   const st=P(); if(!st.owned.includes("paint-custom")) return;
@@ -3634,6 +3798,7 @@ function renderGarage(animate){
     `<span class="chip ${p>=m.p?"on":""}">${m.label}</span>`).join("");
   renderShop();
   renderPaintStudio();
+  renderEquipPanel();
 }
 
 function toast(msg){
