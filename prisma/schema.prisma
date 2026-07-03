@@ -92,10 +92,11 @@ model LanguagePair {
 // ─────────────────────────── Users & enrollment ───────────────────────────
 
 model User {
-  id         String     @id @default(cuid())
-  email      String     @unique
-  uiLanguage UiLanguage @default(en)
-  createdAt  DateTime   @default(now())
+  id           String     @id @default(cuid())
+  email        String     @unique
+  passwordHash String? // null for users created before login existed (e.g. seed data)
+  uiLanguage   UiLanguage @default(en)
+  createdAt    DateTime   @default(now())
 
   enrollments       Enrollment[]
   attempts          Attempt[]
@@ -103,6 +104,40 @@ model User {
   proficiencyStates ProficiencyState[]
   purchases         Purchase[]
   raceResults       RaceResult[]
+  sessions          Session[]
+  demoState         DemoState?
+}
+
+// ─────────────── Auth: sessions (login) ───────────────
+// Opaque bearer tokens, not JWTs: the raw token is returned to the client
+// once at login and never stored server-side — only its SHA-256 hash is, so
+// a DB leak alone can't be replayed as a valid session (same shape as a
+// password hash, just no per-token salt since tokens are already
+// high-entropy random values, not user-chosen secrets).
+model Session {
+  id        String   @id @default(cuid())
+  userId    String
+  tokenHash String   @unique
+  createdAt DateTime @default(now())
+  expiresAt DateTime
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+}
+
+// ─────────────── Demo progress sync (cross-device) ───────────────
+// The standalone docs/index.html demo simulates its own study/placement/car
+// state client-side (see README) rather than driving the real Attempt/FSRS
+// pipeline above. This table lets a logged-in demo user's local state follow
+// them across devices as a single opaque JSON blob, without re-modeling the
+// demo's simulation onto the full content-bank/Exercise schema.
+model DemoState {
+  userId    String   @id
+  stateJson Json
+  updatedAt DateTime @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
 
 model Enrollment {

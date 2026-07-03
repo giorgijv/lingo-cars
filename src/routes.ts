@@ -2,6 +2,9 @@ import { Router } from "express";
 import { z } from "zod";
 import type { Exercise, PrismaClient } from "@prisma/client";
 import { asyncHandler, parse } from "./http/validate.js";
+import { requireAuth } from "./http/auth.js";
+import { hashPassword, verifyPassword } from "./auth/password.js";
+import { createSession, deleteSessionToken } from "./auth/session.js";
 import { fillPayloadSchema, listenPayloadSchema, mcqPayloadSchema, speakPayloadSchema } from "./content/mcq.js";
 import { gradeFillAnswer } from "./content/grading.js";
 import { applyAttempt } from "./engine/fsrs.js";
@@ -105,6 +108,16 @@ const createUserSchema = z.object({
   email: z.string().email(),
   uiLanguage: z.enum(["en", "de"]).default("en"),
 });
+const signupSchema = z.object({
+  email: z.string().email(),
+  password: z.string().min(8, "password must be at least 8 characters"),
+  uiLanguage: z.enum(["en", "de"]).default("en"),
+});
+const loginSchema = z.object({ email: z.string().email(), password: z.string().min(1) });
+// A JSON blob, not a string/array/primitive; size-capped in the handler (JSON.stringify,
+// not this schema) since zod has no byte-length check for arbitrary objects.
+const demoStateSchema = z.record(z.string(), z.any());
+const DEMO_STATE_MAX_BYTES = 256_000;
 const createEnrollmentSchema = z.object({ userId: z.string(), pairId: z.string() });
 const placementStartSchema = z.object({ pairId: z.string() });
 const placementAnswerSchema = z.object({
@@ -142,6 +155,71 @@ export function createRouter(db: PrismaClient): Router {
     const body = parse(createUserSchema, req.body);
     const user = await db.user.create({ data: body });
     res.status(201).json(user);
+  }));
+
+  // ── Auth (login/signup/session) ──
+  // Independent of /users above (kept for backward compatibility with the
+  // existing Phase 0-4 flows, which don't require a password). A signed-up
+  // user's progress (enrollments, attempts, proficiency, car, economy, races)
+  // is already keyed by userId and stored in Postgres — it was always
+  // cross-device in principle; logging in is what lets a *client* prove which
+  // userId it's allowed to read/write, and is what the demo UI now uses to
+  // resolve "your" userId on any device instead of a per-browser localStorage id.
+  r.post("/auth/signup", asyncHandler(async (req, res) => {
+    const { email, password, uiLanguage } = parse(signupSchema, req.body);
+    const passwordHash = await hashPassword(password);
+    const user = await db.user.create({ data: { email, passwordHash, uiLanguage } });
+    const { token, expiresAt } = await createSession(db, user.id);
+    res.status(201).json({ token, expiresAt, user: { id: user.id, email: user.email, uiLanguage: user.uiLanguage } });
+  }));
+
+  r.post("/auth/login", asyncHandler(async (req, res) => {
+    const { email, password } = parse(loginSchema, req.body);
+    const user = await db.user.findUnique({ where: { email } });
+    if (!user?.passwordHash || !(await verifyPassword(password, user.passwordHash))) {
+      res.status(401).json({ error: "invalid_credentials" });
+      return;
+    }
+    const { token, expiresAt } = await createSession(db, user.id);
+    res.json({ token, expiresAt, user: { id: user.id, email: user.email, uiLanguage: user.uiLanguage } });
+  }));
+
+  r.post("/auth/logout", requireAuth(db), asyncHandler(async (req, res) => {
+    const token = req.header("authorization")!.slice("Bearer ".length).trim();
+    await deleteSessionToken(db, token);
+    res.status(204).end();
+  }));
+
+  r.get("/auth/me", requireAuth(db), asyncHandler(async (req, res) => {
+    const { id, email, uiLanguage } = req.user!;
+    res.json({ id, email, uiLanguage });
+  }));
+
+  // ── Demo progress sync (cross-device) ──
+  // The docs/index.html demo keeps its own client-simulated state (car tier,
+  // per-item mastery, xp, cosmetics) as a single JSON blob — previously
+  // localStorage-only, so it never left the browser it was created in. These
+  // two endpoints let a logged-in demo user's blob follow them to any device:
+  // GET on login/load, PUT after every local save. Size-capped to keep this
+  // an honest progress blob, not a general-purpose object store.
+  r.get("/me/demo-state", requireAuth(db), asyncHandler(async (req, res) => {
+    const row = await db.demoState.findUnique({ where: { userId: req.user!.id } });
+    res.json({ state: row?.stateJson ?? null, updatedAt: row?.updatedAt ?? null });
+  }));
+
+  r.put("/me/demo-state", requireAuth(db), asyncHandler(async (req, res) => {
+    const state = parse(demoStateSchema, req.body?.state);
+    const json = JSON.stringify(state);
+    if (Buffer.byteLength(json, "utf8") > DEMO_STATE_MAX_BYTES) {
+      res.status(413).json({ error: "demo_state_too_large", maxBytes: DEMO_STATE_MAX_BYTES });
+      return;
+    }
+    const row = await db.demoState.upsert({
+      where: { userId: req.user!.id },
+      create: { userId: req.user!.id, stateJson: state },
+      update: { stateJson: state },
+    });
+    res.json({ state: row.stateJson, updatedAt: row.updatedAt });
   }));
 
   r.post("/enrollments", asyncHandler(async (req, res) => {

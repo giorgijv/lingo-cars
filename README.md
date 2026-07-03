@@ -21,6 +21,22 @@
 > Georgian study content above A2 is, like the rest of this build's `ka`
 > content, not yet reviewed by a
 > native speaker.
+>
+> **Login (👤, top right) syncs progress across devices — but needs a server
+> to sync to.** The demo works fully offline by default (localStorage only,
+> one browser). Signing in calls a real backend (`/auth/signup`, `/auth/login`,
+> `/me/demo-state` — see below) that persists your car/points/study state in
+> Postgres keyed to your account, so any device that logs in sees the same
+> progress. **The catch: this repo's API isn't hosted anywhere public.** The
+> login screen asks for an "API server URL" because there is no default one —
+> point it at `http://localhost:3000` against a local `npm run dev`, or at
+> wherever you deploy the API (Render, Fly.io, Railway, a VPS, etc.). Until
+> it's deployed somewhere reachable from the live GitHub Pages demo, login
+> only works for people running the API locally alongside the page. Sync
+> policy is intentionally simple: on login, the server's saved state wins if
+> one exists, otherwise the current device's local state is uploaded as the
+> starting point; two devices editing at the same moment aren't merged — the
+> later save wins.
 
 Backend for a gamified language-learning app.
 
@@ -85,6 +101,15 @@ Backend for a gamified language-learning app.
 | **D5 — car state is a projection** | No car exists in Phase 0. `inTierProgress` is a *learning* metric on `ProficiencyState`; a future car will only read it. |
 | **D3 — tier unlocks only via CEFR** | `evaluateTier` decides purely on the mastery metric over `ProficiencyState`. No points/economy input exists or is consulted. |
 
+**Auth scope, disclosed:** `/auth/*` and `/me/demo-state` are gated by a bearer
+session token (`requireAuth`, `src/http/auth.ts`) and are the only routes that
+resolve "which user" from a verified session rather than a client-supplied
+`userId`. The pre-existing Phase 0-4 routes (`/enrollments`, `/placement/*`,
+`/attempts`, `/car`, `/economy`, `/purchases`, `/races`, `/proficiency`,
+`/queue`) still take an explicit `userId` in the request, unchanged — gating
+all of them behind sessions too is a real follow-up (and a much larger
+migration of their existing test suite), not done in this change.
+
 ## Architecture
 
 - **TypeScript / Node + Express** REST API — all proficiency/scheduling logic
@@ -103,6 +128,8 @@ User ──< Enrollment (currentCefr)
 User ──< Attempt (IMMUTABLE) >── Exercise          # raw event log
 User ──< ReviewState (per-card FSRS) >── Exercise   # derived, replayable
 User ──< ProficiencyState (per pair)                # derived, replayable
+User ──< Session (login token hash + expiry)        # mutable; deleted on logout
+User ──< DemoState (one JSON blob)                  # cross-device sync target for docs/index.html
 ```
 
 Derived tables (`ReviewState`, `ProficiencyState`) are pure projections of the
@@ -118,7 +145,7 @@ Requires Node ≥ 20. Choose Docker (zero-config) or an existing Postgres ≥ 14
 npm install
 cp .env.example .env    # defaults already match docker-compose
 npm run setup           # starts Postgres, applies migrations, seeds content
-npm test                # 38 tests, incl. DB integration + e2e
+npm test                # 116 tests, incl. DB integration + e2e
 npm run dev             # http://localhost:3000
 ```
 
@@ -154,13 +181,71 @@ npm test           # vitest — pure unit tests always run;
                    # DB integration + e2e run only when DATABASE_URL is set
 ```
 
+## Deploying (Supabase + Render, both free-tier)
+
+The demo's login (`docs/index.html`, 👤 button) needs this API reachable from
+the public internet — it isn't hosted anywhere by default. This is the
+cheapest path: **Supabase for Postgres, Render for the Node API.** Neither
+requires code changes; both configs below are already in the repo.
+
+### 1. Database — Supabase
+
+1. Create a Supabase project (or reuse an existing one) at
+   [supabase.com](https://supabase.com).
+2. Open **SQL Editor** and run the same role-creation SQL used for local dev
+   (`docker/init/01-app-role.sql`), against Supabase's default `postgres`
+   database:
+   ```sql
+   CREATE ROLE app_role LOGIN PASSWORD 'choose-a-strong-password-here';
+   GRANT CONNECT ON DATABASE postgres TO app_role;
+   ```
+   `prisma migrate deploy` (next step, run by Render) applies this role's
+   per-table grants and the append-only triggers automatically — same
+   migrations as local dev, nothing Supabase-specific to write.
+3. In **Project Settings → Database**, copy two connection strings:
+   - **Connection pooling** (port 6543, "Transaction" mode) — this becomes
+     `DATABASE_URL`. Swap in the `app_role` user/password from step 2, and
+     append `?pgbouncer=true` (Prisma needs this over PgBouncer).
+   - **Direct connection** (port 5432) — this becomes `DIRECT_URL`, using the
+     `postgres` (owner) user/password Supabase gives you. Migrations need a
+     direct connection, not the pooled one.
+
+### 2. API — Render
+
+1. Push this repo to GitHub (already done), then in Render create
+   **New → Blueprint** and point it at the repo — it reads
+   [`render.yaml`](./render.yaml) and creates the `lingo-cars-api` free web
+   service automatically. (Or create a **Web Service** by hand with the same
+   build/start commands from that file, if you'd rather not use Blueprints.)
+2. In the service's **Environment** tab, set `DATABASE_URL` and `DIRECT_URL`
+   to the two Supabase strings from step 1 (`render.yaml` deliberately leaves
+   these blank — never commit real credentials).
+3. Deploy. The build runs `npm run render-build`
+   (`prisma generate` → `prisma migrate deploy` → `tsc build` → `npm run seed`
+   — seeding is idempotent, safe on every deploy) then starts the API;
+   `/health` is the configured health-check path.
+4. Copy the resulting `https://lingo-cars-api-xxxx.onrender.com` URL.
+
+### 3. Point the demo at it
+
+Open the live demo, click 👤 → paste that Render URL into **API server URL**,
+then sign up. Render's free tier spins the service down after ~15 min idle,
+so the first request after a quiet spell takes a few seconds (cold start) —
+expected, not a bug.
+
 ## API
 
 | Method & path | Purpose |
 |---|---|
 | `GET /health` | Liveness. |
 | `GET /languages`, `GET /pairs` | Catalog. |
-| `POST /users` | Create a user `{ email, uiLanguage }`. |
+| `POST /users` | Create a user `{ email, uiLanguage }` — no password; kept for the existing Phase 0-4 flows below, which still take an explicit `userId` and aren't gated by a session. |
+| `POST /auth/signup` | `{ email, password, uiLanguage }` → `201` `{ token, expiresAt, user }`. Password hashed with scrypt (Node's built-in `crypto`, no new dependency). |
+| `POST /auth/login` | `{ email, password }` → `{ token, expiresAt, user }`, or `401` on a bad password/unknown email. |
+| `POST /auth/logout` | Bearer-authenticated; deletes the session so the token stops working immediately. |
+| `GET /auth/me` | Bearer-authenticated; returns the signed-in user. |
+| `GET /me/demo-state` | Bearer-authenticated; returns the caller's synced `docs/index.html` progress blob (`null` if never synced). |
+| `PUT /me/demo-state` | Bearer-authenticated; upserts `{ state }` (opaque JSON, size-capped at 256KB) as the caller's synced progress. |
 | `POST /enrollments` | Enroll `{ userId, pairId }`. |
 | `POST /placement/start` | Begin adaptive placement `{ pairId }` → `{ state, exercise }`. |
 | `POST /placement/answer` | Answer `{ pairId, state, exerciseId, selectedIndex \| response, latencyMs }` (`selectedIndex` for mcq/listen, `response` for fill — by the exercise's own type) → next item or `done`. |

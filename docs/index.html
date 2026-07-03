@@ -89,6 +89,16 @@
   .feedback{font-weight:700;font-size:14px}
   .feedback.good{color:var(--good)} .feedback.bad{color:var(--bad)}
   .explainText{margin-top:6px;font-weight:400;font-size:13px;color:var(--muted);line-height:1.4}
+  #accountBtn{background:#0f1620;border:1px solid var(--line);color:var(--ink);border-radius:999px;padding:8px 14px;font-size:13px;font-weight:700;font-family:inherit;cursor:pointer;white-space:nowrap;max-width:160px;overflow:hidden;text-overflow:ellipsis}
+  .modalOverlay{position:fixed;inset:0;background:rgba(5,8,14,.72);display:flex;align-items:center;justify-content:center;padding:20px;z-index:50}
+  .modalOverlay.hide{display:none}
+  .modalCard{background:linear-gradient(180deg,var(--panel) 0%,var(--panel2) 100%);border:1px solid var(--line);border-radius:16px;padding:24px;max-width:380px;width:100%;position:relative;box-shadow:0 10px 40px rgba(0,0,0,.5)}
+  .modalCard h3{margin:0 0 8px}
+  .modalClose{position:absolute;top:12px;right:14px;background:none;border:none;color:var(--muted);font-size:20px;cursor:pointer;line-height:1}
+  .modalCard label{display:block;font-size:13px;color:var(--muted);margin-top:12px}
+  .modalCard input{width:100%;margin-top:4px;padding:10px 12px;border-radius:10px;border:1px solid var(--line);background:#0f1620;color:var(--ink);font-family:inherit;font-size:14px;box-sizing:border-box}
+  .modalCard input:focus{outline:2px solid var(--accent);outline-offset:1px}
+  .syncState{font-size:12px;color:var(--muted);margin-top:10px;min-height:16px}
   .center{text-align:center}
   .lead{color:var(--muted);font-size:15px;line-height:1.5;margin:8px 0 0}
   .kpis{display:flex;gap:18px;justify-content:center;margin-top:14px;color:var(--muted);font-size:13px;flex-wrap:wrap}
@@ -123,8 +133,42 @@
 <div class="wrap">
   <header>
     <div class="brand"><span class="dot">●</span> Lingo&nbsp;Cars</div>
-    <select id="pairSel" aria-label="Language pair"></select>
+    <div class="row" style="margin-top:0;gap:8px">
+      <select id="pairSel" aria-label="Language pair"></select>
+      <button id="accountBtn" aria-haspopup="dialog">👤 Guest</button>
+    </div>
   </header>
+
+  <!-- ACCOUNT (login/signup — cross-device progress sync) -->
+  <div class="modalOverlay hide" id="accountOverlay" role="dialog" aria-modal="true" aria-label="Account">
+    <div class="modalCard">
+      <button class="modalClose" id="accountCloseBtn" aria-label="Close">✕</button>
+
+      <div id="accountLoggedOut">
+        <h3>Save your progress</h3>
+        <p class="lead" style="margin-top:0">Sign in to keep your car, points, and study progress in sync across
+          any device. Without an account, progress stays only in this browser.</p>
+        <label>API server URL
+          <input id="apiBaseInput" type="url" placeholder="https://your-lingo-cars-api.example.com" autocomplete="off">
+        </label>
+        <label>Email <input id="authEmail" type="email" autocomplete="username"></label>
+        <label>Password <input id="authPassword" type="password" autocomplete="current-password"></label>
+        <div class="row" style="margin-top:16px">
+          <button class="btn" id="loginBtn">Log in</button>
+          <button class="btn secondary" id="signupBtn">Sign up</button>
+        </div>
+        <div class="syncState" id="authMsg"></div>
+      </div>
+
+      <div id="accountLoggedIn" class="hide">
+        <h3>Signed in</h3>
+        <p class="lead" style="margin-top:0">Signed in as <b id="accountEmailLabel"></b>. Progress syncs to this
+          account automatically after each answer.</p>
+        <button class="btn secondary" id="logoutBtn">Log out</button>
+        <div class="syncState" id="syncMsg"></div>
+      </div>
+    </div>
+  </div>
 
   <!-- GARAGE -->
   <section class="card garage">
@@ -214,15 +258,17 @@
   </section>
 
   <footer>
-    Demo of the <b>Lingo&nbsp;Cars</b> concept — runs entirely in your browser (no account, no server).
-    The real <a href="https://github.com/giorgijv/lingo-cars" target="_blank" rel="noopener">backend</a>
-    serves the learning engine + car projection as an API; this page is a visual illustration.<br>
+    Demo of the <b>Lingo&nbsp;Cars</b> concept — works fully offline in your browser; sign in (👤, top right)
+    to sync progress across devices via a <a href="https://github.com/giorgijv/lingo-cars" target="_blank" rel="noopener">Lingo Cars API</a>
+    server you point it at. The API also serves the full learning engine + car projection; this page is a
+    visual illustration of it.<br>
     Car designs are original and brand-agnostic. Georgian demo content is illustrative.
   </footer>
 </div>
 
 <script>
 /* ============================ Language pairs ============================ */
+const $ = id => document.getElementById(id);
 const LANGS = { de:{name:"German",flag:"🇩🇪"}, en:{name:"English",flag:"🇬🇧"}, es:{name:"Spanish",flag:"🇪🇸"}, ka:{name:"Georgian",flag:"🇬🇪"} };
 const PAIRS = ["de-es","en-es","de-ka","en-ka"];
 const pairLabel = id => { const [s,t]=id.split("-"); return `${LANGS[s].flag} ${LANGS[s].name} → ${LANGS[t].flag} ${LANGS[t].name}`; };
@@ -918,7 +964,126 @@ for(const p of PAIRS) if(!S.pairs[p]) S.pairs[p] = mkPairState();
 for(const p of PAIRS){ const st=S.pairs[p]; if(!st.owned){ st.owned=[]; st.spent=0; st.refunded=0; } }
 if(!PAIRS.includes(S.pair)) S.pair = "de-es";
 function P(){ return S.pairs[S.pair]; }
-function save(){ localStorage.setItem(KEY, JSON.stringify(S)); }
+function save(){ localStorage.setItem(KEY, JSON.stringify(S)); scheduleSync(); }
+
+/* ============================ Account & cross-device sync ============================ */
+/* Optional: without an account, progress is exactly as before — localStorage
+   only, one browser. Logging in points the demo at a Lingo Cars API server
+   (see README/plans — this repo's backend isn't hosted anywhere public by
+   default, so this URL must be a server you or someone else has deployed;
+   http://localhost:3000 works against a local `npm run dev`). The backend
+   already persists every user's data in Postgres keyed by userId (Rule 4 /
+   D7) — logging in is what lets THIS browser prove which account's data to
+   read/write, via GET/PUT /me/demo-state (see src/routes.ts).
+   Sync policy (kept simple, disclosed): on login, the SERVER's saved state
+   wins if one exists (that's the account's real progress); otherwise this
+   device's current local state is uploaded as the starting point. After that,
+   every local save() debounces a PUT. Two devices editing at the exact same
+   moment aren't merged — the later PUT simply wins. */
+const ACCOUNT_KEY = "lingocars.account.v1";
+function loadAccount(){ try{ return JSON.parse(localStorage.getItem(ACCOUNT_KEY)); }catch(e){ return null; } }
+let account = loadAccount(); // null | { apiBase, token, email }
+function persistAccount(){ if(account) localStorage.setItem(ACCOUNT_KEY, JSON.stringify(account)); else localStorage.removeItem(ACCOUNT_KEY); }
+
+function apiFetch(path, opts){
+  opts = opts || {};
+  const headers = Object.assign({"Content-Type":"application/json"}, account && account.token ? {Authorization:"Bearer "+account.token} : {}, opts.headers||{});
+  return fetch(account.apiBase.replace(/\/$/,"") + path, Object.assign({}, opts, {headers}));
+}
+
+function renderAccountUI(){
+  $("accountBtn").textContent = account ? "👤 "+account.email : "👤 Guest";
+  $("accountLoggedOut").classList.toggle("hide", !!account);
+  $("accountLoggedIn").classList.toggle("hide", !account);
+  if(account) $("accountEmailLabel").textContent = account.email;
+}
+function openAccountModal(){
+  $("authMsg").textContent=""; $("syncMsg").textContent="";
+  if(!account){ const savedBase = localStorage.getItem("lingocars.apiBase"); if(savedBase) $("apiBaseInput").value = savedBase; }
+  $("accountOverlay").classList.remove("hide");
+}
+function closeAccountModal(){ $("accountOverlay").classList.add("hide"); }
+
+async function doAuth(kind){
+  const apiBase = $("apiBaseInput").value.trim().replace(/\/$/,"");
+  const email = $("authEmail").value.trim();
+  const password = $("authPassword").value;
+  const msg = $("authMsg");
+  if(!apiBase){ msg.textContent = "Enter your API server URL first."; return; }
+  if(!email || !password){ msg.textContent = "Email and password are required."; return; }
+  localStorage.setItem("lingocars.apiBase", apiBase);
+  msg.textContent = kind==="signup" ? "Creating account…" : "Signing in…";
+  try{
+    const res = await fetch(apiBase + (kind==="signup" ? "/auth/signup" : "/auth/login"), {
+      method:"POST", headers:{"Content-Type":"application/json"}, body: JSON.stringify({email,password}),
+    });
+    const body = await res.json().catch(()=>({}));
+    if(!res.ok){
+      msg.textContent = res.status===409 ? "An account with that email already exists — try logging in instead."
+        : body.error==="invalid_credentials" ? "Wrong email or password."
+        : body.issues && body.issues[0] ? body.issues[0].message
+        : (body.error || "Something went wrong.");
+      return;
+    }
+    account = { apiBase, token: body.token, email: body.user.email };
+    persistAccount();
+    await syncAfterLogin();
+    renderAccountUI();
+    closeAccountModal();
+    toast("Signed in as "+account.email);
+  }catch(e){
+    msg.textContent = "Couldn't reach the server — check the URL and that it's running.";
+  }
+}
+
+async function syncAfterLogin(){
+  try{
+    const res = await apiFetch("/me/demo-state");
+    if(!res.ok) return;
+    const body = await res.json();
+    if(body.state){
+      S = body.state;
+      for(const p of PAIRS) if(!S.pairs[p]) S.pairs[p] = mkPairState();
+      for(const p of PAIRS){ const st=S.pairs[p]; if(!st.owned){ st.owned=[]; st.spent=0; st.refunded=0; } }
+      if(!PAIRS.includes(S.pair)) S.pair = "de-es";
+      localStorage.setItem(KEY, JSON.stringify(S));
+      $("pairSel").value = S.pair;
+      placement=null; study=null; nextAction=null; lastMilestoneCount = -1;
+      showIntro(); renderGarage(false);
+    } else {
+      await pushSync();
+    }
+  }catch(e){ /* unreachable — local state stands; next successful sync will push it */ }
+}
+
+let syncTimer = null;
+async function pushSync(){
+  if(!account) return;
+  try{
+    const res = await apiFetch("/me/demo-state", { method:"PUT", body: JSON.stringify({ state: S }) });
+    const el = $("syncMsg"); if(el) el.textContent = res.ok ? "Synced just now ✓" : "Sync failed — will retry.";
+  }catch(e){
+    const el = $("syncMsg"); if(el) el.textContent = "Offline — will retry when reconnected.";
+  }
+}
+function scheduleSync(){
+  if(!account) return;
+  clearTimeout(syncTimer);
+  syncTimer = setTimeout(pushSync, 800); // debounced so an answer streak doesn't spam PUTs
+}
+
+$("accountBtn").onclick = openAccountModal;
+$("accountCloseBtn").onclick = closeAccountModal;
+$("accountOverlay").addEventListener("click", e=>{ if(e.target.id==="accountOverlay") closeAccountModal(); });
+$("loginBtn").onclick = ()=>doAuth("login");
+$("signupBtn").onclick = ()=>doAuth("signup");
+$("logoutBtn").onclick = async ()=>{
+  try{ await apiFetch("/auth/logout", {method:"POST"}); }catch(e){}
+  account = null; persistAccount(); renderAccountUI();
+  toast("Signed out — this device keeps its last-synced progress.");
+};
+renderAccountUI();
+
 // Stem text alone isn't always unique (listen/speak items share a generic
 // "What did you hear?" / "Read aloud:" stem across several transcripts/texts)
 // — disambiguate with whichever content field actually varies per item.
@@ -951,7 +1116,6 @@ function maybePromote(){
 }
 
 /* ============================ Rendering ============================ */
-const $ = id => document.getElementById(id);
 function lerp(a,b,t){ return a + (b-a)*t; }
 let lastMilestoneCount = -1;
 
