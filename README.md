@@ -22,21 +22,23 @@
 > content, not yet reviewed by a
 > native speaker.
 >
-> **Login (👤, top right) syncs progress across devices — but needs a server
-> to sync to.** The demo works fully offline by default (localStorage only,
-> one browser). Signing in calls a real backend (`/auth/signup`, `/auth/login`,
-> `/me/demo-state` — see below) that persists your car/points/study state in
-> Postgres keyed to your account, so any device that logs in sees the same
-> progress. **The catch: this repo's API isn't hosted anywhere public.** The
-> login screen asks for an "API server URL" because there is no default one —
-> point it at `http://localhost:3000` against a local `npm run dev`, or at
-> wherever you deploy the API (Render, Fly.io, Railway, a VPS, etc.). Until
-> it's deployed somewhere reachable from the live GitHub Pages demo, login
-> only works for people running the API locally alongside the page. Sync
-> policy is intentionally simple: on login, the server's saved state wins if
-> one exists, otherwise the current device's local state is uploaded as the
-> starting point; two devices editing at the same moment aren't merged — the
-> later save wins.
+> **Login (👤, top right) syncs progress across devices.** The demo works
+> fully offline by default (localStorage only, one browser); signing in calls
+> a real backend (`/auth/signup`, `/auth/login`, `/me/demo-state` — see below)
+> that persists your car/points/study state in Postgres keyed to your
+> account, so any device that logs in sees the same progress. The API is now
+> deployed (Supabase + Render, see "Deploying" below) and its URL is
+> **pre-filled** in the login screen's "API server URL" field — sharing just
+> the demo link is enough, nobody needs a second link. That field stays
+> editable: anyone running their own instance (a fork, self-hosting, local
+> `npm run dev`) can overwrite it, and their override is what gets remembered
+> from then on (`DEFAULT_API_BASE` in `docs/index.html` is the fallback, not
+> a hard requirement). Sync policy is intentionally simple: on login, the
+> server's saved state wins if one exists, otherwise the current device's
+> local state is uploaded as the starting point; two devices editing at the
+> same moment aren't merged — the later save wins. Render's free tier sleeps
+> after ~15 min idle, so the first request after a quiet period takes
+> 30-60s to wake back up — expected, not a bug.
 
 Backend for a gamified language-learning app.
 

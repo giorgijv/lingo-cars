@@ -981,6 +981,11 @@ function save(){ localStorage.setItem(KEY, JSON.stringify(S)); scheduleSync(); }
    every local save() debounces a PUT. Two devices editing at the exact same
    moment aren't merged — the later PUT simply wins. */
 const ACCOUNT_KEY = "lingocars.account.v1";
+// Pre-filled so sharing just the demo link is enough — no second link to hand
+// out. Still a plain, editable field: anyone running their own API server
+// (forks, self-hosting, or if this one ever moves) can overwrite it, and
+// their override is what gets remembered afterward (see openAccountModal()).
+const DEFAULT_API_BASE = "https://lingo-cars-api-m7hn.onrender.com";
 function loadAccount(){ try{ return JSON.parse(localStorage.getItem(ACCOUNT_KEY)); }catch(e){ return null; } }
 let account = loadAccount(); // null | { apiBase, token, email }
 function persistAccount(){ if(account) localStorage.setItem(ACCOUNT_KEY, JSON.stringify(account)); else localStorage.removeItem(ACCOUNT_KEY); }
@@ -999,7 +1004,7 @@ function renderAccountUI(){
 }
 function openAccountModal(){
   $("authMsg").textContent=""; $("syncMsg").textContent="";
-  if(!account){ const savedBase = localStorage.getItem("lingocars.apiBase"); if(savedBase) $("apiBaseInput").value = savedBase; }
+  if(!account){ $("apiBaseInput").value = localStorage.getItem("lingocars.apiBase") || DEFAULT_API_BASE; }
   $("accountOverlay").classList.remove("hide");
 }
 function closeAccountModal(){ $("accountOverlay").classList.add("hide"); }
