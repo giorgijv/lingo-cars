@@ -317,21 +317,24 @@ describe.skipIf(!RUN)("Phase 0 API integration", () => {
     const ecoBefore = await request(app).get("/economy").query({ userId: racer.id, pairId });
     const profBefore = await request(app).get("/proficiency").query({ userId: racer.id, pairId });
 
-    // Sloppy run, then a perfect run.
-    const sloppy = await request(app)
+    // A finished-last, slow time, then a clean run right at this car's ceiling.
+    const slow = await request(app)
       .post("/races")
-      .send({ userId: racer.id, pairId, shiftAccuracies: [0.2, 0.1, 0.3, 0.2, 0.1] });
-    expect(sloppy.status).toBe(201);
-    const perfect = await request(app)
+      .send({ userId: racer.id, pairId, finishMs: 30_000, position: 4, rivalCount: 3 });
+    expect(slow.status).toBe(201);
+    const clean = await request(app)
       .post("/races")
-      .send({ userId: racer.id, pairId, shiftAccuracies: [1, 1, 1, 1, 1] });
-    expect(perfect.body.finishMs).toBeLessThan(sloppy.body.finishMs);
-    // Perfect skill hits exactly this car's ceiling — never past it.
-    expect(perfect.body.finishMs).toBe(perfect.body.ceilingMs);
-    expect(perfect.body.isNewBest).toBe(true);
+      .send({ userId: racer.id, pairId, finishMs: slow.body.ceilingMs, position: 1, rivalCount: 3 });
+    expect(clean.status).toBe(201);
+    expect(clean.body.finishMs).toBeLessThan(slow.body.finishMs);
+    // A clean run submitted exactly at the ceiling is accepted as-is — never inflated.
+    expect(clean.body.finishMs).toBe(clean.body.ceilingMs);
+    expect(clean.body.isNewBest).toBe(true);
+    expect(clean.body.bestPosition).toBe(1);
+    expect(clean.body.trackId).toBe("sprint-1");
 
     const races = await request(app).get("/races").query({ userId: racer.id, pairId });
-    expect(races.body.best.finishMs).toBe(perfect.body.finishMs);
+    expect(races.body.best.finishMs).toBe(clean.body.finishMs);
     expect(races.body.recent).toHaveLength(2);
 
     // Racing awards NOTHING: economy, xp, and CEFR are untouched.
@@ -346,8 +349,23 @@ describe.skipIf(!RUN)("Phase 0 API integration", () => {
       db.$executeRawUnsafe(`UPDATE "RaceResult" SET "finishMs" = 1 WHERE "userId" = $1`, racer.id),
     ).rejects.toThrow();
 
-    // Validation: accuracies outside [0,1] are rejected.
-    expect((await request(app).post("/races").send({ userId: racer.id, pairId, shiftAccuracies: [2] })).status).toBe(400);
+    // D5: the server rejects a submitted time faster than physically possible
+    // for this car — a tampered client can never log an impossible result.
+    const impossible = await request(app)
+      .post("/races")
+      .send({ userId: racer.id, pairId, finishMs: Math.floor(clean.body.ceilingMs * 0.3), position: 1, rivalCount: 3 });
+    expect(impossible.status).toBe(400);
+    expect(impossible.body.error).toBe("faster_than_ceiling");
+
+    // Validation: a malformed submission is rejected.
+    expect(
+      (await request(app).post("/races").send({ userId: racer.id, pairId, finishMs: -1, position: 1, rivalCount: 3 }))
+        .status,
+    ).toBe(400);
+    expect(
+      (await request(app).post("/races").send({ userId: racer.id, pairId, finishMs: 9000, position: 9, rivalCount: 3 }))
+        .status,
+    ).toBe(400);
   });
 
   it("runs a listen (M2) exercise: exposes transcript for on-device TTS, hides correctIndex, grades like mcq", async () => {
