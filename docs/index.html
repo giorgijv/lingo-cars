@@ -161,11 +161,11 @@
   .racestats{display:flex;gap:16px;justify-content:center;color:var(--muted);font-size:13px;flex-wrap:wrap;margin-top:8px}
   .racestats b{color:var(--ink);font-size:17px}
   /* real-time sprint race world (Phase 4) — player + AI rivals in depth-lanes */
-  .raceworld{position:relative;height:235px;border-radius:14px;overflow:hidden;margin:10px 0;background:linear-gradient(180deg,#0f141c 0%,#141b26 44%,#182130 58%);box-shadow:inset 0 0 0 1px var(--line)}
+  .raceworld{position:relative;height:235px;border-radius:14px;overflow:hidden;margin:10px 0;background:linear-gradient(180deg,#0f141c 0%,var(--rwall,#141b26) 44%,var(--rfloor,#182130) 58%);box-shadow:inset 0 0 0 1px var(--line)}
   .rlayer{position:absolute;left:0;right:0;pointer-events:none}
   .rhills{top:46%;height:13%;background:repeating-linear-gradient(90deg,transparent 0 44px,rgba(120,150,190,.10) 44px 48px)}
   .rroad{top:58%;bottom:0;background:linear-gradient(180deg,#232a34,#12161d);box-shadow:inset 0 4px 12px rgba(0,0,0,.55)}
-  .rkerb{top:58%;height:6px;background:repeating-linear-gradient(90deg,#c0392b 0 22px,#f2f2f2 22px 44px);opacity:.9}
+  .rkerb{top:58%;height:6px;background:repeating-linear-gradient(90deg,var(--rkerb,#c0392b) 0 22px,#f2f2f2 22px 44px);opacity:.9}
   .rroadline{top:80%;height:5px;background:repeating-linear-gradient(90deg,#e8c23a 0 34px,transparent 34px 76px);opacity:.75;border-radius:2px}
   .rfinish{position:absolute;top:58%;bottom:0;width:16px;background:repeating-linear-gradient(180deg,#111 0 8px,#f5f5f5 8px 16px);box-shadow:0 0 0 2px rgba(0,0,0,.4);z-index:2}
   .rcar{position:absolute;left:0;top:0;width:158px;will-change:transform}
@@ -205,6 +205,31 @@
   .rdraft.slip{background:#ffd166;color:#3a2a00}
   .rcfx{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;z-index:0}
   .racebtn.sound{min-width:66px;padding:15px 14px;background:#1b2431;color:var(--ink);border:1px solid var(--line)}
+  .racebtn:focus-visible,.rchip:focus-visible,.btn:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+  /* Step 5 — race lobby: track + difficulty select, personal-best leaderboard */
+  .rlobby{max-width:440px;margin:6px auto 0;display:flex;flex-direction:column;gap:12px}
+  .rlobsec{display:flex;flex-direction:column;gap:6px}
+  .rloblabel{font-weight:800;font-size:12px;color:var(--muted);letter-spacing:.4px;text-transform:uppercase}
+  .rchips{display:flex;gap:8px;flex-wrap:wrap}
+  .rchip{flex:1 1 0;min-width:96px;text-align:left;background:#0f1620;border:1px solid var(--line);border-radius:12px;padding:9px 12px;cursor:pointer;font-family:inherit;color:var(--ink)}
+  .rchip .rchipn{font-weight:800;font-size:14px;display:block}
+  .rchip .rchips2{font-size:11px;color:var(--muted)}
+  .rchip[aria-pressed="true"]{border-color:var(--accent);background:rgba(90,167,255,.12);box-shadow:0 0 0 1px var(--accent)}
+  .rlobcar{text-align:center;font-size:13px;color:var(--muted)}
+  .rlobcar b{color:var(--ink)}
+  .rboard{margin-top:4px}
+  .rboardh{font-weight:800;font-size:12px;color:var(--muted);letter-spacing:.4px;text-transform:uppercase;margin:6px 0 4px}
+  .rbrow{display:flex;justify-content:space-between;gap:10px;padding:5px 10px;background:#0f1620;border:1px solid var(--line);border-radius:8px;font-size:13px;margin-bottom:3px}
+  .rbrow .rbtrk{color:var(--ink)}
+  .rbrow .rbval{color:var(--muted);font-variant-numeric:tabular-nums}
+  .rrecent{font-size:12px;color:var(--muted);text-align:center;margin-top:6px;line-height:1.6}
+  @media (max-width:560px){
+    .raceworld{height:200px}
+    .racecontrols{gap:6px}
+    .racebtn{min-width:0;flex:1 1 40%;padding:14px 8px;font-size:15px}
+    .racebtn.sound,.racecontrols .btn.secondary{flex:1 1 40%}
+    .rchip{min-width:0;flex:1 1 30%}
+  }
   @media (prefers-reduced-motion:reduce){
     .rcar.moving .spokes{animation:none}
     .rscene{transform:none!important}
@@ -3625,13 +3650,32 @@ function mkPairState(){ return { tier:0, strength:{}, xp:0, answered:0, correct:
 function load(){ try{ const s=JSON.parse(localStorage.getItem(KEY)); if(s && s.pairs) return s; }catch(e){} return null; }
 let S = load() || { pair:"de-es", pairs:{} };
 for(const p of PAIRS) if(!S.pairs[p]) S.pairs[p] = mkPairState();
+/* Migrate the Steps 2-4 per-tier race bests ({ [tier]: {pos,ms} }, keyed by a
+   numeric tier) into the Step 5 per-track shape ({ [trackId]: { [tier]: … } }).
+   The old single-track results become the "sprint" track's history. */
+function migrateRaceBest(st){
+  if(!st.raceBest){ st.raceBest={}; }
+  else if(Object.keys(st.raceBest).some(k=>/^[0-5]$/.test(k))){
+    const old=st.raceBest, moved={ sprint:{} };
+    for(const k of Object.keys(old)){
+      if(!/^[0-5]$/.test(k)) continue;
+      let v=old[k]; if(typeof v==="number") v={ pos:null, ms:v };
+      moved.sprint[k]={ pos:v.pos??null, ms:(v.ms!=null?v.ms:null), races:1 };
+    }
+    st.raceBest=moved;
+  }
+  if(!Array.isArray(st.raceLog)) st.raceLog=[];
+}
 for(const p of PAIRS){
   const st=S.pairs[p];
   if(!st.owned){ st.owned=[]; st.spent=0; st.refunded=0; }
   if(st.customPaint===undefined) st.customPaint=null;
   if(!st.equipped) st.equipped={wheelstyle:null,finish:null,decal:null,aero:null};
+  migrateRaceBest(st);
 }
 if(!PAIRS.includes(S.pair)) S.pair = "de-es";
+if(!S.raceTrack) S.raceTrack="sprint";
+if(!S.raceDiff) S.raceDiff="pro";
 function P(){ return S.pairs[S.pair]; }
 function save(){ localStorage.setItem(KEY, JSON.stringify(S)); scheduleSync(); }
 
@@ -3756,11 +3800,11 @@ function scheduleSync(){
    flow itself — see README) — so failures are expected and silently ignored;
    the local blob remains the source of truth for the UI either way. */
 function backendPairId(pair){ return "pair-"+pair; }
-async function syncRaceResult(finishMs, position, rivalCount){
+async function syncRaceResult(finishMs, position, rivalCount, trackId){
   if(!account || !account.id) return;
   try{
     await apiFetch("/races", { method:"POST", body: JSON.stringify({
-      userId: account.id, pairId: backendPairId(S.pair), finishMs, position, rivalCount,
+      userId: account.id, pairId: backendPairId(S.pair), finishMs, position, rivalCount, trackId,
     }) });
   }catch(e){ /* best-effort only — local state already has this result */ }
 }
@@ -4327,9 +4371,28 @@ $("nextBtn").onclick=()=>{ if(nextAction){ const a=nextAction; nextAction=null; 
    realizes performance UP TO vMax — the player can NEVER exceed the
    proficiency-derived top speed. Racing awards nothing: no XP, no points, no
    CEFR movement, and winning never unlocks a car (D3/D5). */
-const TRACK_LEN = 700;     // world units ("metres") from the line to the finish
+const TRACK_LEN = 700;     // default sprint length (world units); per-race length = race.trackLen
 const PX_PER_UNIT = 2.0;   // world→screen scale (parallax scroll + finish approach)
 const RACE_STEP = 1/120;   // fixed physics timestep → frame-rate independent
+
+/* Step 5 — tracks & difficulty. Racing is pure engagement (D3/D5): tracks and
+   difficulty are cosmetic variety + bragging rights only. No track is gated by
+   proficiency, and winning any of them unlocks nothing. Scenery is CSS-var
+   tinting (self-contained, CSP-safe); length changes the sprint distance. */
+const TRACKS = [
+  { id:"sprint", name:"City Sprint",   len:700,  sub:"Short & punchy",  wall:"#141b26", floor:"#182130", kerb:"#c0392b" },
+  { id:"coast",  name:"Coastal Run",   len:1050, sub:"A longer haul",   wall:"#12262e", floor:"#173340", kerb:"#2a9d8f" },
+  { id:"night",  name:"Night Circuit", len:1400, sub:"Endurance test",  wall:"#0e1119", floor:"#151a28", kerb:"#7b5cff" },
+];
+/* Difficulty scales the rivals' cruise as a FRACTION of the player's own D5
+   ceiling — still always < 1, so a clean, committed run wins even on Ace. */
+const DIFFICULTIES = [
+  { id:"rookie", name:"Rookie", sub:"Relaxed rivals",  fracs:[0.52,0.60,0.68] },
+  { id:"pro",    name:"Pro",    sub:"A real race",      fracs:[0.60,0.68,0.76] },
+  { id:"ace",    name:"Ace",    sub:"Only clean wins",  fracs:[0.66,0.74,0.82] },
+];
+function curTrack(){ return TRACKS.find(t=>t.id===S.raceTrack) || TRACKS[0]; }
+function curDiff(){ return DIFFICULTIES.find(d=>d.id===S.raceDiff) || DIFFICULTIES[1]; }
 
 /* Field / lane constants. Lane 0 = near (bottom, largest), 2 = far (top,
    smallest) — a side-view "depth" road. Same-lane cars block/overtake; a
@@ -4414,37 +4477,89 @@ function raceEnvelope(spd, hnd){
   const accel = vMax/Math.max(1.0, tReach);                         // snappier launch with handling
   return { vMax, accel, brakeDecel: accel*2.4, coastDrag: accel*0.28, ceiling };
 }
-/* Best possible time for the player's envelope (perfect run: full throttle). */
-function ceilingTimeMs(env){
+/* Best possible time for the player's envelope over a track (perfect run: full
+   throttle from a standing start). */
+function ceilingTimeMs(env, trackLen){
+  const len = trackLen || TRACK_LEN;
   const { vMax, accel } = env;
   const tA = vMax/accel, dA = 0.5*vMax*tA;
-  const s = dA >= TRACK_LEN ? Math.sqrt(2*TRACK_LEN/accel) : tA + (TRACK_LEN-dA)/vMax;
+  const s = dA >= len ? Math.sqrt(2*len/accel) : tA + (len-dA)/vMax;
   return Math.round(s*1000);
 }
 /* Small seeded PRNG so a given seed → a deterministic field/result. */
 function mulberry32(a){ return function(){ a|=0; a=a+0x6D2B79F5|0; let t=Math.imul(a^a>>>15,1|a); t=t+Math.imul(t^t>>>7,61|t)^t; return ((t^t>>>14)>>>0)/4294967296; }; }
 
-function openRace(seedArg){
-  if(race){ cancelAnimationFrame(race.raf); raceAudioStop(); }
+/* Entry point: show the race lobby (pick track + difficulty, see your bests). */
+function openRace(){
+  if(race){ cancelAnimationFrame(race.raf); raceAudioStop(); race=null; }
   if(celebRaf){ cancelAnimationFrame(celebRaf); celebRaf=0; }
   ["introPanel","quizPanel","resultPanel"].forEach(id=>$(id).classList.add("hide"));
   $("racePanel").classList.remove("hide");
+  renderRaceLobby();
+}
+function medal(pos){ return pos===1?"🥇":pos===2?"🥈":pos===3?"🥉":("P"+pos); }
+function bestFor(st, trackId, tier){ return (st.raceBest[trackId]||{})[tier] || null; }
+function renderRaceLobby(){
+  const st=P(), track=curTrack(), diff=curDiff(), best=bestFor(st, track.id, st.tier);
+  $("raceMeta").textContent = "Pick a track and a class, then race";
+  const chip=(kind,it,sel)=>`<button type="button" role="radio" aria-checked="${sel}" aria-pressed="${sel}" class="rchip" data-${kind}="${it.id}"><span class="rchipn">${it.name}</span><span class="rchips2">${it.sub}${kind==="track"?" · "+ (it.len/100).toFixed(0)+"00m":""}</span></button>`;
+  // personal-bests board for the CURRENT car across the three tracks
+  const board = TRACKS.map(t=>{
+    const b=bestFor(st, t.id, st.tier);
+    const val = b ? `${medal(b.pos)}${b.ms!=null?" · "+(b.ms/1000).toFixed(2)+"s":""} <span style="opacity:.6">(${b.races})</span>` : "—";
+    return `<div class="rbrow"><span class="rbtrk">${t.name}</span><span class="rbval">${val}</span></div>`;
+  }).join("");
+  const recent = (st.raceLog||[]).slice(0,6).map(r=>{
+    const tk=TRACKS.find(t=>t.id===r.track); return `${medal(r.pos)} ${tk?tk.name.split(" ")[0]:r.track}${r.ms!=null?" "+(r.ms/1000).toFixed(1)+"s":""}`;
+  }).join(" · ");
+  $("raceStage").innerHTML = `
+    <div class="rlobby">
+      <div class="rlobsec"><div class="rloblabel">Track</div><div class="rchips" id="rTrackChips" role="radiogroup" aria-label="Track">${TRACKS.map(t=>chip("track",t,t.id===S.raceTrack)).join("")}</div></div>
+      <div class="rlobsec"><div class="rloblabel">Rival class</div><div class="rchips" id="rDiffChips" role="radiogroup" aria-label="Difficulty">${DIFFICULTIES.map(d=>chip("diff",d,d.id===S.raceDiff)).join("")}</div></div>
+      <div class="rlobcar">Your car: <b>${CARS[st.tier].name}</b> · Best on ${track.name}: ${best?`${medal(best.pos)}${best.ms!=null?" · "+(best.ms/1000).toFixed(2)+"s":""}`:"— not raced yet"}</div>
+      <div class="row" style="justify-content:center">
+        <button class="btn" id="raceStartBtn">🏁 Start race</button>
+        <button class="btn secondary" id="raceLobbyCloseBtn">Back to studying</button>
+      </div>
+      <div class="rboard">
+        <div class="rboardh">Personal bests · ${CARS[st.tier].name}</div>
+        ${board}
+        ${recent?`<div class="rrecent">Recent: ${recent}</div>`:""}
+      </div>
+      <p class="lead" style="font-size:12px;text-align:center;margin-top:4px">Racing is for bragging rights only — no points, no XP, no car unlocks. Rivals are always cars from your own class; a faster car comes only from language mastery.</p>
+    </div>`;
+  const pick=(container,kind)=>{
+    $(container).querySelectorAll("[data-"+kind+"]").forEach(b=>b.onclick=()=>{
+      if(kind==="track") S.raceTrack=b.dataset.track; else S.raceDiff=b.dataset.diff;
+      save(); renderRaceLobby();
+    });
+  };
+  pick("rTrackChips","track"); pick("rDiffChips","diff");
+  $("raceStartBtn").onclick=()=>startRace();
+  $("raceLobbyCloseBtn").onclick=closeRace;
+  const sb=$("raceStartBtn"); if(sb) sb.focus();
+}
+function startRace(seedArg){
+  if(race){ cancelAnimationFrame(race.raf); raceAudioStop(); }
+  if(celebRaf){ cancelAnimationFrame(celebRaf); celebRaf=0; }
   const st=P(); const {spd,hnd}=carStats();
   const pEnv=raceEnvelope(spd,hnd), pV=pEnv.vMax;
+  const track=curTrack(), diff=curDiff();
   const seed=(typeof seedArg==="number")?(seedArg>>>0):(Date.now()>>>0);
   const rng=mulberry32(seed);
-  $("raceMeta").textContent = `${CARS[st.tier].name} · lights out, beat the pack`;
+  $("raceMeta").textContent = `${CARS[st.tier].name} · ${track.name} · ${diff.name}`;
   const mk=o=>Object.assign({v:0,dist:0,finished:false,finishMs:0,place:0,blockedBy:null,laneCd:0,
                              boostT:0,boostMul:1,bogT:0,draftCharge:0,draftActive:false,reactT:0},o);
   const cars=[ mk({ id:0, isPlayer:true, env:pEnv, cruise:pV, artTier:st.tier, lane:1 }) ];
   /* Rivals cruise a FRACTION of the player's ceiling (all < 1, so a clean
      perfect run always wins — D5: you can't be out-driven by a car from a
      class you haven't earned), staggered slightly ahead so you come from the
-     back and overtake. Each rival's own hard cap sits just above its cruise. */
-  const fracs=[0.60,0.68,0.76], dist0=[190,120,60], lanes0=[0,2,1];
+     back and overtake. Difficulty scales the fractions. Each rival's own hard
+     cap sits just above its cruise. */
+  const fracs=diff.fracs, dist0=[190,120,60], lanes0=[0,2,1];
   const artTiers=[Math.max(0,st.tier-1), st.tier, Math.min(CARS.length-1,st.tier+1)];
   for(let i=0;i<RIVAL_COUNT;i++){
-    const f=Math.max(0.50, Math.min(0.85, fracs[i]+(rng()-0.5)*0.03));
+    const f=Math.max(0.45, Math.min(0.88, fracs[i]+(rng()-0.5)*0.03));
     const cruise=pV*f, vMax=cruise/0.96, accel=pEnv.accel*(0.88+0.24*f);
     cars.push(mk({ id:i+1, isPlayer:false,
       env:{ vMax, accel, brakeDecel:accel*2.4, coastDrag:accel*0.28 },
@@ -4456,6 +4571,7 @@ function openRace(seedArg){
     raf:0, lastT:0, _rt:0, acc:0, autoStep:true, finishShown:false,
     input:{ throttle:false, brake:false },
     cars, tier:st.tier, elapsed:0, deadline:null, seed,
+    trackId:track.id, trackLen:track.len, track, diff:diff.id,
     phase:"stage", stageT:STAGE_S, jumpStart:false, launchEval:false, launchMsg:"",
     slingT:0, fx:[], audio:null,
     state:{ finished:false },
@@ -4501,14 +4617,17 @@ function renderRaceStage(){
       </div>
     </div>
     <div class="racecontrols" id="raceControls">
-      <button class="racebtn lane" id="laneUpBtn">▲ Lane</button>
-      <button class="racebtn lane" id="laneDownBtn">▼ Lane</button>
-      <button class="racebtn" id="gasBtn">GAS ⛽</button>
-      <button class="racebtn brake" id="brakeBtn">BRAKE</button>
-      <button class="racebtn sound" id="soundBtn">🔇 Sound</button>
-      <button class="btn secondary" id="raceQuitBtn">Quit</button>
+      <button type="button" class="racebtn lane" id="laneUpBtn" aria-label="Move up a lane">▲ Lane</button>
+      <button type="button" class="racebtn lane" id="laneDownBtn" aria-label="Move down a lane">▼ Lane</button>
+      <button type="button" class="racebtn" id="gasBtn" aria-label="Accelerate">GAS ⛽</button>
+      <button type="button" class="racebtn brake" id="brakeBtn" aria-label="Brake">BRAKE</button>
+      <button type="button" class="racebtn sound" id="soundBtn" aria-label="Toggle engine sound">🔇 Sound</button>
+      <button type="button" class="btn secondary" id="raceQuitBtn" aria-label="Quit the race">Quit</button>
     </div>
-    <p class="lead" style="font-size:12px;text-align:center;margin-top:6px">Nail the launch at GO, weave to overtake, and tuck in behind a rival to slipstream. Rivals are cars from your own class — racing is just for fun: no points, no XP, and winning never unlocks a car.</p>`;
+    <p class="lead" style="font-size:12px;text-align:center;margin-top:6px">Nail the launch at GO (gas / <kbd>W</kbd>), weave to overtake (<kbd>↑</kbd>/<kbd>↓</kbd> or the lane buttons), and tuck in behind a rival to slipstream. Rivals are cars from your own class — racing is just for fun: no points, no XP, and winning never unlocks a car.</p>`;
+  // per-track scenery tint (self-contained CSS vars, CSP-safe)
+  const w=$("raceWorld");
+  if(w && race.track){ w.style.setProperty("--rwall", race.track.wall); w.style.setProperty("--rfloor", race.track.floor); w.style.setProperty("--rkerb", race.track.kerb); }
   race.cars.forEach(c=>{ c.el=$("rcar"+c.id); c.inner=c.el&&c.el.firstElementChild; });
   bindRaceControls();
   renderRaceFrame();
@@ -4627,8 +4746,9 @@ function raceStep(dt){
     } else c.blockedBy = null;
   }
   // crossings
+  const trackLen=race.trackLen||TRACK_LEN;
   for(const c of cars){
-    if(!c.finished && c.dist>=TRACK_LEN){ c.dist=TRACK_LEN; c.finished=true; c.finishMs=Math.round(race.elapsed*1000); }
+    if(!c.finished && c.dist>=trackLen){ c.dist=trackLen; c.finished=true; c.finishMs=Math.round(race.elapsed*1000); }
   }
   // ---- draft / slipstream (player): tucking in behind a same-lane rival (but
   //      not so close you bump) charges a slingshot; pulling out releases it as
@@ -4681,9 +4801,10 @@ function renderRaceFrame(){
   const scroll=player.dist*PX_PER_UNIT, anchor=W*0.30;
   const run=race.phase==="run", rm=reduceMotion();
   const si=Math.min(1, player.v/player.env.vMax);      // 0..1 speed vs the cap
+  const trackLen=race.trackLen||TRACK_LEN;
   const bg=(id,f)=>{ const el=$(id); if(el) el.style.backgroundPositionX=f+"px"; };
   bg("rHills", -scroll*0.35); bg("rKerb", -scroll); bg("rRoadline", -scroll);
-  const fin=$("rFinish"); if(fin) fin.style.left=(anchor+150 + (TRACK_LEN-player.dist)*PX_PER_UNIT)+"px";
+  const fin=$("rFinish"); if(fin) fin.style.left=(anchor+150 + (trackLen-player.dist)*PX_PER_UNIT)+"px";
   for(const c of race.cars){
     if(!c.el) continue;
     const x = anchor + (c.dist-player.dist)*PX_PER_UNIT;
@@ -4737,24 +4858,33 @@ function renderRaceFrame(){
   setT("rPos", `P${pos}/${race.cars.length}`);
   setT("rSpeed", Math.round(player.v*1.6));
   setT("rTime", race.elapsed.toFixed(2)+"s");
-  const pr=$("rProg"); if(pr) pr.style.width=Math.min(100, player.dist/TRACK_LEN*100)+"%";
+  const pr=$("rProg"); if(pr) pr.style.width=Math.min(100, player.dist/trackLen*100)+"%";
+}
+/* Record a finished race into the per-(track,tier) bests + recent log. Returns
+   whether it improved the best for this track+car. */
+function recordRace(st, trackId, tier, pos, ms, finished, diffId){
+  st.raceBest[trackId] = st.raceBest[trackId] || {};
+  const cur = st.raceBest[trackId][tier];
+  const improved = !cur || pos < (cur.pos??99) || (finished && ms < (cur.ms!=null?cur.ms:Infinity));
+  const bestMs = finished ? Math.min(cur&&cur.ms!=null?cur.ms:Infinity, ms) : (cur?cur.ms:null);
+  st.raceBest[trackId][tier] = {
+    pos: cur ? Math.min(cur.pos??99, pos) : pos,
+    ms: bestMs===Infinity ? null : bestMs,
+    races: (cur&&cur.races||0)+1,
+  };
+  st.raceLog = st.raceLog || [];
+  st.raceLog.unshift({ track:trackId, diff:diffId, tier, pos, ms:finished?ms:null, ts:Date.now() });
+  if(st.raceLog.length>12) st.raceLog.length=12;
+  return improved;
 }
 function onRaceFinish(){
   if(!race || race.finishShown) return;
   race.finishShown = true;
-  const st=P(), player=race.cars[0], n=race.cars.length, pos=player.place;
-  // personal best per tier: { pos, ms } (migrates the Step-1 ms-only number).
-  if(!st.raceBest) st.raceBest={};
-  let prev=st.raceBest[race.tier];
-  if(typeof prev==="number") prev={ pos:null, ms:prev };
-  const improved = !prev || pos < (prev.pos??99) || (player.finished && player.finishMs < (prev.ms??Infinity));
-  const best = {
-    pos: prev ? Math.min(prev.pos??99, pos) : pos,
-    ms: player.finished ? Math.min(prev&&prev.ms!=null?prev.ms:Infinity, player.finishMs) : (prev?prev.ms:null),
-  };
-  if(best.ms===Infinity) best.ms=null;
-  st.raceBest[race.tier]=best; save();
-  if(player.finished) syncRaceResult(player.finishMs, pos, race.cars.length-1);   // best-effort; see syncRaceResult()
+  const st=P(), player=race.cars[0], n=race.cars.length, pos=player.place, track=race.track;
+  const improved = recordRace(st, race.trackId, race.tier, pos, player.finishMs, player.finished, race.diff);
+  save();
+  const best = bestFor(st, race.trackId, race.tier);
+  if(player.finished) syncRaceResult(player.finishMs, pos, race.cars.length-1, race.trackId);   // best-effort; see syncRaceResult()
   const ord=["🥇 1st","🥈 2nd","🥉 3rd","4th","5th"];
   const placeLbl=ord[pos-1]||(pos+"th");
   // photo finish: the top two finishers within 0.30s of each other
@@ -4770,21 +4900,24 @@ function onRaceFinish(){
       <canvas class="rcfx" id="rcFx"></canvas>
       <div style="position:relative;z-index:1">
         <div class="shiftfb" style="font-size:22px">${improved?"🏆 ":""}${placeLbl} of ${n}!</div>
-        ${photo?`<div class="shiftfb" style="font-size:13px;color:var(--muted)">📸 Photo finish!</div>`:""}
+        <div class="shiftfb" style="font-size:12px;color:var(--muted)">${track.name} · ${curDiff().name}${photo?" · 📸 Photo finish!":""}</div>
         <div class="rtable">${rows}</div>
         <div class="racestats">
           <span><b>${player.finished?(player.finishMs/1000).toFixed(2)+"s":"DNF"}</b> your time</span>
-          <span><b>P${best.pos}${best.ms!=null?" · "+(best.ms/1000).toFixed(2)+"s":""}</b> best (${CARS[race.tier].name})</span>
+          <span><b>${best?medal(best.pos)+(best.ms!=null?" · "+(best.ms/1000).toFixed(2)+"s":""):"—"}</b> best here</span>
         </div>
         <p class="lead" style="font-size:12px;text-align:center">You win by driving cleaner, not by a faster car — rivals are from your own class. Racing grants no points, XP, or unlocks; a faster car comes only from language mastery.</p>
         <div class="row" style="justify-content:center">
           <button class="btn" id="raceAgainBtn">Race again</button>
+          <button class="btn secondary" id="raceLobbyBtn">Change track</button>
           <button class="btn secondary" id="raceCloseBtn">Back to studying</button>
         </div>
       </div>
     </div>`;
-  $("raceAgainBtn").onclick=()=>openRace();
+  $("raceAgainBtn").onclick=()=>startRace();
+  $("raceLobbyBtn").onclick=()=>openRace();
   $("raceCloseBtn").onclick=closeRace;
+  const ra=$("raceAgainBtn"); if(ra) ra.focus();
   if(pos===1) requestAnimationFrame(runCelebration);   // defer a frame so the canvas has its layout size
 }
 /* Short confetti burst on a win — cosmetic, self-stopping, skipped under
