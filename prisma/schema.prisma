@@ -293,9 +293,15 @@ model Purchase {
 
 // ─────────────── IMMUTABLE LOG: race results (Phase 4, append-only) ───────────────
 // D5 hard rule: proficiency sets the performance CEILING (the car's projected
-// speed/handling are snapshotted per race); race skill only realizes a fraction
-// of that ceiling. Racing writes NOTHING that proficiency, tier, or the economy
-// read — no points, no xp, no CEFR movement. Pure engagement.
+// speed/handling are snapshotted per race, and the server re-derives the same
+// ceiling to validate the submitted finish time — never trusts the client).
+// Racing writes NOTHING that proficiency, tier, or the economy read — no
+// points, no xp, no CEFR movement. Pure engagement.
+//
+// position-based model (Step 4 of the racing-game plan): the client now runs
+// a real-time driven sprint against `rivalCount` AI rivals instead of a
+// gear-shift timing minigame, so the outcome is (finishing position, finish
+// time) rather than a shift-accuracy skill score.
 
 model RaceResult {
   id         String   @id @default(cuid())
@@ -304,14 +310,17 @@ model RaceResult {
   tier       Int // car snapshot at race time
   speed      Float
   handling   Float
-  skillScore Float // 0..1, from gameplay inputs
   finishMs   Int
+  position   Int // 1-based finishing position among (rivalCount + 1) cars
+  rivalCount Int // number of AI rivals in this race (field size = rivalCount + 1)
+  trackId    String // which track/sprint layout was raced (Step 5 adds more than one)
   createdAt  DateTime @default(now())
 
   user User         @relation(fields: [userId], references: [id], onDelete: Cascade)
   pair LanguagePair @relation(fields: [pairId], references: [id], onDelete: Cascade)
 
   @@index([userId, pairId, finishMs])
+  @@index([userId, pairId, position])
 }
 
 // ─────────────── DERIVED: per-(user,pair) rollup (replayable) ───────────────

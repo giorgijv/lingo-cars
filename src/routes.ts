@@ -12,7 +12,7 @@ import { recomputeProficiency } from "./engine/proficiency.js";
 import { applyTierDecision } from "./engine/mastery.js";
 import { getCar } from "./engine/car.js";
 import { EconomyError, getEconomy, tradeCosmetic } from "./engine/economy.js";
-import { getRaces, MAX_SHIFTS, runRace } from "./engine/race.js";
+import { getRaces, MAX_RIVALS, RaceValidationError, runRace } from "./engine/race.js";
 import {
   answerPlacement,
   finalizePlacement,
@@ -376,24 +376,41 @@ export function createRouter(db: PrismaClient): Router {
     }
   }));
 
-  // ── Race minigame (Phase 4) — proficiency is the ceiling (D5); racing
-  //    appends to an immutable log and awards nothing (no points/xp/CEFR). ──
+  // ── Race minigame (Phase 4) — a real-time driven sprint vs. AI rivals.
+  //    Proficiency is the ceiling (D5): the server re-derives the same D5
+  //    ceiling from the car's CURRENT projection and rejects any submitted
+  //    finish time that's faster than physically possible for this car —
+  //    it never trusts the client. Racing appends to an immutable log and
+  //    awards nothing (no points/xp/CEFR). ──
   const raceSchema = z.object({
     userId: z.string(),
     pairId: z.string(),
-    shiftAccuracies: z.array(z.number().min(0).max(1)).min(1).max(MAX_SHIFTS),
+    finishMs: z.number().positive(),
+    position: z.number().int().min(1),
+    rivalCount: z.number().int().min(0).max(MAX_RIVALS),
+    trackId: z.string().min(1).optional(),
   });
   r.post("/races", asyncHandler(async (req, res) => {
-    const { userId, pairId, shiftAccuracies } = parse(raceSchema, req.body);
-    const run = await runRace(db, userId, pairId, shiftAccuracies);
-    res.status(201).json({
-      finishMs: run.outcome.finishMs,
-      ceilingMs: run.outcome.ceilingMs,
-      skillScore: run.outcome.skillScore,
-      bestMs: run.bestMs,
-      isNewBest: run.isNewBest,
-      car: { tier: run.car.tier, className: run.car.className, speed: run.car.speed, handling: run.car.handling },
-    });
+    const { userId, pairId, ...submission } = parse(raceSchema, req.body);
+    try {
+      const run = await runRace(db, userId, pairId, submission);
+      res.status(201).json({
+        finishMs: run.outcome.finishMs,
+        ceilingMs: run.outcome.ceilingMs,
+        position: run.outcome.position,
+        rivalCount: run.outcome.rivalCount,
+        trackId: run.outcome.trackId,
+        bestMs: run.bestMs,
+        bestPosition: run.bestPosition,
+        isNewBest: run.isNewBest,
+        car: { tier: run.car.tier, className: run.car.className, speed: run.car.speed, handling: run.car.handling },
+      });
+    } catch (err) {
+      if (err instanceof RaceValidationError) {
+        return res.status(400).json({ error: err.code, message: err.message });
+      }
+      throw err;
+    }
   }));
 
   r.get("/races", asyncHandler(async (req, res) => {

@@ -1,56 +1,105 @@
 import { describe, expect, it } from "vitest";
-import { BASE_TRACK_MS, computeRace, MAX_SHIFTS } from "./race.js";
+import { evaluateRaceSubmission, MAX_RIVALS, raceCeilingMs, RaceValidationError } from "./race.js";
 
 // §3.2 anchors
 const cityHatch = { speed: 1.0, handling: 1.0 };
 const sportsCoupe = { speed: 2.8, handling: 2.4 };
 const hypercar = { speed: 5.0, handling: 4.0 };
 
-describe("computeRace — the D5 ceiling", () => {
-  it("perfect skill hits exactly the car's ceiling, never past it", () => {
-    const r = computeRace(sportsCoupe, [1, 1, 1, 1, 1]);
-    expect(r.finishMs).toBe(r.ceilingMs);
-  });
-
-  it("zero skill realizes exactly half the ceiling", () => {
-    const r = computeRace(cityHatch, [0, 0, 0]);
-    expect(r.finishMs).toBe(Math.round(BASE_TRACK_MS / (1 * 0.5)));
-  });
-
-  it("a ZERO-skill Hypercar still beats a PERFECT City Hatch — mastery dominates", () => {
-    const lazyHyper = computeRace(hypercar, [0, 0, 0, 0, 0]);
-    const perfectHatch = computeRace(cityHatch, [1, 1, 1, 1, 1]);
-    expect(lazyHyper.finishMs).toBeLessThan(perfectHatch.finishMs);
-  });
-
-  it("within one car, better skill is strictly faster (skill operates inside the ceiling)", () => {
-    let prev = Infinity;
-    for (const s of [0, 0.25, 0.5, 0.75, 1]) {
-      const r = computeRace(sportsCoupe, [s]);
-      expect(r.finishMs).toBeLessThan(prev);
-      prev = r.finishMs;
-    }
-  });
-
+describe("raceCeilingMs — the D5 ceiling", () => {
   it("higher-tier cars have strictly lower (faster) ceilings", () => {
     const cars = [cityHatch, sportsCoupe, hypercar];
     let prev = Infinity;
     for (const car of cars) {
-      const c = computeRace(car, [1]).ceilingMs;
+      const c = raceCeilingMs(car.speed, car.handling);
       expect(c).toBeLessThan(prev);
       prev = c;
     }
   });
 
-  it("clamps out-of-range and non-finite accuracies", () => {
-    const clean = computeRace(cityHatch, [1, 1]);
-    const dirty = computeRace(cityHatch, [7, Number.NaN]);
-    expect(dirty.skillScore).toBeLessThanOrEqual(1);
-    expect(dirty.finishMs).toBeGreaterThanOrEqual(clean.finishMs);
+  it("is a pure, deterministic function of speed/handling", () => {
+    expect(raceCeilingMs(sportsCoupe.speed, sportsCoupe.handling)).toBe(
+      raceCeilingMs(sportsCoupe.speed, sportsCoupe.handling),
+    );
+  });
+});
+
+describe("evaluateRaceSubmission — server-authoritative validation", () => {
+  it("accepts a submission exactly at the ceiling", () => {
+    const ceilingMs = raceCeilingMs(sportsCoupe.speed, sportsCoupe.handling);
+    const out = evaluateRaceSubmission(sportsCoupe, { finishMs: ceilingMs, position: 1, rivalCount: 3 });
+    expect(out.finishMs).toBe(ceilingMs);
+    expect(out.ceilingMs).toBe(ceilingMs);
+    expect(out.trackId).toBe("sprint-1");
   });
 
-  it("rejects empty or oversized shift arrays", () => {
-    expect(() => computeRace(cityHatch, [])).toThrow();
-    expect(() => computeRace(cityHatch, Array(MAX_SHIFTS + 1).fill(1))).toThrow();
+  it("accepts a submission modestly faster than the ceiling (client-side launch/draft boosts)", () => {
+    const ceilingMs = raceCeilingMs(cityHatch.speed, cityHatch.handling);
+    const boosted = Math.floor(ceilingMs * 0.9); // within the generous tolerance
+    const out = evaluateRaceSubmission(cityHatch, { finishMs: boosted, position: 1, rivalCount: 3 });
+    expect(out.finishMs).toBe(boosted);
+  });
+
+  it("rejects a finish time that is physically impossible for this car (D5: never trust the client)", () => {
+    const ceilingMs = raceCeilingMs(cityHatch.speed, cityHatch.handling);
+    const impossible = Math.floor(ceilingMs * 0.3); // a Hatch claiming near-Hypercar pace
+    expect(() => evaluateRaceSubmission(cityHatch, { finishMs: impossible, position: 1, rivalCount: 3 })).toThrow(
+      RaceValidationError,
+    );
+  });
+
+  it("a slower car's ceiling can never be undercut by a faster car's real time (sanity cross-check)", () => {
+    const hatchCeiling = raceCeilingMs(cityHatch.speed, cityHatch.handling);
+    const hyperCeiling = raceCeilingMs(hypercar.speed, hypercar.handling);
+    expect(hyperCeiling).toBeLessThan(hatchCeiling);
+    // A Hatch submitting the Hypercar's ceiling time is still rejected as impossible for a Hatch.
+    expect(() => evaluateRaceSubmission(cityHatch, { finishMs: hyperCeiling, position: 1, rivalCount: 3 })).toThrow(
+      RaceValidationError,
+    );
+  });
+
+  it("rejects non-finite or non-positive finish times", () => {
+    expect(() => evaluateRaceSubmission(cityHatch, { finishMs: 0, position: 1, rivalCount: 3 })).toThrow(
+      RaceValidationError,
+    );
+    expect(() => evaluateRaceSubmission(cityHatch, { finishMs: Number.NaN, position: 1, rivalCount: 3 })).toThrow(
+      RaceValidationError,
+    );
+    expect(() => evaluateRaceSubmission(cityHatch, { finishMs: -500, position: 1, rivalCount: 3 })).toThrow(
+      RaceValidationError,
+    );
+  });
+
+  it("rejects an out-of-range rivalCount", () => {
+    const ceilingMs = raceCeilingMs(cityHatch.speed, cityHatch.handling);
+    expect(() =>
+      evaluateRaceSubmission(cityHatch, { finishMs: ceilingMs, position: 1, rivalCount: -1 }),
+    ).toThrow(RaceValidationError);
+    expect(() =>
+      evaluateRaceSubmission(cityHatch, { finishMs: ceilingMs, position: 1, rivalCount: MAX_RIVALS + 1 }),
+    ).toThrow(RaceValidationError);
+  });
+
+  it("rejects a position outside 1..(rivalCount+1)", () => {
+    const ceilingMs = raceCeilingMs(cityHatch.speed, cityHatch.handling);
+    expect(() => evaluateRaceSubmission(cityHatch, { finishMs: ceilingMs, position: 0, rivalCount: 3 })).toThrow(
+      RaceValidationError,
+    );
+    expect(() => evaluateRaceSubmission(cityHatch, { finishMs: ceilingMs, position: 5, rivalCount: 3 })).toThrow(
+      RaceValidationError,
+    );
+  });
+
+  it("defaults trackId to sprint-1 but preserves an explicit one", () => {
+    const ceilingMs = raceCeilingMs(cityHatch.speed, cityHatch.handling);
+    const withDefault = evaluateRaceSubmission(cityHatch, { finishMs: ceilingMs, position: 2, rivalCount: 3 });
+    expect(withDefault.trackId).toBe("sprint-1");
+    const withCustom = evaluateRaceSubmission(cityHatch, {
+      finishMs: ceilingMs,
+      position: 2,
+      rivalCount: 3,
+      trackId: "hillclimb-1",
+    });
+    expect(withCustom.trackId).toBe("hillclimb-1");
   });
 });
