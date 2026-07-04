@@ -157,15 +157,29 @@
   .lead{color:var(--muted);font-size:15px;line-height:1.5;margin:8px 0 0}
   .kpis{display:flex;gap:18px;justify-content:center;margin-top:14px;color:var(--muted);font-size:13px;flex-wrap:wrap}
   .kpis b{color:var(--ink);font-size:16px}
-  .track{position:relative;height:46px;background:#0d1420;border:1px solid var(--line);border-radius:12px;overflow:hidden;margin:12px 0}
-  .zone{position:absolute;top:0;bottom:0;left:41%;width:18%;background:rgba(63,185,138,.22);border-left:1px solid var(--good);border-right:1px solid var(--good)}
-  .marker{position:absolute;top:0;bottom:0;width:4px;background:#fff;border-radius:2px;box-shadow:0 0 8px #fff}
   .shiftfb{min-height:20px;font-weight:800;font-size:14px;text-align:center}
-  .racedash{position:relative;height:70px;overflow:hidden;margin:8px 0}
-  .racedash svg{position:absolute;left:-30%;width:200px;height:auto;animation:dash linear forwards}
-  @keyframes dash{from{left:-25%}to{left:100%}}
   .racestats{display:flex;gap:16px;justify-content:center;color:var(--muted);font-size:13px;flex-wrap:wrap;margin-top:8px}
   .racestats b{color:var(--ink);font-size:17px}
+  /* real-time sprint race world (Phase 4) */
+  .raceworld{position:relative;height:210px;border-radius:14px;overflow:hidden;margin:10px 0;background:linear-gradient(180deg,#0f141c 0%,#141b26 46%,#182130 62%);box-shadow:inset 0 0 0 1px var(--line)}
+  .rlayer{position:absolute;left:0;right:0;pointer-events:none}
+  .rhills{top:50%;height:14%;background:repeating-linear-gradient(90deg,transparent 0 44px,rgba(120,150,190,.10) 44px 48px)}
+  .rroad{top:62%;bottom:0;background:linear-gradient(180deg,#232a34,#12161d);box-shadow:inset 0 4px 12px rgba(0,0,0,.55)}
+  .rkerb{top:62%;height:6px;background:repeating-linear-gradient(90deg,#c0392b 0 22px,#f2f2f2 22px 44px);opacity:.9}
+  .rroadline{top:82%;height:5px;background:repeating-linear-gradient(90deg,#e8c23a 0 34px,transparent 34px 76px);opacity:.8;border-radius:2px}
+  .rfinish{position:absolute;top:62%;bottom:0;width:16px;background:repeating-linear-gradient(180deg,#111 0 8px,#f5f5f5 8px 16px);box-shadow:0 0 0 2px rgba(0,0,0,.4);z-index:2}
+  .rcar{position:absolute;left:22%;bottom:24px;width:158px;z-index:3;filter:drop-shadow(0 12px 10px rgba(0,0,0,.45))}
+  .rcar svg{width:100%;height:auto;display:block}
+  .rcar.moving .spokes{animation:rspin .5s linear infinite}
+  @keyframes rspin{from{transform:rotate(0)}to{transform:rotate(360deg)}}
+  .rhud{position:absolute;top:10px;left:14px;right:14px;display:flex;align-items:center;justify-content:space-between;gap:12px;font-weight:800;font-size:13px;color:#e5eef8;text-shadow:0 1px 3px rgba(0,0,0,.75);z-index:4}
+  .rprogwrap{flex:1;max-width:220px;height:7px;background:rgba(255,255,255,.16);border-radius:6px;overflow:hidden}
+  .rprog{display:block;height:100%;width:0;background:linear-gradient(90deg,var(--accent),#8fd0ff)}
+  .racecontrols{display:flex;gap:10px;justify-content:center;align-items:center;margin-top:6px;flex-wrap:wrap}
+  .racebtn{flex:0 0 auto;min-width:118px;padding:15px 22px;font-size:16px;font-weight:800;border:none;border-radius:12px;background:var(--good);color:#06210f;cursor:pointer;font-family:inherit;touch-action:none;user-select:none;-webkit-user-select:none}
+  .racebtn.brake{background:#e0654f;color:#2a0a04}
+  .racebtn:active{transform:translateY(1px);filter:brightness(1.12)}
+  @media (prefers-reduced-motion:reduce){ .rcar.moving .spokes{animation:none} }
   .shop{display:grid;grid-template-columns:repeat(auto-fill,minmax(185px,1fr));gap:10px;margin-top:4px}
   .shopitem{background:#0f1620;border:1px solid var(--line);border-radius:12px;padding:12px;display:flex;flex-direction:column;gap:6px}
   .shopitem .nm{font-weight:800;font-size:14px}
@@ -4257,17 +4271,17 @@ let nextAction=null;
 function showNext(action){ nextAction=action; }
 $("nextBtn").onclick=()=>{ if(nextAction){ const a=nextAction; nextAction=null; a(); } };
 
-/* ============================ Race (Phase 4) ============================ */
-/* D5: proficiency sets the CEILING — ceiling = speed^0.7 × handling^0.3 from
-   the car's CURRENT projected stats; shift skill realizes 50..100% of it.
-   Racing awards nothing: no XP, no points, no progress. */
-const RACE_BASE_MS = 20000, RACE_SHIFTS = 5;
-function computeRaceDemo(spd, hnd, accs){
-  const skill = accs.reduce((s,a)=>s+Math.min(1,Math.max(0,a)),0)/accs.length;
-  const ceiling = Math.pow(spd,0.7)*Math.pow(hnd,0.3);
-  const realized = ceiling*(0.5+0.5*skill);
-  return { skill, finishMs: Math.round(RACE_BASE_MS/realized), ceilingMs: Math.round(RACE_BASE_MS/ceiling) };
-}
+/* ============================ Race (Phase 4 — real-time sprint) ============================ */
+/* D5 HARD RULE: proficiency sets the performance CEILING. A car's top speed
+   (vMax) and acceleration are pure functions of its CURRENT projected stats
+   (the same curSpd/curHnd interpolation renderGarage/carSVG use). Throttle only
+   realizes performance UP TO vMax — the player can NEVER exceed the
+   proficiency-derived top speed. Racing awards nothing: no XP, no points, no
+   CEFR movement, and winning never unlocks a car (D3/D5). */
+const TRACK_LEN = 700;     // world units ("metres") from the line to the finish
+const PX_PER_UNIT = 2.0;   // world→screen scale (parallax scroll + finish approach)
+const RACE_STEP = 1/120;   // fixed physics timestep → frame-rate independent
+
 let race=null;
 function carStats(){
   const st=P(); const t=st.tier, p=inTierProgress(t);
@@ -4275,75 +4289,160 @@ function carStats(){
   const top = t===CARS.length-1;
   return { spd: top?c.spd:lerp(c.spd,n.spd,p), hnd: top?c.hnd:lerp(c.hnd,n.hnd,p) };
 }
+/* Performance envelope from the D5 projection. ceiling = speed^0.7×handling^0.3
+   (identical to the backend race engine). vMax is the HARD top-speed cap. */
+function raceEnvelope(spd, hnd){
+  const ceiling = Math.pow(spd,0.7)*Math.pow(hnd,0.3);
+  const vMax = 40*ceiling;                                          // ← D5 hard cap
+  const tReach = 3.0 - 1.6*Math.min(1, Math.max(0,(hnd-1)/(HND_MAX-1)));
+  const accel = vMax/Math.max(1.0, tReach);                         // snappier launch with handling
+  return { vMax, accel, brakeDecel: accel*2.4, coastDrag: accel*0.28, ceiling };
+}
+/* Best possible time for this envelope (perfect run: full throttle from rest). */
+function ceilingTimeMs(env){
+  const { vMax, accel } = env;
+  const tA = vMax/accel, dA = 0.5*vMax*tA;
+  const s = dA >= TRACK_LEN ? Math.sqrt(2*TRACK_LEN/accel) : tA + (TRACK_LEN-dA)/vMax;
+  return Math.round(s*1000);
+}
 function openRace(){
   ["introPanel","quizPanel","resultPanel"].forEach(id=>$(id).classList.add("hide"));
   $("racePanel").classList.remove("hide");
-  $("raceMeta").textContent = `${CARS[P().tier].name} · hit SHIFT in the green zone`;
-  race = { accs:[], raf:0, t0:performance.now() };
-  renderShiftRound();
+  const st=P(); const {spd,hnd}=carStats();
+  $("raceMeta").textContent = `${CARS[st.tier].name} · floor it to the line`;
+  race = {
+    raf:0, lastT:0, acc:0, autoStep:true, finishShown:false,
+    input:{ throttle:false, brake:false },
+    env: raceEnvelope(spd,hnd), tier: st.tier,
+    state:{ v:0, dist:0, elapsed:0, finished:false, finishMs:0 },
+  };
+  renderRaceStage();
+  race.lastT = performance.now();
+  race.raf = requestAnimationFrame(raceLoop);
 }
 function closeRace(){
   if(race){ cancelAnimationFrame(race.raf); race=null; }
   $("racePanel").classList.add("hide");
   showIntro();
 }
-function renderShiftRound(){
+function renderRaceStage(){
+  const st=P(); const cos=cosmeticsOf(st);
   $("raceStage").innerHTML = `
-    <div class="shiftfb" id="shiftFb">Gear ${race.accs.length+1} / ${RACE_SHIFTS}</div>
-    <div class="track" id="raceTrack"><div class="zone"></div><div class="marker" id="raceMarker"></div></div>
-    <div class="row" style="justify-content:center">
-      <button class="btn" id="shiftBtn">SHIFT ⚡</button>
+    <div class="raceworld" id="raceWorld">
+      <div class="rlayer rhills" id="rHills"></div>
+      <div class="rlayer rroad"></div>
+      <div class="rlayer rkerb" id="rKerb"></div>
+      <div class="rlayer rroadline" id="rRoadline"></div>
+      <div class="rfinish" id="rFinish"></div>
+      <div class="rcar" id="rCar">${carSVG(st.tier, inTierProgress(st.tier), cos)}</div>
+      <div class="rhud">
+        <span><span id="rSpeed">0</span> km/h</span>
+        <span class="rprogwrap"><span class="rprog" id="rProg"></span></span>
+        <span id="rTime">0.00s</span>
+      </div>
+    </div>
+    <div class="racecontrols" id="raceControls">
+      <button class="racebtn" id="gasBtn">GAS ⛽</button>
+      <button class="racebtn brake" id="brakeBtn">BRAKE</button>
       <button class="btn secondary" id="raceQuitBtn">Quit</button>
-    </div>`;
-  const marker=$("raceMarker");
-  const tick=(now)=>{
-    if(!race) return;
-    const t=(now-race.t0)/1000;
-    const phase=(t*0.9)%2, pos=phase<1?phase:2-phase; // ping-pong 0..1
-    race.pos=pos;
-    marker.style.left=`calc(${(pos*100).toFixed(2)}% - 2px)`;
-    race.raf=requestAnimationFrame(tick);
+    </div>
+    <p class="lead" style="font-size:12px;text-align:center;margin-top:6px">Your car's top speed is set by your language level — flooring it only reaches that ceiling. Racing is just for fun: no points, no XP, no unlocks.</p>`;
+  bindRaceControls();
+  renderRaceFrame();
+}
+function bindRaceControls(){
+  const hold=(id,key)=>{
+    const b=$(id); if(!b) return;
+    const set=v=>e=>{ e.preventDefault(); if(race) race.input[key]=v; };
+    b.addEventListener("pointerdown", set(true));
+    b.addEventListener("pointerup",   set(false));
+    b.addEventListener("pointerleave",set(false));
+    b.addEventListener("pointercancel",set(false));
   };
-  race.raf=requestAnimationFrame(tick);
-  $("shiftBtn").onclick=()=>doShift();
+  hold("gasBtn","throttle");
+  hold("brakeBtn","brake");
   $("raceQuitBtn").onclick=closeRace;
 }
-function doShift(acc){
-  if(!race) return;
-  const a = acc!==undefined ? acc : Math.max(0, 1-Math.abs((race.pos??0)-0.5)*2.5);
-  race.accs.push(a);
-  $("shiftFb").textContent = a>0.85?"Perfect shift! 🔥":a>0.55?"Good shift":a>0.25?"Late…":"Missed!";
-  if(race.accs.length>=RACE_SHIFTS){ cancelAnimationFrame(race.raf); finishRace(race.accs); }
-  else setTimeout(()=>{ if(race) renderShiftRound(); }, 450);
+/* One physics step — a pure function of dt + current input. Velocity is
+   HARD-clamped to the D5 ceiling vMax, so proficiency is never exceeded no
+   matter how the throttle is held. */
+function raceStep(dt){
+  const s=race.state, e=race.env;
+  if(s.finished) return;
+  if(race.input.throttle)    s.v += e.accel*dt;
+  else if(race.input.brake)  s.v -= e.brakeDecel*dt;
+  else                       s.v -= e.coastDrag*dt;
+  if(s.v > e.vMax) s.v = e.vMax;     // ← D5 hard cap: never exceed the proficiency ceiling
+  if(s.v < 0)      s.v = 0;
+  s.dist += s.v*dt;
+  s.elapsed += dt;
+  if(s.dist >= TRACK_LEN){ s.dist=TRACK_LEN; s.finished=true; s.finishMs=Math.round(s.elapsed*1000); }
 }
-function finishRace(accs){
-  const st=P(); const {spd,hnd}=carStats();
-  const r=computeRaceDemo(spd,hnd,accs);
+function raceLoop(now){
+  if(!race) return;
+  const dt = Math.min(0.05, (now-race.lastT)/1000); race.lastT=now;
+  if(race.autoStep && !race.state.finished){
+    race.acc += dt;
+    while(race.acc >= RACE_STEP){ raceStep(RACE_STEP); race.acc -= RACE_STEP; }
+  }
+  renderRaceFrame();
+  if(race.state.finished){ onRaceFinish(); return; }
+  race.raf = requestAnimationFrame(raceLoop);
+}
+function renderRaceFrame(){
+  if(!race) return;
+  const s=race.state, world=$("raceWorld"); if(!world) return;
+  const scroll = s.dist*PX_PER_UNIT;
+  const carFrontX = world.clientWidth*0.22 + 150;
+  const set=(id,f)=>{ const el=$(id); if(el) el.style.backgroundPositionX = f+"px"; };
+  set("rHills", -scroll*0.35);
+  set("rKerb",  -scroll);
+  set("rRoadline", -scroll);
+  const fin=$("rFinish"); if(fin) fin.style.left = (carFrontX + (TRACK_LEN - s.dist)*PX_PER_UNIT)+"px";
+  const car=$("rCar"); if(car) car.classList.toggle("moving", s.v>2);
+  const sp=$("rSpeed");  if(sp) sp.textContent = Math.round(s.v*1.6);       // km/h-flavoured readout
+  const pr=$("rProg");   if(pr) pr.style.width = Math.min(100, s.dist/TRACK_LEN*100)+"%";
+  const tm=$("rTime");   if(tm) tm.textContent = s.elapsed.toFixed(2)+"s";
+}
+function onRaceFinish(){
+  if(!race || race.finishShown) return;
+  race.finishShown = true;
+  const st=P(), s=race.state;
   if(!st.raceBest) st.raceBest={};
-  const prev=st.raceBest[st.tier];
-  const isBest=!prev||r.finishMs<prev;
-  if(isBest) st.raceBest[st.tier]=r.finishMs;
+  const prev=st.raceBest[race.tier];
+  const isBest = !prev || s.finishMs < prev;
+  if(isBest) st.raceBest[race.tier]=s.finishMs;
   save();
-  const cos=cosmeticsOf(st);
-  const dur=Math.min(2.6, r.finishMs/8000);
+  const ceil = ceilingTimeMs(race.env);
   $("raceStage").innerHTML = `
-    <div class="racedash"><svg viewBox="0 0 480 190" style="animation-duration:${dur}s">${carSVG(st.tier,inTierProgress(st.tier),cos).replace(/^[\s\S]*?<svg[^>]*>/,"").replace(/<\/svg>\s*$/,"")}</svg></div>
-    <div class="shiftfb">${isBest?"🏆 New personal best!":"Finished!"}</div>
+    <div class="shiftfb" style="font-size:18px">${isBest?"🏆 New personal best!":"🏁 Finished!"}</div>
     <div class="racestats">
-      <span><b>${(r.finishMs/1000).toFixed(2)}s</b> your time</span>
-      <span><b>${(r.ceilingMs/1000).toFixed(2)}s</b> this car's ceiling</span>
-      <span><b>${Math.round(r.skill*100)}%</b> shift skill</span>
-      <span><b>${((st.raceBest[st.tier])/1000).toFixed(2)}s</b> best (${CARS[st.tier].name})</span>
+      <span><b>${(s.finishMs/1000).toFixed(2)}s</b> your time</span>
+      <span><b>${(ceil/1000).toFixed(2)}s</b> this car's ceiling</span>
+      <span><b>${((st.raceBest[race.tier])/1000).toFixed(2)}s</b> best (${CARS[race.tier].name})</span>
     </div>
-    <p class="lead" style="font-size:12px;text-align:center">Perfect shifting only reaches this car's ceiling — a faster ceiling comes from language mastery, not the track.</p>
+    <p class="lead" style="font-size:12px;text-align:center">Flooring it only reaches this car's ceiling — a faster car comes from language mastery, not the track.</p>
     <div class="row" style="justify-content:center">
       <button class="btn" id="raceAgainBtn">Race again</button>
       <button class="btn secondary" id="raceCloseBtn">Back to studying</button>
     </div>`;
   $("raceAgainBtn").onclick=openRace;
   $("raceCloseBtn").onclick=closeRace;
-  return r;
 }
+/* Global keyboard controls — active only while a live race is running, so they
+   never interfere with typing elsewhere. */
+window.addEventListener("keydown", e=>{
+  if(!race || race.state.finished) return;
+  const k=e.key.toLowerCase();
+  if(k==="arrowup"||k==="w"||k===" "){ race.input.throttle=true; e.preventDefault(); }
+  else if(k==="arrowdown"||k==="s"){ race.input.brake=true; e.preventDefault(); }
+});
+window.addEventListener("keyup", e=>{
+  if(!race) return;
+  const k=e.key.toLowerCase();
+  if(k==="arrowup"||k==="w"||k===" ") race.input.throttle=false;
+  else if(k==="arrowdown"||k==="s") race.input.brake=false;
+});
 
 /* ============================ Pair switching & wiring ============================ */
 function showIntro(){
