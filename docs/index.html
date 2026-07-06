@@ -195,12 +195,17 @@
   .racecontrols{display:flex;gap:8px;justify-content:center;align-items:center;margin-top:6px;flex-wrap:wrap}
   .racebtn{flex:0 0 auto;min-width:104px;padding:15px 20px;font-size:16px;font-weight:800;border:none;border-radius:12px;background:var(--good);color:#06210f;cursor:pointer;font-family:inherit;touch-action:none;user-select:none;-webkit-user-select:none}
   .racebtn:active{transform:translateY(1px);filter:brightness(1.12)}
+  /* The slider + both pedals are ONE indivisible unit (flex-wrap:nowrap) so
+     the slider always stays beside the pedals, never stacked above them —
+     only Sound/Quit (siblings in .racecontrols) drop to a second line if a
+     narrow screen can't fit everything on one row. */
+  .racePrimary{display:flex;flex-wrap:nowrap;align-items:center;gap:8px;flex:3 1 260px;min-width:0}
   /* Lane slider (left side) — a drag-to-steer control alongside the pedals.
      Sized to match the pedal buttons' padding/font at every breakpoint below
      so the whole control row keeps the same overall height throughout. */
-  .laneSliderWrap{flex:2 1 160px;display:flex;align-items:center;gap:10px;padding:15px 16px;border-radius:12px;background:#2c3646}
+  .laneSliderWrap{flex:2 1 160px;min-width:0;display:flex;align-items:center;gap:10px;padding:15px 16px;border-radius:12px;background:#2c3646}
   .laneIcon{font-size:14px;color:var(--muted);user-select:none;line-height:1}
-  .laneSlider{flex:1;-webkit-appearance:none;appearance:none;height:8px;border-radius:999px;background:#1b2431;outline:none;touch-action:pan-y;margin:0}
+  .laneSlider{flex:1;min-width:0;-webkit-appearance:none;appearance:none;height:8px;border-radius:999px;background:#1b2431;outline:none;touch-action:pan-y;margin:0}
   .laneSlider::-webkit-slider-thumb{-webkit-appearance:none;width:30px;height:30px;border-radius:50%;background:linear-gradient(180deg,#8fd0ff,var(--accent));box-shadow:0 3px 8px rgba(0,0,0,.5);border:2px solid #0b1a2e;cursor:grab}
   .laneSlider::-moz-range-thumb{width:30px;height:30px;border-radius:50%;background:linear-gradient(180deg,#8fd0ff,var(--accent));box-shadow:0 3px 8px rgba(0,0,0,.5);border:2px solid #0b1a2e;cursor:grab}
   .laneSlider::-moz-range-track{height:8px;border-radius:999px;background:#1b2431}
@@ -258,9 +263,13 @@
     /* Portrait fills the available height on phones (full-bleed-ish column). */
     .raceworld{height:min(680px,72dvh)}
     .racecontrols{gap:6px}
-    .racebtn,.pedalBtn{min-width:0;flex:1 1 40%;padding:14px 8px;font-size:15px}
+    .racebtn{min-width:0;flex:1 1 40%;padding:14px 8px;font-size:15px}
     .racebtn.sound,.racecontrols .btn.secondary{flex:1 1 40%}
-    .laneSliderWrap{flex:1 1 100%;padding:14px 12px}
+    /* The slider+pedals stay ONE row (never stacked) — the whole group takes
+       the full control width, and Sound/Quit wrap below it as needed. */
+    .racePrimary{flex:1 1 100%}
+    .pedalBtn{min-width:0;flex:1 1 78px;padding:14px 6px;font-size:14px}
+    .laneSliderWrap{flex:2 1 90px;min-width:0;padding:14px 10px;gap:6px}
     .rchip{min-width:0;flex:1 1 30%}
   }
   /* Short viewports (landscape phones, small browser windows): the world's
@@ -4651,16 +4660,20 @@ const TRACKS = [
   { id:"coast",  name:"Coastal Run",   len:1300, sub:"A longer haul",   wall:"#12262e", floor:"#173340", kerb:"#2a9d8f" },
   { id:"night",  name:"Night Circuit", len:1800, sub:"Endurance test",  wall:"#0e1119", floor:"#151a28", kerb:"#7b5cff" },
 ];
-/* Difficulty scales the rivals' cruise as a FRACTION of a FIXED entry-class
-   reference (the A1 City Hatch envelope), NOT the player's own ceiling. So the
-   field always drives at roughly City-Hatch pace: in a City Hatch it's a fair,
-   skill-decided fight (fracs < 1 → a clean run wins), but every class you earn
-   above that leaves the field further behind — your car is now a real race
-   advantage. Winning still awards nothing (D3): no points, XP or unlocks. */
+/* Difficulty picks a FIXED spread of rival CAR CLASSES (`tiers`) — independent
+   of the player's own tier — plus a per-rival cruise FRACTION of that rival's
+   OWN D5 ceiling (the same raceEnvelope() formula the player uses, just fed
+   that rival's class stats instead). So the field includes genuinely faster
+   and slower cars: a City Hatch rival is slow, a Hypercar rival is very fast,
+   exactly like the player's own car would be at that class. The tier spread
+   never scales with the player's tier, so climbing YOUR class is what makes
+   racing easier — you're closing on a fixed target, not a moving one — while
+   two same-tier cars are still decided by clean driving (fracs < 1 either
+   way). Winning still awards nothing but a few points (D3): no CEFR/unlocks. */
 const DIFFICULTIES = [
-  { id:"rookie", name:"Rookie", sub:"Relaxed rivals",  fracs:[0.52,0.60,0.68] },
-  { id:"pro",    name:"Pro",    sub:"A real race",      fracs:[0.60,0.68,0.76] },
-  { id:"ace",    name:"Ace",    sub:"Only clean wins",  fracs:[0.66,0.74,0.82] },
+  { id:"rookie", name:"Rookie", sub:"Relaxed rivals",  fracs:[0.72,0.78,0.84], tiers:[0,1,2] },
+  { id:"pro",    name:"Pro",    sub:"A real race",      fracs:[0.76,0.82,0.88], tiers:[1,2,3] },
+  { id:"ace",    name:"Ace",    sub:"Only clean wins",  fracs:[0.80,0.86,0.92], tiers:[2,3,5] },
 ];
 function curTrack(){ return TRACKS.find(t=>t.id===S.raceTrack) || TRACKS[0]; }
 function curDiff(){ return DIFFICULTIES.find(d=>d.id===S.raceDiff) || DIFFICULTIES[1]; }
@@ -4675,6 +4688,7 @@ const PLAYER_Y_FRAC=0.74;          // player's fixed vertical anchor (fraction f
 const CAR_W=42, CAR_H=72;          // top-down car element size (px)
 const LANE_LEAN_DEG=10;            // render-only Prompt-3 polish: max cornering lean (deg)
 const LANE_MIN_GAP=52;             // world units: closer than this in-lane = blocked
+const SIDE_CLEAR_GAP=30;           // world units: closer than this ALONGSIDE = can't merge there
 const LANE_CD=0.8;                 // AI lane-change cooldown (s)
 const RACE_TIMEOUT=120;            // absolute safety cap (s)
 /* Step 3 — game feel (all boosts are ACCELERATION only, always clamped to each
@@ -4818,7 +4832,7 @@ function renderRaceLobby(){
         ${board}
         ${recent?`<div class="rrecent">Recent: ${recent}</div>`:""}
       </div>
-      <p class="lead" style="font-size:12px;text-align:center;margin-top:4px">Racing is mostly for bragging rights — it earns a few points (much less than studying) and never unlocks a car. The field drives at entry-class pace, so a higher class is a real edge on the track — but a faster car comes only from language mastery.</p>
+      <p class="lead" style="font-size:12px;text-align:center;margin-top:4px">Racing is mostly for bragging rights — it earns a few points (much less than studying) and never unlocks a car. Rivals are real cars of their own class, some slower and some faster, and that spread never changes — so climbing YOUR class is what makes the field easier to beat, but a faster car still comes only from language mastery.</p>
     </div>`;
   const pick=(container,kind)=>{
     $(container).querySelectorAll("[data-"+kind+"]").forEach(b=>b.onclick=()=>{
@@ -4843,23 +4857,28 @@ function startRace(seedArg){
   const mk=o=>Object.assign({v:0,dist:0,finished:false,finishMs:0,place:0,blockedBy:null,laneCd:0,
                              boostT:0,boostMul:1,bogT:0,draftCharge:0,draftActive:false,reactT:0},o);
   const cars=[ mk({ id:0, isPlayer:true, env:pEnv, cruise:pV, artTier:st.tier, lane:1 }) ];
-  /* Rivals cruise a FRACTION of a FIXED entry-class reference (the A1 City
-     Hatch envelope) — NOT the player's ceiling. The field therefore always
-     drives at ~City-Hatch pace: in a City Hatch it's a fair fight a clean run
-     wins; in any higher class your car is genuinely faster and you pull away.
-     They're staggered slightly ahead so you start at the back and overtake,
-     and drawn as the low-class amateur field to match their pace. */
-  const refEnv=raceEnvelope(1.0,1.0), refV=refEnv.vMax;   // fixed A1 reference (spd=1,hnd=1)
+  /* Each rival is a real car of its OWN assigned class (diff.tiers — a FIXED
+     spread, independent of the player's own tier) and cruises a fraction of
+     THAT class's D5 ceiling — the exact same raceEnvelope() formula the
+     player's car uses, just fed a different tier's stats. So a City-Hatch
+     rival is genuinely slow and a Hypercar rival is genuinely fast, exactly
+     like the player's own car would be at that class (D5: still a pure
+     function of class, never of race skill). Improving YOUR class is what
+     makes racing easier, since the rival spread never moves — you're closing
+     on a fixed target field, not a moving one. They're staggered slightly
+     ahead so you start at the back and overtake. */
   const fracs=diff.fracs, dist0=[190,120,60], lanes0=[0,2,1];
-  const artTiers=[0,1,0];   // City / Hot / City Hatch — the fixed reference field
-  // Rivals 0 and 2 share a class (both City Hatch) and would otherwise be
-  // pixel-identical; a fixed, distinct decal per rival index (no rng draw, so
-  // seed reproducibility is unaffected) makes the pack tellable apart at a
-  // glance — purely cosmetic, never purchased or owned (D3: no economy tie-in).
+  const artTiers=diff.tiers.map(t=>Math.max(0, Math.min(CARS.length-1, t)));
+  // Rivals of the same tier would otherwise be pixel-identical; a fixed,
+  // distinct decal per rival index (no rng draw, so seed reproducibility is
+  // unaffected) makes the pack tellable apart at a glance — purely cosmetic,
+  // never purchased or owned (D3: no economy tie-in).
   const rivalDecals=["pinstripe","stripes","checkered"];
   for(let i=0;i<RIVAL_COUNT;i++){
-    const f=Math.max(0.45, Math.min(0.88, fracs[i]+(rng()-0.5)*0.03));
-    const cruise=refV*f, vMax=cruise/0.96, accel=refEnv.accel*(0.88+0.24*f);
+    const rivalCar=CARS[artTiers[i]];
+    const rivalEnv=raceEnvelope(rivalCar.spd, rivalCar.hnd);   // this rival's OWN D5 ceiling
+    const f=Math.max(0.45, Math.min(0.96, fracs[i]+(rng()-0.5)*0.03));
+    const cruise=rivalEnv.vMax*f, vMax=cruise/0.96, accel=rivalEnv.accel*(0.88+0.24*f);
     cars.push(mk({ id:i+1, isPlayer:false,
       env:{ vMax, accel, brakeDecel:accel*2.4, coastDrag:accel*0.28 },
       cruise, artTier:artTiers[i], lane:lanes0[i], dist:Math.max(20,dist0[i]+(rng()-0.5)*10),
@@ -4926,17 +4945,19 @@ function renderRaceStage(){
       </div>
     </div>
     <div class="racecontrols" id="raceControls">
-      <div class="laneSliderWrap">
-        <span class="laneIcon" aria-hidden="true">◀</span>
-        <input type="range" id="laneSlider" class="laneSlider" min="0" max="${RACE_LANES-1}" step="1" value="1" aria-label="Change lane" aria-valuetext="Center lane">
-        <span class="laneIcon" aria-hidden="true">▶</span>
+      <div class="racePrimary">
+        <div class="laneSliderWrap">
+          <span class="laneIcon" aria-hidden="true">◀</span>
+          <input type="range" id="laneSlider" class="laneSlider" min="0" max="${RACE_LANES-1}" step="1" value="1" aria-label="Change lane" aria-valuetext="Center lane">
+          <span class="laneIcon" aria-hidden="true">▶</span>
+        </div>
+        <button type="button" class="pedalBtn brakePedal" id="brakeBtn" aria-label="Brake">BRAKE</button>
+        <button type="button" class="pedalBtn gasPedal" id="gasBtn" aria-label="Accelerate">GAS ⛽</button>
       </div>
-      <button type="button" class="pedalBtn brakePedal" id="brakeBtn" aria-label="Brake">BRAKE</button>
-      <button type="button" class="pedalBtn gasPedal" id="gasBtn" aria-label="Accelerate">GAS ⛽</button>
       <button type="button" class="racebtn sound" id="soundBtn" aria-label="Toggle engine sound">🔇 Sound</button>
       <button type="button" class="btn secondary" id="raceQuitBtn" aria-label="Quit the race">Quit</button>
     </div>
-    <p class="lead" id="raceHelp" style="font-size:12px;text-align:center;margin-top:6px">Nail the launch at GO (gas / <kbd>W</kbd>), then overtake by steering left/right — <b>swipe or tap the sides of the track</b>, drag the lane slider, or use the arrow keys — and tuck in behind a rival to slipstream. The field drives at entry-class pace, so a higher class pulls away — a finish earns a few points, but studying earns far more, and winning never unlocks a car.</p>`;
+    <p class="lead" id="raceHelp" style="font-size:12px;text-align:center;margin-top:6px">Nail the launch at GO (gas / <kbd>W</kbd>), then overtake by steering left/right — <b>swipe or tap the sides of the track</b>, drag the lane slider, or use the arrow keys — and tuck in behind a rival to slipstream. Rivals span a mix of classes that never changes — climbing your own class is how you pull away — a finish earns a few points, but studying earns far more, and winning never unlocks a car.</p>`;
   // per-track scenery tint (self-contained CSS vars, CSP-safe)
   const w=$("raceWorld");
   if(w && race.track){ w.style.setProperty("--rwall", race.track.wall); w.style.setProperty("--rfloor", race.track.floor); w.style.setProperty("--rkerb", race.track.kerb); }
@@ -5000,6 +5021,19 @@ function bindRaceControls(){
     wgl.addEventListener("pointercancel", ()=>{ active=false; });
   }
 }
+/* No car in `lane` currently sits alongside `car` (within SIDE_CLEAR_GAP of
+   its dist, either ahead or behind) — i.e., there's room to merge there. A
+   lane change only ever moves the `lane` field, never `dist`, so without this
+   check a car could "phase" sideways into a spot another car is currently
+   occupying; you have to actually be ahead or behind first (earned through
+   relative speed — a real overtake) before the merge is allowed. */
+function laneClear(car, lane){
+  for(const o of race.cars){
+    if(o===car || o.finished || o.lane!==lane) continue;
+    if(Math.abs(o.dist-car.dist) < SIDE_CLEAR_GAP) return false;
+  }
+  return true;
+}
 /* Core lane-set logic, shared by both input styles: changeLane (delta-based —
    keyboard, world swipe/tap-zone) and the lane slider (absolute-position —
    setLane directly). */
@@ -5009,6 +5043,7 @@ function setLane(nl){
   if(p.finished) return;
   nl = Math.max(0, Math.min(RACE_LANES-1, nl));
   if(nl===p.lane) return;                    // already at the edge — no move, no feedback
+  if(!laneClear(p, nl)) return;               // a car is alongside there — overtake first
   const dir = nl - p.lane;                   // -1 or +1 (or more, for a slider jump)
   p.lane = nl;
   race.laneKick = dir*6;                      // brief camera nudge (px), decays in renderRaceFrame
@@ -5029,11 +5064,12 @@ function nearestAhead(car, lane){
   return best;
 }
 function laneGap(car, lane){ const a=nearestAhead(car, lane); return a ? (a.dist-car.dist) : Infinity; }
-/* AI picks an adjacent lane only if it opens a clearly larger gap ahead. */
+/* AI picks an adjacent lane only if it's actually clear to merge into AND
+   opens a clearly larger gap ahead than staying put. */
 function bestLane(car){
   let bl=car.lane, bg=laneGap(car, car.lane);
   for(let l=Math.max(0,car.lane-1); l<=Math.min(RACE_LANES-1,car.lane+1); l++){
-    if(l===car.lane) continue;
+    if(l===car.lane || !laneClear(car, l)) continue;
     const g=laneGap(car, l);
     if(g > bg + 30){ bg=g; bl=l; }
   }
@@ -5331,7 +5367,7 @@ function onRaceFinish(){
           <span><b>${best?medal(best.pos)+(best.ms!=null?" · "+(best.ms/1000).toFixed(2)+"s":""):"—"}</b> best here</span>
           ${raceXp>0?`<span><b>+${raceXp}</b> points</span>`:""}
         </div>
-        <p class="lead" style="font-size:12px;text-align:center">The field drives at entry-class pace — climb the classes to leave them behind, or win a City Hatch fight on clean driving alone. Racing earns a few points, but nowhere near what studying does — a faster car comes only from language mastery.</p>
+        <p class="lead" style="font-size:12px;text-align:center">Rivals are real cars of their own class — some slower, some faster — and that spread never changes, so climbing your own class is how you leave the tougher ones behind. Racing earns a few points, but nowhere near what studying does — a faster car comes only from language mastery.</p>
         <div class="row" style="justify-content:center">
           <button class="btn" id="raceAgainBtn">Race again</button>
           <button class="btn secondary" id="raceLobbyBtn">Change track</button>
