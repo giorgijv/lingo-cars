@@ -313,25 +313,30 @@
     .rstreaks{display:none}
     .rlight.on,.rlight.go{box-shadow:none}
   }
-  .shop{display:grid;grid-template-columns:repeat(auto-fill,minmax(185px,1fr));gap:10px;margin-top:4px}
-  .shopitem{background:#0f1620;border:1px solid var(--line);border-radius:12px;padding:12px;display:flex;flex-direction:column;gap:6px}
-  .shopitem .nm{font-weight:800;font-size:14px}
-  .shopitem .meta{color:var(--muted);font-size:12px}
-  .shopitem.owned{border-color:var(--good)}
-  .shopitem.locked{opacity:.55}
-  .shopbtn{background:var(--accent);color:#08111f;border:none;border-radius:9px;padding:8px 10px;font-weight:800;font-size:13px;cursor:pointer;font-family:inherit}
-  .shopbtn.sell{background:#1b2431;color:var(--ink);border:1px solid var(--line)}
-  .shopbtn:disabled{opacity:.45;cursor:default}
+  /* Garage shop — 4 aggregated groups (Wheels/Paint/Decals/Aero), each a card
+     with one or more select-and-buy-or-sell chip rows, replacing the old
+     flat 16-item grid + separate equip panel. */
+  .shopGroups{display:flex;flex-direction:column;gap:12px;margin-top:4px}
+  .shopGroup{background:#0f1620;border:1px solid var(--line);border-radius:14px;padding:14px}
+  .shopGroupHead{font-weight:800;font-size:15px;margin-bottom:2px}
   .paintSwatches{display:flex;flex-wrap:wrap;gap:9px;margin-top:8px}
   .swatch{width:34px;height:34px;border-radius:50%;border:2px solid var(--line);cursor:pointer;padding:0;transition:transform .1s}
   .swatch:hover{transform:scale(1.08)}
   .swatch.active{border-color:var(--accent);box-shadow:0 0 0 2px var(--accent)}
   #customHexInput{width:44px;height:34px;border:1px solid var(--line);border-radius:8px;background:none;cursor:pointer;padding:2px}
-  .equipGroup{margin-top:14px}
-  .equipLabel{font-weight:800;font-size:13px;margin-bottom:6px}
+  .paintStudioInline{margin:10px 0 4px}
+  .equipGroup{margin-top:12px}
+  .equipGroup:first-child{margin-top:8px}
+  .equipLabel{font-weight:800;font-size:13px;margin-bottom:6px;color:var(--muted)}
   .equipChips{display:flex;flex-wrap:wrap;gap:6px}
-  .equipChip{background:#0f1620;border:1px solid var(--line);color:var(--ink);border-radius:999px;padding:6px 12px;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit}
+  .chipWrap{display:inline-flex;align-items:center;gap:3px}
+  .equipChip{background:#161d29;border:1px solid var(--line);color:var(--ink);border-radius:999px;padding:6px 12px;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit}
+  .equipChip small{font-weight:700;opacity:.8;margin-left:3px}
   .equipChip.active{background:var(--accent);color:#08111f;border-color:var(--accent)}
+  .equipChip.buyable{border-color:var(--accent);color:var(--accent);background:transparent}
+  .equipChip.locked,.equipChip:disabled{opacity:.45;cursor:default}
+  .chipSell{background:rgba(255,255,255,.08);border:1px solid var(--line);color:var(--muted);border-radius:999px;width:20px;height:20px;font-size:10px;line-height:1;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;padding:0;font-family:inherit}
+  .chipSell:hover{color:#ff8a75;border-color:#ff8a75}
   .toast{position:fixed;left:50%;top:20px;transform:translateX(-50%);background:#0d1420;border:1px solid var(--good);color:#c8f4e0;padding:12px 18px;border-radius:12px;font-weight:800;box-shadow:0 10px 40px rgba(0,0,0,.5);opacity:0;transition:opacity .3s, transform .3s;pointer-events:none;z-index:50}
   .toast.show{opacity:1;transform:translateX(-50%) translateY(6px)}
   footer{color:var(--muted);font-size:12px;text-align:center;margin-top:26px;line-height:1.6}
@@ -477,9 +482,7 @@
       <span class="badge">🛠️ Garage shop</span>
       <span id="shopBalance">⭐ 0 points</span>
     </div>
-    <div class="shop" id="shopItems"></div>
-    <div class="hide" id="paintStudio"></div>
-    <div class="hide" id="equipPanel"></div>
+    <div class="shopGroups" id="shopItems"></div>
     <p class="lead" style="font-size:12px;margin-top:12px">Earn points by answering questions. Spend them, save them, or sell items back at 50%.
       Cosmetics are visual only — <b>new car classes unlock through mastery, never purchases.</b></p>
   </section>
@@ -4176,22 +4179,6 @@ function equipItem(cat, id){
   st.equipped[cat] = id || null;
   save(); renderGarage(false);
 }
-function renderEquipPanel(){
-  const st=P();
-  const el = $("equipPanel");
-  const groups = EQUIP_CATS.map(cat=>{
-    const items = SHOP.filter(s=>s.category===cat.key && st.owned.includes(s.id));
-    if(!items.length) return "";
-    const eq = st.equipped[cat.key];
-    const chips = [`<button type="button" class="equipChip${!eq?" active":""}" data-cat="${cat.key}" data-equip="">${cat.defaultLabel}</button>`]
-      .concat(items.map(it=>`<button type="button" class="equipChip${eq===it.id?" active":""}" data-cat="${cat.key}" data-equip="${it.id}">${it.name}</button>`))
-      .join("");
-    return `<div class="equipGroup"><div class="equipLabel">${cat.label}</div><div class="equipChips">${chips}</div></div>`;
-  }).join("");
-  el.innerHTML = groups;
-  el.classList.toggle("hide", !groups.trim());
-  el.querySelectorAll("[data-equip]").forEach(b=>b.onclick=()=>equipItem(b.dataset.cat, b.dataset.equip));
-}
 function selectPaintSwatch(id){
   const st=P(); if(!st.owned.includes("paint-custom")) return;
   const sw = PAINT_SWATCHES.find(s=>s.id===id); if(!sw) return;
@@ -4203,45 +4190,91 @@ function applyCustomHex(hex){
   st.customPaint = hexToCarPaint(hex);
   save(); renderGarage(false);
 }
-function renderPaintStudio(){
-  const st=P(); const owned = st.owned.includes("paint-custom");
-  const el = $("paintStudio");
-  el.classList.toggle("hide", !owned);
-  if(!owned) return;
+/* One selectable pill: a wrapping <span> holding the main action button
+   (buy / equip / already-equipped) plus, for anything owned, a small
+   attached "✕ sell" button — this is the shared building block for every
+   row in every aggregated shop group below. */
+function chipHtml({label, sub, stateCls, mainAttrs, sellId}){
+  const sell = sellId ? `<button type="button" class="chipSell" data-sell="${sellId}" aria-label="Sell ${label}">✕</button>` : "";
+  return `<span class="chipWrap"><button type="button" class="equipChip ${stateCls||""}" ${mainAttrs}>${label}${sub?` <small>${sub}</small>`:""}</button>${sell}</span>`;
+}
+/* A single-select category row (wheelstyle/finish/decal/aero): a "default/
+   none" chip plus one chip per catalog item — locked (tier-gated), buyable
+   (cost shown, click buys+auto-equips), or owned (click equips; sell via the
+   attached ✕). Exactly one item per category is ever the active pick. */
+function categoryRow(cat, st, bal){
+  const items = SHOP.filter(s=>s.category===cat.key);
+  const activeId = st.equipped[cat.key];
+  const chips = [chipHtml({
+    label: cat.defaultLabel, stateCls: !activeId?"active":"",
+    mainAttrs: `data-equip-cat="${cat.key}" data-equip-id=""`,
+  })].concat(items.map(item=>{
+    const owned = st.owned.includes(item.id);
+    const locked = st.tier < item.tier;
+    if(locked) return chipHtml({ label:item.name, sub:`🔒 ${CARS[item.tier].name}`, stateCls:"locked", mainAttrs:"disabled" });
+    if(!owned) return chipHtml({ label:item.name, sub:`${item.cost}⭐`, stateCls:"buyable", mainAttrs:`data-buy="${item.id}" ${bal<item.cost?"disabled":""}` });
+    return chipHtml({ label:item.name, stateCls: activeId===item.id?"active":"", mainAttrs:`data-equip-cat="${cat.key}" data-equip-id="${item.id}"`, sellId:item.id });
+  })).join("");
+  return `<div class="equipGroup"><div class="equipLabel">${cat.label}</div><div class="equipChips">${chips}</div></div>`;
+}
+/* A simple owned/not-owned toggle (wheels-gold, paint-custom) — no
+   "unequip" state, since there's nothing else to switch to; owning it
+   just turns the effect on, orthogonally to whatever else is equipped. */
+function toggleRow(label, item, st, bal){
+  const owned = st.owned.includes(item.id);
+  const locked = st.tier < item.tier;
+  const chip = locked
+    ? chipHtml({ label:item.name, sub:`🔒 ${CARS[item.tier].name}`, stateCls:"locked", mainAttrs:"disabled" })
+    : owned
+      ? chipHtml({ label:item.name, stateCls:"active", mainAttrs:"disabled", sellId:item.id })
+      : chipHtml({ label:item.name, sub:`${item.cost}⭐`, stateCls:"buyable", mainAttrs:`data-buy="${item.id}" ${bal<item.cost?"disabled":""}` });
+  return `<div class="equipGroup"><div class="equipLabel">${label}</div><div class="equipChips">${chip}</div></div>`;
+}
+function paintStudioHtml(st){
   const cur = st.customPaint;
   const active = sw => cur && (sw.duotone ? (cur.c1===sw.paint.c1 && cur.c2===sw.paint.c2) : cur.c1===sw.hex);
-  el.innerHTML = `
-    <div class="qmeta" style="margin-top:14px"><span class="badge">🎨 Paint studio</span><span class="lead" style="font-size:12px">Pick any colour — free, swap anytime</span></div>
+  return `<div class="paintStudioInline">
     <div class="paintSwatches">${PAINT_SWATCHES.map(sw=>{
       const bg = sw.duotone ? `linear-gradient(135deg, ${sw.paint.c1}, ${sw.paint.c2})` : sw.hex;
       return `<button type="button" class="swatch${active(sw)?" active":""}" data-swatch="${sw.id}" style="background:${bg}" title="${sw.name}" aria-label="${sw.name}"></button>`;
     }).join("")}</div>
-    <div class="row" style="margin-top:10px;align-items:center;gap:10px">
+    <div class="row" style="margin-top:8px;align-items:center;gap:10px">
       <label class="lead" style="font-size:12px" for="customHexInput">Custom hex:</label>
       <input type="color" id="customHexInput" value="${cur ? cur.c1 : "#d9534f"}">
-    </div>`;
-  el.querySelectorAll("[data-swatch]").forEach(b=>b.onclick=()=>selectPaintSwatch(b.dataset.swatch));
-  $("customHexInput").oninput = e=>applyCustomHex(e.target.value);
+    </div>
+  </div>`;
 }
+/* Garage shop, aggregated into 4 groups (Wheels/Paint/Decals/Aero) — each a
+   card with one or more select-and-buy-or-sell chip rows, replacing the old
+   flat 16-item grid + a separate equip panel. Wheels and Paint each combine
+   a simple on/off toggle (gold recolor, custom paint unlock) with a
+   single-select category row (wheel style, paint finish) — the two are
+   orthogonal effects that can be worn together (see cosmeticsOf/carSVG). */
 function renderShop(){
-  const st=P(); const bal=balance();
+  const st=P(), bal=balance();
   $("shopBalance").textContent = `⭐ ${bal} points`;
-  $("shopItems").innerHTML = SHOP.map(item=>{
-    const owned = st.owned.includes(item.id);
-    const locked = st.tier < item.tier;
-    const cls = "shopitem"+(owned?" owned":"")+(locked?" locked":"");
-    const btn = owned
-      ? `<button class="shopbtn sell" data-sell="${item.id}">Sell +${Math.floor(item.cost/2)} ⭐</button>`
-      : locked
-        ? `<button class="shopbtn" disabled>🔒 ${CARS[item.tier].name}</button>`
-        : `<button class="shopbtn" data-buy="${item.id}" ${bal<item.cost?"disabled":""}>Buy · ${item.cost} ⭐</button>`;
-    return `<div class="${cls}">
-      <span class="nm">${KIND_ICON[item.kind]} ${item.name}</span>
-      <span class="meta">${owned?"Installed":locked?`Unlocks with the ${CARS[item.tier].name}`:item.kind}</span>
-      ${btn}</div>`;
-  }).join("");
+  const cat = key => EQUIP_CATS.find(c=>c.key===key);
+  const wheelsGroup = `<div class="shopGroup"><div class="shopGroupHead">🛞 Wheels</div>
+    ${toggleRow("Gold finish", shopItem("wheels-gold"), st, bal)}
+    ${categoryRow(cat("wheelstyle"), st, bal)}
+  </div>`;
+  const paintOwned = st.owned.includes("paint-custom");
+  const paintGroup = `<div class="shopGroup"><div class="shopGroupHead">🎨 Paint</div>
+    ${toggleRow("Custom colour studio", shopItem("paint-custom"), st, bal)}
+    ${paintOwned ? paintStudioHtml(st) : ""}
+    ${categoryRow(cat("finish"), st, bal)}
+  </div>`;
+  const decalGroup = `<div class="shopGroup"><div class="shopGroupHead">🏁 Decals</div>${categoryRow(cat("decal"), st, bal)}</div>`;
+  const aeroGroup = `<div class="shopGroup"><div class="shopGroupHead">🪽 Aero</div>${categoryRow(cat("aero"), st, bal)}</div>`;
+  $("shopItems").innerHTML = wheelsGroup + paintGroup + decalGroup + aeroGroup;
+
   $("shopItems").querySelectorAll("[data-buy]").forEach(b=>b.onclick=()=>buyItem(b.dataset.buy));
-  $("shopItems").querySelectorAll("[data-sell]").forEach(b=>b.onclick=()=>sellItem(b.dataset.sell));
+  $("shopItems").querySelectorAll("[data-sell]").forEach(b=>b.onclick=e=>{ e.stopPropagation(); sellItem(b.dataset.sell); });
+  $("shopItems").querySelectorAll("[data-equip-cat]").forEach(b=>b.onclick=()=>equipItem(b.dataset.equipCat, b.dataset.equipId));
+  if(paintOwned){
+    $("shopItems").querySelectorAll("[data-swatch]").forEach(b=>b.onclick=()=>selectPaintSwatch(b.dataset.swatch));
+    const hexInput=$("customHexInput"); if(hexInput) hexInput.oninput = e=>applyCustomHex(e.target.value);
+  }
 }
 
 function renderGarage(animate){
@@ -4276,8 +4309,6 @@ function renderGarage(animate){
   $("mstones").innerHTML = MILESTONES.map(m=>
     `<span class="chip ${p>=m.p?"on":""}">${m.label}</span>`).join("");
   renderShop();
-  renderPaintStudio();
-  renderEquipPanel();
 }
 
 function toast(msg){
