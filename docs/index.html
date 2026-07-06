@@ -243,6 +243,38 @@
     .racebtn.sound,.racecontrols .btn.secondary{flex:1 1 40%}
     .rchip{min-width:0;flex:1 1 30%}
   }
+  /* Short viewports (landscape phones, small browser windows): the world's
+     dvh-based height leaves too little room below it for the controls once
+     the viewport itself is short, not just narrow. Key off max-height (not
+     orientation) so this also protects any short window, and reclaim space
+     by shrinking the world and the control chrome around it. */
+  @media (max-height:700px){
+    .raceworld{height:min(680px,50dvh)}
+    .racecontrols{gap:4px;margin-top:4px}
+    .racebtn{padding:8px 8px;font-size:13px}
+    #raceHelp{display:none}
+  }
+  /* Genuine landscape phones (short AND wide): the width is plentiful but the
+     height is scarce, so the aspect-ratio-locked world shrinks to a very
+     narrow column at 50dvh — too narrow for the 3-item HUD row at its normal
+     font size. Give the world more of the (otherwise unused) height back, and
+     shrink the HUD text/padding to fit the resulting narrow column. */
+  @media (max-height:430px){
+    /* A fixed dvh fraction can't fit every height in this tier (320px..430px
+       phones vary a lot) — subtract the ~130px the header+single-row-controls
+       actually need so the world gets everything else, at any height here. */
+    .raceworld{height:min(680px,calc(100dvh - 170px))}
+    .rhud{font-size:10px;left:8px;right:8px;gap:4px}
+    .rhud #rPos{padding:2px 6px}
+  }
+  /* The most extreme case (e.g. a 4in phone in landscape): the world itself
+     is too narrow for even the shrunk 3-item HUD row — drop the "km/h" unit
+     text (the number alone still reads) and tighten further. */
+  @media (max-height:350px){
+    .rhud{font-size:9px;left:3px;right:3px;gap:1px}
+    .rhud .runit{display:none}
+    .rhud #rPos{padding:1px 4px}
+  }
   @media (prefers-reduced-motion:reduce){
     .rcar.moving .spokes{animation:none}
     .rscene{transform:none!important}
@@ -4649,6 +4681,7 @@ function openRace(){
   ["introPanel","quizPanel","resultPanel"].forEach(id=>$(id).classList.add("hide"));
   $("racePanel").classList.remove("hide");
   renderRaceLobby();
+  const rp=$("racePanel"); if(rp && rp.scrollIntoView) rp.scrollIntoView({block:"start", behavior:"auto"});
 }
 function medal(pos){ return pos===1?"🥇":pos===2?"🥈":pos===3?"🥉":("P"+pos); }
 function bestFor(st, trackId, tier){ return (st.raceBest[trackId]||{})[tier] || null; }
@@ -4738,6 +4771,12 @@ function startRace(seedArg){
     state:{ finished:false },
   };
   renderRaceStage();
+  // Prompt 5: on most phone/tablet sizes the track + controls are taller than
+  // the viewport if the page is scrolled mid-document (e.g. from the garage
+  // shop above) — without this, GAS/BRAKE can render below the fold right as
+  // the race begins. Scroll the panel to the top of the viewport so the live
+  // controls are reachable without a manual scroll first.
+  const rp0=$("racePanel"); if(rp0 && rp0.scrollIntoView) rp0.scrollIntoView({block:"start", behavior:"auto"});
   race.lastT = performance.now();
   race.raf = requestAnimationFrame(raceLoop);
 }
@@ -4776,7 +4815,7 @@ function renderRaceStage(){
       <div class="rprogtop"><span class="rprog" id="rProg"></span></div>
       <div class="rhud">
         <span id="rPos">P1/${race.cars.length}</span>
-        <span><span id="rSpeed">0</span> km/h</span>
+        <span><span id="rSpeed">0</span><span class="runit"> km/h</span></span>
         <span id="rTime">0.00s</span>
       </div>
     </div>
@@ -4788,7 +4827,7 @@ function renderRaceStage(){
       <button type="button" class="racebtn sound" id="soundBtn" aria-label="Toggle engine sound">🔇 Sound</button>
       <button type="button" class="btn secondary" id="raceQuitBtn" aria-label="Quit the race">Quit</button>
     </div>
-    <p class="lead" style="font-size:12px;text-align:center;margin-top:6px">Nail the launch at GO (gas / <kbd>W</kbd>), then overtake by steering left/right — <b>swipe or tap the sides of the track</b>, use the <kbd>◀</kbd>/<kbd>▶</kbd> buttons, or the arrow keys — and tuck in behind a rival to slipstream. The field drives at entry-class pace, so a higher class pulls away — racing is just for fun: no points, no XP, and winning never unlocks a car.</p>`;
+    <p class="lead" id="raceHelp" style="font-size:12px;text-align:center;margin-top:6px">Nail the launch at GO (gas / <kbd>W</kbd>), then overtake by steering left/right — <b>swipe or tap the sides of the track</b>, use the <kbd>◀</kbd>/<kbd>▶</kbd> buttons, or the arrow keys — and tuck in behind a rival to slipstream. The field drives at entry-class pace, so a higher class pulls away — racing is just for fun: no points, no XP, and winning never unlocks a car.</p>`;
   // per-track scenery tint (self-contained CSS vars, CSP-safe)
   const w=$("raceWorld");
   if(w && race.track){ w.style.setProperty("--rwall", race.track.wall); w.style.setProperty("--rfloor", race.track.floor); w.style.setProperty("--rkerb", race.track.kerb); }
@@ -4819,10 +4858,21 @@ function bindRaceControls(){
   const wgl=$("raceWorld");
   if(wgl){
     let sx=0, sy=0, moved=0, active=false;
-    wgl.addEventListener("pointerdown", e=>{ active=true; sx=e.clientX; sy=e.clientY; moved=0; e.preventDefault(); });
+    // Prompt 5 fix: on a narrow world (e.g. a landscape-phone column), a wide
+    // swipe can carry the pointer outside the element's bounds before it's
+    // released. Without capturing the pointer, the browser delivers that
+    // pointerup to whatever is now under the cursor instead of `wgl` — so the
+    // gesture's end handler never runs and the swipe is silently dropped.
+    // setPointerCapture keeps every move/up event routed to this element for
+    // the life of the gesture, regardless of where the pointer travels.
+    wgl.addEventListener("pointerdown", e=>{
+      active=true; sx=e.clientX; sy=e.clientY; moved=0; e.preventDefault();
+      try{ wgl.setPointerCapture(e.pointerId); }catch(err){}
+    });
     wgl.addEventListener("pointermove", e=>{ if(active) moved=Math.max(moved, Math.abs(e.clientX-sx)); });
     const end=e=>{
       if(!active) return; active=false;
+      try{ wgl.releasePointerCapture(e.pointerId); }catch(err){}
       const dx=e.clientX-sx, dy=e.clientY-sy;
       if(Math.abs(dx)>24 && Math.abs(dx)>Math.abs(dy)){ changeLane(dx>0?1:-1); return; }   // horizontal swipe
       if(moved<12){ const r=wgl.getBoundingClientRect(), fx=(e.clientX-r.left)/r.width;      // stationary tap
