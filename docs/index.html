@@ -194,9 +194,26 @@
   .rhud #rPos{background:rgba(10,16,26,.7);border:1px solid rgba(255,255,255,.18);border-radius:999px;padding:3px 10px}
   .racecontrols{display:flex;gap:8px;justify-content:center;align-items:center;margin-top:6px;flex-wrap:wrap}
   .racebtn{flex:0 0 auto;min-width:104px;padding:15px 20px;font-size:16px;font-weight:800;border:none;border-radius:12px;background:var(--good);color:#06210f;cursor:pointer;font-family:inherit;touch-action:none;user-select:none;-webkit-user-select:none}
-  .racebtn.brake{background:#e0654f;color:#2a0a04}
-  .racebtn.lane{min-width:82px;background:#2c3646;color:var(--ink)}
   .racebtn:active{transform:translateY(1px);filter:brightness(1.12)}
+  /* Lane slider (left side) — a drag-to-steer control alongside the pedals.
+     Sized to match the pedal buttons' padding/font at every breakpoint below
+     so the whole control row keeps the same overall height throughout. */
+  .laneSliderWrap{flex:2 1 160px;display:flex;align-items:center;gap:10px;padding:15px 16px;border-radius:12px;background:#2c3646}
+  .laneIcon{font-size:14px;color:var(--muted);user-select:none;line-height:1}
+  .laneSlider{flex:1;-webkit-appearance:none;appearance:none;height:8px;border-radius:999px;background:#1b2431;outline:none;touch-action:pan-y;margin:0}
+  .laneSlider::-webkit-slider-thumb{-webkit-appearance:none;width:30px;height:30px;border-radius:50%;background:linear-gradient(180deg,#8fd0ff,var(--accent));box-shadow:0 3px 8px rgba(0,0,0,.5);border:2px solid #0b1a2e;cursor:grab}
+  .laneSlider::-moz-range-thumb{width:30px;height:30px;border-radius:50%;background:linear-gradient(180deg,#8fd0ff,var(--accent));box-shadow:0 3px 8px rgba(0,0,0,.5);border:2px solid #0b1a2e;cursor:grab}
+  .laneSlider::-moz-range-track{height:8px;border-radius:999px;background:#1b2431}
+  .laneSlider:focus-visible{outline:2px solid var(--accent);outline-offset:3px}
+  /* Pedal buttons (right side) — same padding/font as the plain .racebtn at
+     every tier (so the row's height doesn't change), with a pedal-like
+     silhouette (rounded top, ridged tread) and brake narrower than gas,
+     mirroring a real pedal box's relative proportions. */
+  .pedalBtn{flex:0 0 auto;padding:15px 20px;font-size:16px;font-weight:800;border:none;border-radius:10px 10px 6px 6px;cursor:pointer;font-family:inherit;touch-action:none;user-select:none;-webkit-user-select:none;position:relative;overflow:hidden}
+  .pedalBtn::after{content:"";position:absolute;left:10px;right:10px;top:6px;bottom:6px;background:repeating-linear-gradient(180deg,rgba(0,0,0,.14) 0 3px,transparent 3px 7px);border-radius:6px;pointer-events:none}
+  .gasPedal{min-width:104px;background:linear-gradient(180deg,#3fd07a,var(--good));color:#06210f}
+  .brakePedal{min-width:82px;background:linear-gradient(180deg,#ff7a63,#e0654f);color:#2a0a04}
+  .pedalBtn:active{transform:translateY(2px);filter:brightness(.94)}
   .rtable{display:flex;flex-direction:column;gap:4px;max-width:340px;margin:10px auto 0}
   .rrow{display:flex;justify-content:space-between;gap:12px;padding:6px 12px;background:#0f1620;border:1px solid var(--line);border-radius:8px;font-size:13px}
   .rrow.me{border-color:var(--accent);color:var(--ink);font-weight:700}
@@ -241,8 +258,9 @@
     /* Portrait fills the available height on phones (full-bleed-ish column). */
     .raceworld{height:min(680px,72dvh)}
     .racecontrols{gap:6px}
-    .racebtn{min-width:0;flex:1 1 40%;padding:14px 8px;font-size:15px}
+    .racebtn,.pedalBtn{min-width:0;flex:1 1 40%;padding:14px 8px;font-size:15px}
     .racebtn.sound,.racecontrols .btn.secondary{flex:1 1 40%}
+    .laneSliderWrap{flex:1 1 100%;padding:14px 12px}
     .rchip{min-width:0;flex:1 1 30%}
   }
   /* Short viewports (landscape phones, small browser windows): the world's
@@ -253,7 +271,10 @@
   @media (max-height:700px){
     .raceworld{height:min(680px,50dvh)}
     .racecontrols{gap:4px;margin-top:4px}
-    .racebtn{padding:8px 8px;font-size:13px}
+    .racebtn,.pedalBtn{padding:8px 8px;font-size:13px}
+    .laneSliderWrap{padding:8px 10px}
+    .laneSlider::-webkit-slider-thumb{width:24px;height:24px}
+    .laneSlider::-moz-range-thumb{width:24px;height:24px}
     #raceHelp{display:none}
   }
   /* Genuine landscape phones (short AND wide): the width is plentiful but the
@@ -4905,14 +4926,17 @@ function renderRaceStage(){
       </div>
     </div>
     <div class="racecontrols" id="raceControls">
-      <button type="button" class="racebtn lane" id="laneLeftBtn" aria-label="Move left a lane">◀</button>
-      <button type="button" class="racebtn" id="gasBtn" aria-label="Accelerate">GAS ⛽</button>
-      <button type="button" class="racebtn brake" id="brakeBtn" aria-label="Brake">BRAKE</button>
-      <button type="button" class="racebtn lane" id="laneRightBtn" aria-label="Move right a lane">▶</button>
+      <div class="laneSliderWrap">
+        <span class="laneIcon" aria-hidden="true">◀</span>
+        <input type="range" id="laneSlider" class="laneSlider" min="0" max="${RACE_LANES-1}" step="1" value="1" aria-label="Change lane" aria-valuetext="Center lane">
+        <span class="laneIcon" aria-hidden="true">▶</span>
+      </div>
+      <button type="button" class="pedalBtn brakePedal" id="brakeBtn" aria-label="Brake">BRAKE</button>
+      <button type="button" class="pedalBtn gasPedal" id="gasBtn" aria-label="Accelerate">GAS ⛽</button>
       <button type="button" class="racebtn sound" id="soundBtn" aria-label="Toggle engine sound">🔇 Sound</button>
       <button type="button" class="btn secondary" id="raceQuitBtn" aria-label="Quit the race">Quit</button>
     </div>
-    <p class="lead" id="raceHelp" style="font-size:12px;text-align:center;margin-top:6px">Nail the launch at GO (gas / <kbd>W</kbd>), then overtake by steering left/right — <b>swipe or tap the sides of the track</b>, use the <kbd>◀</kbd>/<kbd>▶</kbd> buttons, or the arrow keys — and tuck in behind a rival to slipstream. The field drives at entry-class pace, so a higher class pulls away — a finish earns a few points, but studying earns far more, and winning never unlocks a car.</p>`;
+    <p class="lead" id="raceHelp" style="font-size:12px;text-align:center;margin-top:6px">Nail the launch at GO (gas / <kbd>W</kbd>), then overtake by steering left/right — <b>swipe or tap the sides of the track</b>, drag the lane slider, or use the arrow keys — and tuck in behind a rival to slipstream. The field drives at entry-class pace, so a higher class pulls away — a finish earns a few points, but studying earns far more, and winning never unlocks a car.</p>`;
   // per-track scenery tint (self-contained CSS vars, CSP-safe)
   const w=$("raceWorld");
   if(w && race.track){ w.style.setProperty("--rwall", race.track.wall); w.style.setProperty("--rfloor", race.track.floor); w.style.setProperty("--rkerb", race.track.kerb); }
@@ -4931,9 +4955,18 @@ function bindRaceControls(){
   };
   hold("gasBtn","throttle");
   hold("brakeBtn","brake");
-  const tap=(id,d)=>{ const b=$(id); if(b) b.addEventListener("pointerdown", e=>{ e.preventDefault(); changeLane(d); }); };
-  tap("laneLeftBtn", -1);
-  tap("laneRightBtn", 1);
+  // Lane slider (cosmetic control layout): dragging sets the lane directly by
+  // absolute position, unlike changeLane's delta-based steps (still used by
+  // keyboard/swipe/tap-zone) — both funnel through the same setLane() core.
+  const lsl=$("laneSlider");
+  if(lsl){
+    const laneNames=["Left lane","Center lane","Right lane"];
+    lsl.addEventListener("input", e=>{
+      const nl=+e.target.value;
+      setLane(nl);
+      e.target.setAttribute("aria-valuetext", laneNames[nl] || ("Lane "+(nl+1)));
+    });
+  }
   const sb=$("soundBtn"); if(sb) sb.onclick=raceAudioToggle;
   $("raceQuitBtn").onclick=closeRace;
   // Prompt 4 — touch steering directly on the world: swipe left/right to
@@ -4967,16 +5000,23 @@ function bindRaceControls(){
     wgl.addEventListener("pointercancel", ()=>{ active=false; });
   }
 }
-function changeLane(d){
+/* Core lane-set logic, shared by both input styles: changeLane (delta-based —
+   keyboard, world swipe/tap-zone) and the lane slider (absolute-position —
+   setLane directly). */
+function setLane(nl){
   if(!race || race.state.finished) return;
   const p=race.cars[0];
   if(p.finished) return;
-  const nl = Math.max(0, Math.min(RACE_LANES-1, p.lane+d));
+  nl = Math.max(0, Math.min(RACE_LANES-1, nl));
   if(nl===p.lane) return;                    // already at the edge — no move, no feedback
-  const dir = nl - p.lane;                   // -1 or +1
+  const dir = nl - p.lane;                   // -1 or +1 (or more, for a slider jump)
   p.lane = nl;
   race.laneKick = dir*6;                      // brief camera nudge (px), decays in renderRaceFrame
   haptic(12);                                 // a light tick on every steer (Prompt 4)
+}
+function changeLane(d){
+  if(!race || race.state.finished) return;
+  setLane(race.cars[0].lane + d);
 }
 /* nearest non-finished car ahead of `car` in a given lane (excludes `car`). */
 function nearestAhead(car, lane){
@@ -5228,6 +5268,11 @@ function renderRaceFrame(){
   setT("rSpeed", Math.round(player.v*1.6));
   setT("rTime", race.elapsed.toFixed(2)+"s");
   const pr=$("rProg"); if(pr) pr.style.width=Math.min(100, player.dist/trackLen*100)+"%";
+  // Keep the lane slider in sync with the player's ACTUAL lane regardless of
+  // which input moved it (keyboard/swipe/tap-zone don't touch the slider
+  // element directly) — a no-op while the slider itself is mid-drag, since
+  // its own input handler already applied the same value first.
+  const lsl=$("laneSlider"); if(lsl && +lsl.value!==player.lane) lsl.value = player.lane;
 }
 /* Record a finished race into the per-(track,tier) bests + recent log. Returns
    whether it improved the best for this track+car. */
