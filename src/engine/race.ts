@@ -8,7 +8,7 @@ import { getCar, type CarProjection } from "./car.js";
  * operates within it. The client (docs/index.html) runs a real-time
  * longitudinal physics sim where the car's top speed and acceleration are
  * derived from its CURRENT projected speed/handling, hard-capped at
- * `vMax = 40 × ceiling` (ceiling = speed^0.7 × handling^0.3) — the exact same
+ * `vMax = 40 × ceiling` (ceiling = speed^0.9 × handling^0.3) — the exact same
  * formula used here. The SERVER re-derives that same ceiling from the car's
  * CURRENT projection (never trusts the client) and rejects any submitted
  * finish time that is faster than physically possible for this car, so a
@@ -23,7 +23,7 @@ import { getCar, type CarProjection } from "./car.js";
 // Mirrors the client-side constants in docs/index.html (TRACK_LEN, HND_MAX) —
 // the server independently re-derives the same physics envelope for
 // validation, so these must stay in sync with the client's race engine.
-export const RACE_TRACK_LEN = 700; // world units from the line to the finish
+export const RACE_TRACK_LEN = 900; // world units from the line to the finish (shortest track = sprint)
 export const RACE_HND_MAX = 4.4;
 export const MAX_RIVALS = 8;
 export const DEFAULT_TRACK_ID = "sprint-1";
@@ -48,7 +48,7 @@ const clamp01 = (x: number) => Math.min(1, Math.max(0, x));
  * ceilingTimeMs() in docs/index.html.
  */
 export function raceCeilingMs(speed: number, handling: number): number {
-  const ceiling = Math.pow(speed, 0.7) * Math.pow(handling, 0.3);
+  const ceiling = Math.pow(speed, 0.9) * Math.pow(handling, 0.3); // speed exponent 0.9: class strongly drives top speed
   const vMax = 40 * ceiling; // ← D5 hard cap, identical to the client
   const tReach = 3.0 - 1.6 * clamp01((handling - 1) / (RACE_HND_MAX - 1));
   const accel = vMax / Math.max(1.0, tReach);
