@@ -166,7 +166,7 @@
      pure render/coordinate remap of the same dist+lane simulation. The portrait
      shape is size-capped so it pillarboxes into a phone-shaped column on desktop
      and fills the screen height on phones. */
-  .raceworld{position:relative;height:min(680px,78dvh);aspect-ratio:20/33;max-width:100%;margin:8px auto;border-radius:16px;overflow:hidden;background:var(--rfloor,#182130);box-shadow:inset 0 0 0 1px var(--line)}
+  .raceworld{position:relative;height:min(680px,78dvh);aspect-ratio:20/33;max-width:100%;margin:8px auto;border-radius:16px;overflow:hidden;background:var(--rfloor,#182130);box-shadow:inset 0 0 0 1px var(--line);touch-action:none;user-select:none;-webkit-user-select:none}
   .rlayer{position:absolute;pointer-events:none}
   .rhills{inset:0;background:linear-gradient(90deg,var(--rfloor,#182130) 0 9%,#0e1420 12%,#0e1420 88%,var(--rfloor,#182130) 91% 100%)}
   .rroad{top:0;bottom:0;left:12%;right:12%;background:linear-gradient(90deg,#161c24,#232a34 14%,#232a34 86%,#161c24);box-shadow:inset 0 0 14px rgba(0,0,0,.55)}
@@ -4596,6 +4596,20 @@ function raceAudioToggle(){
   const b=$("soundBtn"); if(b) b.textContent = on?"🔊 Sound":"🔇 Muted";
 }
 function raceAudioStop(){ if(race&&race.audio){ try{ race.audio.osc.stop(); race.audio.ctx.close(); }catch(e){} race.audio=null; } }
+/* Haptic feedback for touch devices (Prompt 4) — light, game-feel-only buzz.
+   No-ops where the Vibration API is absent or the user prefers reduced motion. */
+function haptic(pattern){ try{ if(!reduceMotion() && navigator.vibrate) navigator.vibrate(pattern); }catch(e){} }
+/* One-shot audio blip (near-miss whoosh) layered over the engine note — only
+   when sound is enabled. Self-contained WebAudio, no assets, auto-stops. */
+function raceBlip(freq, dur){
+  try{
+    if(!(race && race.audio && race.audio.on)) return;
+    const ctx=race.audio.ctx, t=ctx.currentTime, o=ctx.createOscillator(), g=ctx.createGain();
+    o.type="triangle"; o.frequency.setValueAtTime(freq, t); o.frequency.exponentialRampToValueAtTime(freq*0.45, t+dur);
+    g.gain.setValueAtTime(0.0001, t); g.gain.exponentialRampToValueAtTime(0.06, t+0.02); g.gain.exponentialRampToValueAtTime(0.0001, t+dur);
+    o.connect(g); g.connect(ctx.destination); o.start(t); o.stop(t+dur+0.02);
+  }catch(e){}
+}
 
 let race=null;
 function carStats(){
@@ -4720,7 +4734,7 @@ function startRace(seedArg){
     cars, tier:st.tier, elapsed:0, deadline:null, seed,
     trackId:track.id, trackLen:track.len, track, diff:diff.id,
     phase:"stage", stageT:STAGE_S, jumpStart:false, launchEval:false, launchMsg:"",
-    slingT:0, fx:[], audio:null,
+    slingT:0, fx:[], audio:null, laneKick:0, nearMissT:0,   // Prompt 4 game-feel state
     state:{ finished:false },
   };
   renderRaceStage();
@@ -4774,7 +4788,7 @@ function renderRaceStage(){
       <button type="button" class="racebtn sound" id="soundBtn" aria-label="Toggle engine sound">🔇 Sound</button>
       <button type="button" class="btn secondary" id="raceQuitBtn" aria-label="Quit the race">Quit</button>
     </div>
-    <p class="lead" style="font-size:12px;text-align:center;margin-top:6px">Nail the launch at GO (gas / <kbd>W</kbd>), steer left/right to overtake (<kbd>◀</kbd>/<kbd>▶</kbd> or the lane buttons), and tuck in behind a rival to slipstream. The field drives at entry-class pace, so a higher class pulls away — racing is just for fun: no points, no XP, and winning never unlocks a car.</p>`;
+    <p class="lead" style="font-size:12px;text-align:center;margin-top:6px">Nail the launch at GO (gas / <kbd>W</kbd>), then overtake by steering left/right — <b>swipe or tap the sides of the track</b>, use the <kbd>◀</kbd>/<kbd>▶</kbd> buttons, or the arrow keys — and tuck in behind a rival to slipstream. The field drives at entry-class pace, so a higher class pulls away — racing is just for fun: no points, no XP, and winning never unlocks a car.</p>`;
   // per-track scenery tint (self-contained CSS vars, CSP-safe)
   const w=$("raceWorld");
   if(w && race.track){ w.style.setProperty("--rwall", race.track.wall); w.style.setProperty("--rfloor", race.track.floor); w.style.setProperty("--rkerb", race.track.kerb); }
@@ -4798,12 +4812,36 @@ function bindRaceControls(){
   tap("laneRightBtn", 1);
   const sb=$("soundBtn"); if(sb) sb.onclick=raceAudioToggle;
   $("raceQuitBtn").onclick=closeRace;
+  // Prompt 4 — touch steering directly on the world: swipe left/right to
+  // change lane, or tap the left/right third to steer that way. Complements
+  // (never replaces) the on-screen buttons + keyboard. Throttle/brake stay on
+  // their dedicated hold-buttons so gesture detection here is steering-only.
+  const wgl=$("raceWorld");
+  if(wgl){
+    let sx=0, sy=0, moved=0, active=false;
+    wgl.addEventListener("pointerdown", e=>{ active=true; sx=e.clientX; sy=e.clientY; moved=0; e.preventDefault(); });
+    wgl.addEventListener("pointermove", e=>{ if(active) moved=Math.max(moved, Math.abs(e.clientX-sx)); });
+    const end=e=>{
+      if(!active) return; active=false;
+      const dx=e.clientX-sx, dy=e.clientY-sy;
+      if(Math.abs(dx)>24 && Math.abs(dx)>Math.abs(dy)){ changeLane(dx>0?1:-1); return; }   // horizontal swipe
+      if(moved<12){ const r=wgl.getBoundingClientRect(), fx=(e.clientX-r.left)/r.width;      // stationary tap
+        if(fx<0.4) changeLane(-1); else if(fx>0.6) changeLane(1); }
+    };
+    wgl.addEventListener("pointerup", end);
+    wgl.addEventListener("pointercancel", ()=>{ active=false; });
+  }
 }
 function changeLane(d){
   if(!race || race.state.finished) return;
   const p=race.cars[0];
   if(p.finished) return;
-  p.lane = Math.max(0, Math.min(RACE_LANES-1, p.lane+d));
+  const nl = Math.max(0, Math.min(RACE_LANES-1, p.lane+d));
+  if(nl===p.lane) return;                    // already at the edge — no move, no feedback
+  const dir = nl - p.lane;                   // -1 or +1
+  p.lane = nl;
+  race.laneKick = dir*6;                      // brief camera nudge (px), decays in renderRaceFrame
+  haptic(12);                                 // a light tick on every steer (Prompt 4)
 }
 /* nearest non-finished car ahead of `car` in a given lane (excludes `car`). */
 function nearestAhead(car, lane){
@@ -4839,7 +4877,7 @@ function raceStep(dt){
     if(race.input.throttle && race.stageT > 0.10) race.jumpStart=true;   // gas before GO = jump start
     if(race.stageT <= 0){
       race.phase="run";
-      if(race.jumpStart){ player.bogT=JUMP_BOG_S; race.launchMsg="Jump start 😬"; race.launchEval=true; }
+      if(race.jumpStart){ player.bogT=JUMP_BOG_S; race.launchMsg="Jump start 😬"; race.launchEval=true; haptic(70); }
     }
     return;
   }
@@ -4849,7 +4887,7 @@ function raceStep(dt){
   if(!race.launchEval){
     if(race.input.throttle){
       race.launchEval=true;
-      if(race.elapsed <= LAUNCH_WINDOW){ player.boostT=LAUNCH_BOOST_S; player.boostMul=LAUNCH_MUL; race.launchMsg="Clean launch 🔥"; }
+      if(race.elapsed <= LAUNCH_WINDOW){ player.boostT=LAUNCH_BOOST_S; player.boostMul=LAUNCH_MUL; race.launchMsg="Clean launch 🔥"; haptic([15,25,15]); }
     } else if(race.elapsed > LAUNCH_WINDOW){ race.launchEval=true; }
   }
   for(const c of cars){
@@ -4909,7 +4947,7 @@ function raceStep(dt){
     if(inDraft){ player.draftActive=true; player.draftCharge=Math.min(1, player.draftCharge+dt); }
     else {
       if(player.draftActive && player.draftCharge>0.3 && player.boostT<=0){
-        player.boostT=Math.min(SLING_MAX_S, player.draftCharge*SLING_MAX_S); player.boostMul=SLING_MUL; race.slingT=1.0;
+        player.boostT=Math.min(SLING_MAX_S, player.draftCharge*SLING_MAX_S); player.boostMul=SLING_MUL; race.slingT=1.0; haptic([10,20,30]); raceBlip(680,0.2);
       }
       player.draftActive=false; player.draftCharge=Math.max(0, player.draftCharge-dt*0.6);
     }
@@ -4984,14 +5022,30 @@ function renderRaceFrame(){
     c.el.classList.toggle("braking", c.isPlayer ? (run && race.input.brake) : c.blockedBy!=null);
     if(c.inner) c.inner.style.opacity=c.finished?"0.5":"1";
   }
-  // camera shake + speed vignette + motion streaks, all scaled by speed
-  const sc=$("rScene");
+  // Near-miss whoosh (Prompt 4): a close, adjacent-lane pass — either car
+  // overtaking the other while at speed — fires a quick vignette pulse +
+  // haptic + audio blip. Pure feel; reads existing dist/lane, changes nothing.
+  if(run && !player.finished){
+    for(const c of race.cars){
+      if(c.isPlayer || c.finished) continue;
+      const ahead = c.dist > player.dist;
+      if(c._ahead!==undefined && c._ahead!==ahead && Math.abs(c.lane-player.lane)===1 && player.v>20 && race.nearMissT<=0){
+        race.nearMissT=0.4; haptic(10); raceBlip(540, 0.16);
+      }
+      c._ahead = ahead;
+    }
+  }
+  // camera shake + lane-change kick + speed vignette + motion streaks
+  const sc=$("rScene"), kick=race.laneKick||0;
   if(sc){
     if(run && !rm){ const amp=si*si*2.6 + (race.input.brake&&player.v>25?1.2:0);
-      sc.style.transform=`translate(${((Math.random()-0.5)*2*amp).toFixed(2)}px,${((Math.random()-0.5)*amp).toFixed(2)}px)`;
-    } else sc.style.transform="none";
+      sc.style.transform=`translate(${(kick+(Math.random()-0.5)*2*amp).toFixed(2)}px,${((Math.random()-0.5)*amp).toFixed(2)}px)`;
+    } else sc.style.transform = Math.abs(kick)>0.3 ? `translate(${kick.toFixed(2)}px,0)` : "none";
   }
-  const vg=$("rVig"); if(vg) vg.style.opacity = rm?"0.08":(run?(0.08+si*0.34).toFixed(2):"0.05");
+  race.laneKick = Math.abs(kick)>0.3 ? kick*0.8 : 0;   // decay the nudge
+  const nmp = Math.max(0, race.nearMissT)*0.6;         // near-miss vignette pulse
+  const vg=$("rVig"); if(vg) vg.style.opacity = rm?"0.08":(run?Math.min(0.62, 0.08+si*0.34+nmp).toFixed(2):"0.05");
+  if(race.nearMissT>0) race.nearMissT-=0.03;
   const stk=$("rStreaks"); if(stk){ stk.style.opacity = (rm||!run)?"0":(si*0.5).toFixed(2); stk.style.backgroundPositionY=(scroll*1.8)+"px"; }
   // start lights (3-2-1-GO)
   const big=$("rLbig"), row=$("rLrow"), lights=$("rLights");
@@ -5061,6 +5115,7 @@ function onRaceFinish(){
   if(!race || race.finishShown) return;
   race.finishShown = true;
   const st=P(), player=race.cars[0], n=race.cars.length, pos=player.place, track=race.track;
+  haptic(pos===1 ? [30,50,30,50,80] : [40]);   // Prompt 4: a celebratory buzz on a win, a short one otherwise
   const improved = recordRace(st, race.trackId, race.tier, pos, player.finishMs, player.finished, race.diff);
   save();
   const best = bestFor(st, race.trackId, race.tier);
