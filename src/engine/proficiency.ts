@@ -3,18 +3,31 @@ import { FSRS_PARAMS_VERSION, PROMOTION } from "../config.js";
 import { gradeFor, nextCardFields, retrievabilityOf, type CardFields } from "./fsrs.js";
 
 /**
- * Proficiency rollup — a pure projection of the immutable Attempt log (Rule 4).
+ * Proficiency rollup — a pure projection of the immutable Attempt log AND the
+ * immutable RaceResult log (Rule 4).
  *
  * Two entry points:
  *   - recomputeProficiency:  incremental fast path. Rolls up the CURRENT
  *     per-card ReviewState (already maintained by applyAttempt) into
- *     ProficiencyState. Called after each attempt.
+ *     ProficiencyState. Called after each attempt AND after each race.
  *   - recomputeFromScratch:  authoritative path. Wipes derived ReviewState and
  *     replays the whole Attempt log through the FSRS scheduler, then rolls up.
  *     Both produce identical results (determinism, Step 5).
  */
 
 type Db = PrismaClient | Prisma.TransactionClient;
+
+/**
+ * Points a race finish is worth, by 1-based finishing position. Deliberately
+ * a small, flat trickle — well under a single correct lesson answer (10) —
+ * so racing stays a fun side loop, never a substitute for studying. Racing
+ * still can NEVER move CEFR or unlock a higher car class (D3); this only
+ * feeds the same points pool that funds cosmetics/tuning within the current
+ * class, same as lesson xp does (D5: car speed/handling stay untouched).
+ */
+export function raceXpFor(position: number): number {
+  return Math.max(1, 5 - position);
+}
 
 /** Per-skill mastery entry stored in ProficiencyState.perSkillMasteryJson. */
 export interface SkillMastery {
@@ -128,7 +141,17 @@ export async function recomputeProficiency(
   });
   let correct = 0;
   for (const a of attempts) if (a.correct) correct++;
-  const xp = correct * 10 + (attempts.length - correct) * 2;
+
+  // A small race-xp trickle from the immutable RaceResult log — same pool as
+  // lesson xp (funds cosmetics/tuning within the current class only), but at
+  // a small fraction of the rate: study is still by far the main loop.
+  const raceResults = await db.raceResult.findMany({
+    where: { userId, pairId },
+    select: { position: true },
+  });
+  const raceXp = raceResults.reduce((sum, r) => sum + raceXpFor(r.position), 0);
+
+  const xp = correct * 10 + (attempts.length - correct) * 2 + raceXp;
   const streakDays = streakFromDates(attempts.map((a) => a.createdAt));
   const lastActive = attempts.reduce<Date | null>((max, a) => (!max || a.createdAt > max ? a.createdAt : max), null);
 

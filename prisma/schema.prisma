@@ -295,8 +295,10 @@ model Purchase {
 // D5 hard rule: proficiency sets the performance CEILING (the car's projected
 // speed/handling are snapshotted per race, and the server re-derives the same
 // ceiling to validate the submitted finish time — never trusts the client).
-// Racing writes NOTHING that proficiency, tier, or the economy read — no
-// points, no xp, no CEFR movement. Pure engagement.
+// Racing feeds a small points trickle into xp (raceXpFor, in proficiency.ts —
+// well under a single lesson answer), but writes NOTHING that tier reads: it
+// can never move CEFR or unlock a higher car class. Points only fund
+// cosmetics/tuning within the ALREADY-unlocked class, same as lesson xp.
 //
 // position-based model (Step 4 of the racing-game plan): the client now runs
 // a real-time driven sprint against `rivalCount` AI rivals instead of a

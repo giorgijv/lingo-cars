@@ -89,7 +89,8 @@ Backend for a gamified language-learning app.
   performance ceiling** (D5: `ceiling = speed^0.7 × handling^0.3` from the car
   projection) and shift skill only realizes 50–100% of it — a zero-skill
   Hypercar beats a perfect City Hatch. Racing appends to an immutable
-  `RaceResult` log and awards nothing (no points/xp/CEFR).
+  `RaceResult` log and awards a small points trickle (well under a single
+  lesson answer) — it still never moves CEFR or unlocks a higher car class.
 - **Multi-modal placement — M1 + M2 + M3 shipped:**
   - **M1 — `fill`** (typed free-text answer), graded server-side by
     edit-distance + accent-insensitive matching (`src/content/grading.ts`),

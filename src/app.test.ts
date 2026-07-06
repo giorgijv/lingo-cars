@@ -307,13 +307,15 @@ describe.skipIf(!RUN)("Phase 0 API integration", () => {
     ).rejects.toThrow();
   });
 
-  it("runs Phase 4 races: server-authoritative, ceiling-bound, and reward-free (D5)", async () => {
+  it("runs Phase 4 races: server-authoritative, ceiling-bound, and a small points trickle (D3/D5 still airtight)", async () => {
     const { body: racer } = await request(app)
       .post("/users")
       .send({ email: `race-${Date.now()}@test.dev`, uiLanguage: "de" });
     await request(app).post("/enrollments").send({ userId: racer.id, pairId });
 
-    // Snapshot everything a race must NOT change.
+    // Snapshot everything a race must NOT change (CEFR/tier — D3), vs. what it
+    // SHOULD change a little (points balance — a small trickle, D5-safe since
+    // it never feeds back into speed/handling).
     const ecoBefore = await request(app).get("/economy").query({ userId: racer.id, pairId });
     const profBefore = await request(app).get("/proficiency").query({ userId: racer.id, pairId });
 
@@ -322,6 +324,7 @@ describe.skipIf(!RUN)("Phase 0 API integration", () => {
       .post("/races")
       .send({ userId: racer.id, pairId, finishMs: 30_000, position: 4, rivalCount: 3 });
     expect(slow.status).toBe(201);
+    expect(slow.body.pointsEarned).toBe(1); // last place still earns a token amount
     const clean = await request(app)
       .post("/races")
       .send({ userId: racer.id, pairId, finishMs: slow.body.ceilingMs, position: 1, rivalCount: 3 });
@@ -332,17 +335,22 @@ describe.skipIf(!RUN)("Phase 0 API integration", () => {
     expect(clean.body.isNewBest).toBe(true);
     expect(clean.body.bestPosition).toBe(1);
     expect(clean.body.trackId).toBe("sprint-1");
+    expect(clean.body.pointsEarned).toBe(4); // 1st place's trickle — still well under a single lesson answer (10)
 
     const races = await request(app).get("/races").query({ userId: racer.id, pairId });
     expect(races.body.best.finishMs).toBe(clean.body.finishMs);
     expect(races.body.recent).toHaveLength(2);
 
-    // Racing awards NOTHING: economy, xp, and CEFR are untouched.
+    // Racing awards a SMALL points trickle (funds cosmetics/tuning only) but
+    // CEFR never moves — a higher car class only ever comes from mastery (D3).
     const ecoAfter = await request(app).get("/economy").query({ userId: racer.id, pairId });
     const profAfter = await request(app).get("/proficiency").query({ userId: racer.id, pairId });
-    expect(ecoAfter.body.balance).toBe(ecoBefore.body.balance);
+    const totalRaceXp = slow.body.pointsEarned + clean.body.pointsEarned;
+    expect(ecoAfter.body.balance).toBe(ecoBefore.body.balance + totalRaceXp);
+    expect(profAfter.body.proficiency?.xp ?? 0).toBe((profBefore.body.proficiency?.xp ?? 0) + totalRaceXp);
     expect(profAfter.body.currentCefr).toBe(profBefore.body.currentCefr);
-    expect(profAfter.body.proficiency?.xp ?? 0).toBe(profBefore.body.proficiency?.xp ?? 0);
+    // Much less than learning: two races here earn less than a single correct lesson answer would.
+    expect(totalRaceXp).toBeLessThan(10);
 
     // Rule 4: the race log is append-only at the DB level.
     await expect(
