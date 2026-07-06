@@ -3479,40 +3479,119 @@ function exhaustSVG(c, tier){
   return `<g data-perf="exhaust">${out}</g>`;
 }
 
-/* Top-down car sprite for the VERTICAL race (nose points UP). Deliberately
-   simple in this first pass — a detailed realism pass comes in a later prompt.
-   Reuses the same CARS[] paint + cosmetic (custom paint / gold wheels) inputs
-   as the side-view carSVG so a car's class colour still reads at a glance. This
-   is purely a render sprite — it touches no physics or race state. The Garage's
-   side-view carSVG() is intentionally left untouched. */
+/* ---- Top-down car sprite (VERTICAL race, nose points UP). Detailed and
+   class-differentiated: each tier has its own silhouette (a City Hatch is
+   narrow & boxy; a Hypercar is wide, low & winged), built from a per-tier
+   parameter table below. It carries the player's cosmetics — custom paint,
+   gold wheels, decal, aero and finish — so the raced car matches the Garage.
+   Pure render: it touches no physics or race state, and the Garage's side-view
+   carSVG() is intentionally left untouched. Rivals pass no cosmetics. */
+const TOPCAR = [
+  // hw = body half-width at [nose, shoulder, front-axle, mid, rear-axle, tail];
+  // ny/ty = nose/tail y; wing 0/1/2 = none/ducktail/full; split = front-splitter
+  // width factor; cab = [front,rear] y of the glasshouse; chw = its half-width.
+  {hw:[4.0,10.0,12.5,13.0,12.5,11.0], ny:6, ty:66, wing:0, split:0.55, cab:[19,45], chw:9.0}, // A1 City Hatch
+  {hw:[4.5,10.5,13.0,13.5,13.0,11.5], ny:5, ty:67, wing:0, split:0.75, cab:[18,46], chw:9.0}, // A2 Hot Hatch
+  {hw:[4.5,10.0,13.5,14.0,13.5,12.0], ny:4, ty:68, wing:0, split:0.90, cab:[18,48], chw:9.5}, // B1 Sports Sedan
+  {hw:[4.5,10.5,14.5,15.0,14.0,12.0], ny:4, ty:68, wing:1, split:1.00, cab:[21,50], chw:9.5}, // B2 Sports Coupe (fastback)
+  {hw:[5.0,11.0,15.5,16.5,16.0,14.0], ny:3, ty:68, wing:2, split:1.30, cab:[23,47], chw:8.5}, // C1 Supercar
+  {hw:[5.5,11.5,16.5,18.0,17.5,15.0], ny:3, ty:69, wing:2, split:1.50, cab:[25,47], chw:8.0}, // C2 Hypercar
+];
+/* Smooth, closed, left/right-symmetric outline through the station midpoints
+   (nose at top → tail at bottom). Quadratic-midpoint smoothing so the stations
+   act as tangents — reliable and roundly car-like at this size. */
+function _tdPath(cx, ys, hw){
+  const R = ys.map((y,i)=>[cx+hw[i], y]);
+  const seq = [[cx, ys[0]], ...R.slice(1, R.length-1), [cx, ys[ys.length-1]],
+               ...ys.map((y,i)=>[cx-hw[i], y]).slice(1, ys.length-1).reverse()];
+  const f=n=>(+n).toFixed(2), mid=(a,b)=>[(a[0]+b[0])/2,(a[1]+b[1])/2], n=seq.length;
+  let s=mid(seq[n-1], seq[0]), d=`M${f(s[0])} ${f(s[1])}`;
+  for(let i=0;i<n;i++){ const c=seq[i], m=mid(c, seq[(i+1)%n]); d+=`Q${f(c[0])} ${f(c[1])} ${f(m[0])} ${f(m[1])}`; }
+  return d+"Z";
+}
+const _tdLum=h=>{ const [r,g,b]=_hx(h); return (0.299*r+0.587*g+0.114*b)/255; };
 function topCarSVG(tier, cos={}){
-  const car = CARS[Math.max(0, Math.min(CARS.length-1, tier))];
-  const paint = cos.paint || {};
-  const c1 = paint.c1 || car.c1, c2 = paint.c2 || car.c2, ac = paint.ac || car.ac;
-  const glass = darken(c2, 0.35);
-  const wheel = cos.goldWheels ? "#caa53a" : "#1a1d22";
-  const wheelHi = cos.goldWheels ? "#f0d477" : "#33383f";
-  const gid = "tc"+tier+"_"+Math.random().toString(36).slice(2,7);
+  const t=Math.max(0, Math.min(CARS.length-1, tier)), car=CARS[t], spec=TOPCAR[t];
+  const paint=cos.paint||{};
+  const c1=paint.c1||car.c1, c2=paint.c2||car.c2, ac=paint.ac||car.ac;
+  const matte=cos.finish==="matte", metallic=cos.finish==="metallic";
+  const hiT=matte?0.05:0.16, loT=matte?0.16:0.24;                 // gradient contrast (matte = flatter)
+  const glass=darken(c2,0.42), stroke=darken(c2,0.28);
+  const wheel=cos.goldWheels?"#c9a13a":"#15181d", wheelHi=cos.goldWheels?"#ffe9a8":"#3b414a";
+  const contrast=_tdLum(c1)>0.55?"#15181d":"#f2f4f8";             // decal ink that stands off the paint
+  const gid="tc"+t+"_"+Math.random().toString(36).slice(2,7), cx=21;
+  const ys=[spec.ny, spec.ny+6, 22, 38, 52, spec.ty], hw=spec.hw;
+  const bodyD=_tdPath(cx, ys, hw);
+  // glasshouse
+  const [cf,cr]=spec.cab, cm=(cf+cr)/2, ch=spec.chw;
+  const canD=_tdPath(cx, [cf, cf+(cm-cf)*0.4, cm, cr-(cr-cm)*0.4, cr],
+                          [ch*0.5, ch*0.9, ch, ch*0.78, ch*0.5]);
+  // aero (tier default, upgraded/overridden by the equipped aero cosmetic)
+  const aero=cos.aeroEquip;
+  let wingLv=spec.wing, split=spec.split, carbon=false, diffuser=false;
+  if(aero==="bigwing"){ wingLv=2; }
+  else if(aero==="carbonwing"){ wingLv=Math.max(2,wingLv); carbon=true; }
+  else if(aero==="lip"){ split=Math.max(split,1.35); }
+  else if(aero==="diffuser"){ diffuser=true; }
+  const wingCol=carbon?"#26292f":c2, wingEdge=carbon?"#15171b":darken(c2,0.3);
+  // wheels (drawn first so the body overlaps their inner half)
+  const wy=[ys[2], ys[4]];   // front & rear axle y
+  const whw=[hw[2], hw[4]];
+  let wheels="";
+  for(let a=0;a<2;a++){ for(const sgn of [-1,1]){
+    const cxw=cx+sgn*(whw[a]+0.6), x=(cxw-3).toFixed(1), y=(wy[a]-6.5).toFixed(1);
+    wheels+=`<rect x="${x}" y="${y}" width="6" height="13" rx="2.4" fill="${wheel}"/>`+
+            `<rect x="${(cxw-1).toFixed(1)}" y="${(wy[a]-5).toFixed(1)}" width="2" height="10" rx="1" fill="${wheelHi}" opacity="0.55"/>`;
+  }}
+  // decal on the deck/hood
+  const dec=cos.decalEquip; let decal="";
+  if(dec==="stripes"||dec==="flames"){
+    decal=`<rect x="${cx-4.2}" y="${ys[0]+2}" width="2.6" height="${spec.ty-ys[0]-4}" rx="1" fill="${contrast}" opacity="0.9"/>`+
+          `<rect x="${cx+1.6}" y="${ys[0]+2}" width="2.6" height="${spec.ty-ys[0]-4}" rx="1" fill="${contrast}" opacity="0.9"/>`;
+  } else if(dec==="pinstripe"){
+    decal=`<rect x="${cx-0.6}" y="${ys[0]+3}" width="1.2" height="${spec.ty-ys[0]-6}" fill="${contrast}" opacity="0.85"/>`;
+  } else if(dec==="checkered"){
+    let sq=""; for(let r=0;r<2;r++){ for(let cCol=0;cCol<4;cCol++){ if((r+cCol)%2) continue;
+      sq+=`<rect x="${cx-6+cCol*3}" y="${ys[1]+3+r*3}" width="3" height="3" fill="${contrast}"/>`; } }
+    decal=`<g opacity="0.9">${sq}</g>`;
+  } else if(dec==="roundel"){
+    decal=`<g><circle cx="${cx}" cy="${ys[3]}" r="4.6" fill="${contrast}"/><circle cx="${cx}" cy="${ys[3]}" r="4.6" fill="none" stroke="${c1}" stroke-width="0.7"/>`+
+          `<text x="${cx}" y="${ys[3]+2.6}" text-anchor="middle" font-size="6" font-weight="800" fill="${c1}" font-family="system-ui,sans-serif">8</text></g>`;
+  } else {
+    decal=`<rect x="${cx-0.9}" y="${ys[0]+4}" width="1.8" height="${spec.ty-ys[0]-8}" fill="${ac}" opacity="0.22"/>`;
+  }
+  // front splitter, lights, mirrors
+  const spW=hw[0]*2*split+4;
+  const splitter=`<rect x="${(cx-spW/2).toFixed(1)}" y="${(spec.ny-0.5).toFixed(1)}" width="${spW.toFixed(1)}" height="2.4" rx="1.2" fill="${darken(c2,0.35)}"/>`;
+  const head=`<ellipse cx="${cx-hw[0]-2.2}" cy="${spec.ny+3.5}" rx="1.7" ry="1.2" fill="#eaf2ff"/><ellipse cx="${cx+hw[0]+2.2}" cy="${spec.ny+3.5}" rx="1.7" ry="1.2" fill="#eaf2ff"/>`;
+  const tail=`<rect x="${(cx-hw[5]*0.72).toFixed(1)}" y="${(spec.ty-3).toFixed(1)}" width="${(hw[5]*1.44).toFixed(1)}" height="2.2" rx="1" fill="#e5473a"/>`;
+  const mir=`<rect x="${(cx-hw[1]-1.6).toFixed(1)}" y="${ys[1]-0.5}" width="2.2" height="2.6" rx="1" fill="${darken(c1,0.2)}"/><rect x="${(cx+hw[1]-0.6).toFixed(1)}" y="${ys[1]-0.5}" width="2.2" height="2.6" rx="1" fill="${darken(c1,0.2)}"/>`;
+  // rear wing / ducktail / diffuser
+  let rear="";
+  if(diffuser){ let fins=""; for(let i=-2;i<=2;i++) fins+=`<rect x="${cx+i*3-0.4}" y="${spec.ty-4}" width="0.9" height="4" fill="${darken(c2,0.4)}"/>`;
+    rear+=`<g opacity="0.9">${fins}</g>`; }
+  if(wingLv===1){
+    rear+=`<rect x="${(cx-hw[5]*0.9).toFixed(1)}" y="${(spec.ty-5).toFixed(1)}" width="${(hw[5]*1.8).toFixed(1)}" height="3" rx="1.4" fill="${darken(c2,0.2)}"/>`;
+  } else if(wingLv===2){
+    const ww=hw[5]+3, wy0=spec.ty-8;
+    rear+=`<rect x="${(cx-ww).toFixed(1)}" y="${(wy0+2.2).toFixed(1)}" width="${(ww*2).toFixed(1)}" height="5.5" rx="1" fill="#000" opacity="0.28"/>`+   // cast shadow
+          `<rect x="${(cx-ww).toFixed(1)}" y="${wy0.toFixed(1)}" width="1.8" height="7" rx="0.6" fill="${wingEdge}"/>`+                                 // endplates
+          `<rect x="${(cx+ww-1.8).toFixed(1)}" y="${wy0.toFixed(1)}" width="1.8" height="7" rx="0.6" fill="${wingEdge}"/>`+
+          `<rect x="${(cx-ww).toFixed(1)}" y="${(wy0+1.4).toFixed(1)}" width="${(ww*2).toFixed(1)}" height="3.2" rx="1.4" fill="${wingCol}" stroke="${wingEdge}" stroke-width="0.5"/>`;
+  }
+  const sheen = metallic
+    ? `<path d="${bodyD}" fill="#ffffff" opacity="0.10"/><rect x="${cx-hw[3]}" y="${ys[2]}" width="${hw[3]*0.7}" height="${ys[4]-ys[2]}" fill="#ffffff" opacity="0.10"/>`
+    : "";
   return `<svg class="topcar" viewBox="0 0 42 72" preserveAspectRatio="xMidYMid meet" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
     <defs><linearGradient id="${gid}" x1="0" y1="0" x2="1" y2="0">
-      <stop offset="0" stop-color="${darken(c1,0.18)}"/>
-      <stop offset="0.5" stop-color="${lighten(c1,0.10)}"/>
-      <stop offset="1" stop-color="${darken(c1,0.22)}"/>
+      <stop offset="0" stop-color="${darken(c1,loT)}"/><stop offset="0.5" stop-color="${lighten(c1,hiT)}"/><stop offset="1" stop-color="${darken(c1,loT*0.85)}"/>
     </linearGradient></defs>
-    <g fill="${wheel}">
-      <rect x="1.5" y="14" width="7" height="15" rx="2.5"/><rect x="33.5" y="14" width="7" height="15" rx="2.5"/>
-      <rect x="1.5" y="44" width="7" height="15" rx="2.5"/><rect x="33.5" y="44" width="7" height="15" rx="2.5"/>
-    </g>
-    <g fill="${wheelHi}" opacity="0.5">
-      <rect x="2.5" y="15" width="2" height="13" rx="1"/><rect x="37.5" y="15" width="2" height="13" rx="1"/>
-      <rect x="2.5" y="45" width="2" height="13" rx="1"/><rect x="37.5" y="45" width="2" height="13" rx="1"/>
-    </g>
-    <path d="M21 2 C29 2 34 8 35 18 L35 58 C35 66 30 70 21 70 C12 70 7 66 7 58 L7 18 C8 8 13 2 21 2 Z" fill="url(#${gid})" stroke="${darken(c2,0.2)}" stroke-width="1"/>
-    <path d="M13 20 C16 17 26 17 29 20 L27 33 L15 33 Z" fill="${glass}" opacity="0.92"/>
-    <rect x="13" y="36" width="16" height="15" rx="3" fill="${glass}" opacity="0.85"/>
-    <path d="M15 54 L27 54 L28 60 C25 62 17 62 14 60 Z" fill="${glass}" opacity="0.8"/>
-    <rect x="20" y="6" width="2" height="60" fill="${ac}" opacity="0.28"/>
-    <circle cx="14" cy="8" r="1.8" fill="${lighten(ac,0.2)}"/><circle cx="28" cy="8" r="1.8" fill="${lighten(ac,0.2)}"/>
+    <g>${wheels}</g>
+    <path d="${bodyD}" fill="url(#${gid})" stroke="${stroke}" stroke-width="0.9"/>
+    ${sheen}${splitter}${decal}
+    <path d="${canD}" fill="${glass}"/>
+    <path d="${canD}" fill="none" stroke="${lighten(c2,0.12)}" stroke-width="0.5" opacity="0.6"/>
+    ${mir}${head}${tail}${rear}
   </svg>`;
 }
 
