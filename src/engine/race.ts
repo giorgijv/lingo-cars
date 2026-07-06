@@ -1,5 +1,6 @@
-import type { Prisma, PrismaClient, RaceResult } from "@prisma/client";
+import type { Prisma, PrismaClient, ProficiencyState, RaceResult } from "@prisma/client";
 import { getCar, type CarProjection } from "./car.js";
+import { raceXpFor, recomputeProficiency } from "./proficiency.js";
 
 /**
  * Phase 4 — race minigame (real-time driven sprint vs. AI rivals).
@@ -14,9 +15,14 @@ import { getCar, type CarProjection } from "./car.js";
  * finish time that is faster than physically possible for this car, so a
  * tampered client can never log a result better than its proficiency allows.
  *
- * Racing is pure engagement: it writes ONLY to the append-only RaceResult log
- * and awards no points, no xp, no CEFR movement (D3/D5 stay airtight). A
- * race's outcome is (finishing position, finish time) among the field of
+ * Racing writes to the append-only RaceResult log and awards a small points
+ * trickle (raceXpFor — a fraction of a single lesson answer's xp; see
+ * proficiency.ts), so it stays a fun side loop rather than a substitute for
+ * studying. D3/D5 still stay airtight: racing can NEVER move CEFR or unlock a
+ * higher car class (only mastery does that), and the points only fund
+ * cosmetics/tuning within the ALREADY-unlocked class — car speed/handling
+ * remain a pure projection of proficiency, never of race skill. A race's
+ * outcome is (finishing position, finish time) among the field of
  * `rivalCount + 1` cars — not a shift-accuracy skill score.
  */
 
@@ -137,11 +143,13 @@ export interface RaceRun {
   bestPosition: number; // best (lowest) finishing position incl. this run
   isNewBest: boolean;
   result: RaceResult;
+  pointsEarned: number; // this race's small xp trickle (raceXpFor(position))
+  proficiency: ProficiencyState | null; // refreshed AFTER folding this race's points in
 }
 
 /** Run a race server-authoritatively: project the car (D5 ceiling), validate
- *  the submission against it, append one immutable RaceResult row. No other
- *  state is touched. */
+ *  the submission against it, append one immutable RaceResult row, then fold
+ *  a small points trickle into proficiency (never CEFR/tier — see raceXpFor). */
 export async function runRace(
   db: Db,
   userId: string,
@@ -176,6 +184,12 @@ export async function runRace(
     },
   });
 
+  // Fold this race's small points trickle into proficiency (xp only — the
+  // same recompute lesson attempts trigger). CEFR/tier are driven entirely by
+  // mastery elsewhere and are never touched here (D3).
+  await recomputeProficiency(db, userId, pairId);
+  const proficiency = await db.proficiencyState.findUnique({ where: { userId_pairId: { userId, pairId } } });
+
   const isNewBest = !prevBest || outcome.finishMs < prevBest.finishMs;
   return {
     outcome,
@@ -184,6 +198,8 @@ export async function runRace(
     bestPosition: prevBestPosition ? Math.min(prevBestPosition.position, outcome.position) : outcome.position,
     isNewBest,
     result,
+    pointsEarned: raceXpFor(outcome.position),
+    proficiency,
   };
 }
 

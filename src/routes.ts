@@ -381,7 +381,8 @@ export function createRouter(db: PrismaClient): Router {
   //    ceiling from the car's CURRENT projection and rejects any submitted
   //    finish time that's faster than physically possible for this car —
   //    it never trusts the client. Racing appends to an immutable log and
-  //    awards nothing (no points/xp/CEFR). ──
+  //    awards a small points trickle (raceXpFor — well under a single lesson
+  //    answer); it still never moves CEFR or unlocks a higher car class. ──
   const raceSchema = z.object({
     userId: z.string(),
     pairId: z.string(),
@@ -393,7 +394,7 @@ export function createRouter(db: PrismaClient): Router {
   r.post("/races", asyncHandler(async (req, res) => {
     const { userId, pairId, ...submission } = parse(raceSchema, req.body);
     try {
-      const run = await runRace(db, userId, pairId, submission);
+      const run = await db.$transaction((tx) => runRace(tx, userId, pairId, submission));
       res.status(201).json({
         finishMs: run.outcome.finishMs,
         ceilingMs: run.outcome.ceilingMs,
@@ -404,6 +405,8 @@ export function createRouter(db: PrismaClient): Router {
         bestPosition: run.bestPosition,
         isNewBest: run.isNewBest,
         car: { tier: run.car.tier, className: run.car.className, speed: run.car.speed, handling: run.car.handling },
+        pointsEarned: run.pointsEarned,
+        proficiency: run.proficiency,
       });
     } catch (err) {
       if (err instanceof RaceValidationError) {

@@ -153,6 +153,8 @@
   .modalCard input{width:100%;margin-top:4px;padding:10px 12px;border-radius:10px;border:1px solid var(--line);background:#0f1620;color:var(--ink);font-family:inherit;font-size:14px;box-sizing:border-box}
   .modalCard input:focus{outline:2px solid var(--accent);outline-offset:1px}
   .syncState{font-size:12px;color:var(--muted);margin-top:10px;min-height:16px}
+  .rulesBody{display:flex;flex-direction:column;gap:10px;font-size:14px;line-height:1.5;color:var(--ink)}
+  .rulesBody b{color:var(--accent)}
   .center{text-align:center}
   .lead{color:var(--muted);font-size:15px;line-height:1.5;margin:8px 0 0}
   .kpis{display:flex;gap:18px;justify-content:center;margin-top:14px;color:var(--muted);font-size:13px;flex-wrap:wrap}
@@ -326,9 +328,20 @@
         </div>
       </div>
       <select id="pairSel" aria-label="Language pair" class="visually-hidden" tabindex="-1"></select>
+      <button id="rulesBtn" class="btn secondary" aria-haspopup="dialog" type="button">📜 <span id="rulesBtnLabel">Rules</span></button>
       <button id="accountBtn" aria-haspopup="dialog">👤 Log In or Sign Up</button>
     </div>
   </header>
+
+  <!-- RULES (localized to the current pair's SOURCE/UI language — the -->
+  <!-- language the learner already knows, not the one being studied) -->
+  <div class="modalOverlay hide" id="rulesOverlay" role="dialog" aria-modal="true" aria-label="Rules">
+    <div class="modalCard" style="max-width:540px;max-height:82vh;overflow-y:auto">
+      <button class="modalClose" id="rulesCloseBtn" aria-label="Close">✕</button>
+      <h3 id="rulesTitle"></h3>
+      <div id="rulesBody" class="rulesBody"></div>
+    </div>
+  </div>
 
   <!-- ACCOUNT (login/signup — cross-device progress sync) -->
   <div class="modalOverlay hide" id="accountOverlay" role="dialog" aria-modal="true" aria-label="Account">
@@ -467,6 +480,73 @@ $("copyYear").textContent = new Date().getFullYear();
 const LANGS = { de:{name:"German",flag:"🇩🇪"}, en:{name:"English",flag:"🇬🇧"}, es:{name:"Spanish",flag:"🇪🇸"}, ka:{name:"Georgian",flag:"🇬🇪"}, ru:{name:"Russian",flag:"🇷🇺"} };
 const PAIRS = ["de-es","en-es","de-ka","en-ka","de-ru","en-ru","es-de","ka-de","ru-de","es-en","ka-en","ru-en"];
 const pairLabel = id => { const [s,t]=id.split("-"); return `${LANGS[s].flag} ${LANGS[s].name} → ${LANGS[t].flag} ${LANGS[t].name}`; };
+
+/* Game rules, localized to the current pair's SOURCE language (the language
+   the learner already knows, used as the vehicle to learn the target one) —
+   e.g. a German speaker learning Spanish reads these in German. Keyed by
+   every source language PAIRS can produce; "en" is the fallback for any pair
+   whose source isn't listed here. Car class names (City Hatch, Hypercar, …)
+   are left in English everywhere, matching the rest of the UI. */
+const RULES = {
+  en: { title: "How Lingo Cars works", items: [
+    "Learn a language, earn a car. Your car's CLASS (City Hatch → Hypercar) only ever advances through real progress — placement tests and daily study — never by spending points.",
+    "Answer questions to earn points and build mastery. Correct answers count more, but every attempt helps — spaced repetition brings skills back right before you'd forget them.",
+    "Your car's speed and handling rise smoothly as you get closer to your next class, so you'll see it improve week to week, not just at the big class jumps.",
+    "Points buy cosmetics and tuning parts — paint, wheels, decals, aero — for the class you're already in. Points can NEVER buy a higher class.",
+    "Racing is a fun side game: your class sets your car's top-speed ceiling, and clean driving (launches, overtakes, drafting) decides who wins within it — a Hypercar always beats a City Hatch, but two same-class drivers are decided by skill.",
+    "A race finish earns a few points too — far fewer than studying does. Racing can never unlock a new car class.",
+    "The placement test estimates your starting level in about ten minutes. If it turns out to be off, your first few sessions can adjust it up or down — no penalty, just a quick recalibration.",
+    "There's no way to lose progress: every attempt and every race is saved. Study whenever you like, race whenever you like — your car reflects what you've learned, not how much you've spent.",
+  ]},
+  de: { title: "So funktioniert Lingo Cars", items: [
+    "Lerne eine Sprache, verdiene dir ein Auto. Die KLASSE deines Autos (City Hatch → Hypercar) steigt nur durch echten Fortschritt — Einstufungstests und tägliches Lernen — niemals durch das Ausgeben von Punkten.",
+    "Beantworte Aufgaben, um Punkte zu verdienen und dein Können auszubauen. Richtige Antworten zählen mehr, aber jeder Versuch hilft — die Wiederholung bringt Inhalte genau dann zurück, bevor du sie vergisst.",
+    "Geschwindigkeit und Handling deines Autos steigen kontinuierlich, je näher du deiner nächsten Klasse kommst — du siehst also Woche für Woche Fortschritt, nicht nur bei den großen Klassensprüngen.",
+    "Mit Punkten kaufst du Kosmetik und Tuning-Teile — Lackierung, Felgen, Aufkleber, Spoiler — für deine AKTUELLE Klasse. Punkte können niemals eine höhere Klasse freischalten.",
+    "Rennen sind ein spaßiges Nebenspiel: Deine Klasse bestimmt die Höchstgeschwindigkeit deines Autos, sauberes Fahren (Start, Überholen, Windschatten) entscheidet, wer innerhalb dieser Grenze gewinnt — ein Hypercar schlägt immer einen City Hatch, aber zwischen zwei Fahrern derselben Klasse entscheidet das Können.",
+    "Ein Rennergebnis bringt auch ein paar Punkte — deutlich weniger als beim Lernen. Rennen können niemals eine neue Klasse freischalten.",
+    "Der Einstufungstest schätzt dein Startniveau in etwa zehn Minuten. Sollte er daneben liegen, passen deine ersten Sitzungen es automatisch nach oben oder unten an — ganz ohne Nachteil, nur eine kurze Neukalibrierung.",
+    "Fortschritt geht nie verloren: Jeder Versuch und jedes Rennen wird gespeichert. Lerne, wann immer du willst, fahre Rennen, wann immer du willst — dein Auto spiegelt wider, was du gelernt hast, nicht wie viel du ausgegeben hast.",
+  ]},
+  es: { title: "Cómo funciona Lingo Cars", items: [
+    "Aprende un idioma, gánate un coche. La CLASE de tu coche (City Hatch → Hypercar) solo avanza con progreso real — pruebas de nivel y estudio diario — nunca gastando puntos.",
+    "Responde preguntas para ganar puntos y desarrollar tu dominio. Los aciertos cuentan más, pero cada intento ayuda — la repetición espaciada trae de vuelta lo aprendido justo antes de que lo olvides.",
+    "La velocidad y el manejo de tu coche suben de forma continua a medida que te acercas a tu próxima clase, así que verás mejoras semana a semana, no solo en los grandes saltos de clase.",
+    "Los puntos compran cosméticos y piezas de tuning — pintura, llantas, calcomanías, aerodinámica — para la clase en la que ya estás. Los puntos NUNCA pueden comprar una clase superior.",
+    "Correr es un minijuego divertido: tu clase fija el límite de velocidad máxima de tu coche, y conducir limpio (salidas, adelantamientos, rebufo) decide quién gana dentro de ese límite — un Hypercar siempre le gana a un City Hatch, pero entre dos pilotos de la misma clase decide la habilidad.",
+    "Terminar una carrera también da algunos puntos — muchos menos que estudiar. Correr nunca puede desbloquear una clase nueva.",
+    "La prueba de nivel estima tu punto de partida en unos diez minutos. Si se equivoca, tus primeras sesiones la ajustan hacia arriba o hacia abajo — sin penalización, solo una recalibración rápida.",
+    "No hay forma de perder el progreso: cada intento y cada carrera se guardan. Estudia cuando quieras, corre cuando quieras — tu coche refleja lo que has aprendido, no cuánto has gastado.",
+  ]},
+  ru: { title: "Как устроен Lingo Cars", items: [
+    "Изучай язык — получай машину. КЛАСС твоей машины (City Hatch → Hypercar) растёт только за счёт реального прогресса — теста на уровень и ежедневных занятий — и никогда за очки.",
+    "Отвечай на вопросы, чтобы получать очки и повышать мастерство. Правильные ответы дают больше, но засчитывается любая попытка — интервальное повторение возвращает материал как раз перед тем, как ты его забудешь.",
+    "Скорость и управляемость машины растут плавно по мере приближения к следующему классу — прогресс виден каждую неделю, а не только при больших скачках класса.",
+    "За очки покупаются косметика и тюнинг — покраска, диски, наклейки, обвес — для ТЕКУЩЕГО класса. Очки никогда не откроют более высокий класс.",
+    "Гонки — это весёлая побочная игра: твой класс задаёт предельную скорость машины, а чистое вождение (старт, обгоны, езда в аэродинамической тени) решает, кто победит в этих пределах — Hypercar всегда обгонит City Hatch, а между гонщиками одного класса решает мастерство.",
+    "Финиш в гонке тоже даёт немного очков — намного меньше, чем учёба. Гонки никогда не открывают новый класс машины.",
+    "Тест на уровень оценивает твой стартовый уровень примерно за десять минут. Если оценка окажется неточной, первые несколько занятий скорректируют её вверх или вниз — без штрафов, это просто быстрая калибровка.",
+    "Прогресс никогда не теряется: каждая попытка и каждая гонка сохраняются. Учись, когда хочешь, гоняй, когда хочешь — твоя машина отражает то, что ты выучил, а не то, сколько ты потратил.",
+  ]},
+  ka: { title: "როგორ მუშაობს Lingo Cars", items: [
+    "ისწავლე ენა და დაიმსახურე მანქანა. შენი მანქანის კლასი (City Hatch → Hypercar) იზრდება მხოლოდ რეალური პროგრესით — განმსაზღვრელი ტესტითა და ყოველდღიური სწავლით — და არასდროს ქულების დახარჯვით.",
+    "უპასუხე კითხვებს ქულების მოსაპოვებლად და ცოდნის გასაღრმავებლად. სწორი პასუხები მეტს იძლევა, მაგრამ ყოველი მცდელობა გეხმარება — დაშორებული გამეორება მასალას სწორედ დავიწყებამდე გიბრუნებს.",
+    "შენი მანქანის სიჩქარე და მართვადობა თანდათან იზრდება შემდეგი კლასისკენ მიახლოებასთან ერთად — პროგრესს ყოველ კვირას შეამჩნევ, არა მხოლოდ დიდი კლასის ცვლილებისას.",
+    "ქულებით შეგიძლია იყიდო კოსმეტიკა და ტიუნინგის ნაწილები — ფერი, დისკები, სტიკერები, აეროდინამიკა — შენი ამჟამინდელი კლასისთვის. ქულებით უფრო მაღალი კლასის შეძენა არასდროს შეიძლება.",
+    "რბოლა სახალისო დამატებითი თამაშია: შენი კლასი განსაზღვრავს მანქანის მაქსიმალურ სიჩქარეს, ხოლო სუფთა ტარება (სტარტი, გასწრება, ნაკვალევში მოძრაობა) წყვეტს, ვინ გაიმარჯვებს ამ ზღვარში — Hypercar ყოველთვის აჯობებს City Hatch-ს, მაგრამ ერთი კლასის მძღოლებს შორის გამარჯვებას ოსტატობა წყვეტს.",
+    "რბოლის დასრულებაც რამდენიმე ქულას იძლევა — გაცილებით ნაკლებს, ვიდრე სწავლა. რბოლით ახალი კლასის განბლოკვა არასდროს ხერხდება.",
+    "განმსაზღვრელი ტესტი შენს საწყის დონეს დაახლოებით ათ წუთში აფასებს. თუ შეფასება არასწორი აღმოჩნდება, პირველი რამდენიმე სესია მას ავტომატურად აწესრიგებს — ყოველგვარი ჯარიმის გარეშე, უბრალოდ სწრაფი დაკალიბრებაა.",
+    "პროგრესი არასდროს იკარგება: ყოველი მცდელობა და ყოველი რბოლა ინახება. ისწავლე, როცა გინდა, ივლიე რბოლაში, როცა გინდა — შენი მანქანა ასახავს იმას, რაც ისწავლე და არა იმას, რამდენი დახარჯე.",
+  ]},
+};
+function currentUiLang(){ return (S.pair||"en-es").split("-")[0]; }
+function openRulesModal(){
+  const r = RULES[currentUiLang()] || RULES.en;
+  $("rulesTitle").textContent = r.title;
+  $("rulesBody").innerHTML = r.items.map(i=>`<p>${i}</p>`).join("");
+  $("rulesOverlay").classList.remove("hide");
+}
+function closeRulesModal(){ $("rulesOverlay").classList.add("hide"); }
 
 /* ============================ Content banks ============================ */
 /* Per TARGET language. s = stem per source language; o = options in the target
@@ -3973,6 +4053,9 @@ async function syncRaceResult(finishMs, position, rivalCount, trackId){
 $("accountBtn").onclick = openAccountModal;
 $("accountCloseBtn").onclick = closeAccountModal;
 $("accountOverlay").addEventListener("click", e=>{ if(e.target.id==="accountOverlay") closeAccountModal(); });
+$("rulesBtn").onclick = openRulesModal;
+$("rulesCloseBtn").onclick = closeRulesModal;
+$("rulesOverlay").addEventListener("click", e=>{ if(e.target.id==="rulesOverlay") closeRulesModal(); });
 $("loginBtn").onclick = ()=>doAuth("login");
 $("signupBtn").onclick = ()=>doAuth("signup");
 $("logoutBtn").onclick = async ()=>{
@@ -4530,8 +4613,10 @@ $("nextBtn").onclick=()=>{ if(nextAction){ const a=nextAction; nextAction=null; 
    (vMax) and acceleration are pure functions of its CURRENT projected stats
    (the same curSpd/curHnd interpolation renderGarage/carSVG use). Throttle only
    realizes performance UP TO vMax — the player can NEVER exceed the
-   proficiency-derived top speed. Racing awards nothing: no XP, no points, no
-   CEFR movement, and winning never unlocks a car (D3/D5). */
+   proficiency-derived top speed. A finished race earns a SMALL points trickle
+   (see onRaceFinish — a fraction of a single lesson answer), funding cosmetics/
+   tuning within the current class only; it never moves CEFR, and winning never
+   unlocks a higher car class (D3/D5 stay intact). */
 const TRACK_LEN = 900;     // default sprint length (world units); per-race length = race.trackLen
 const PX_PER_UNIT = 2.0;   // world→screen scale (parallax scroll + finish approach)
 const RACE_STEP = 1/120;   // fixed physics timestep → frame-rate independent
@@ -4712,7 +4797,7 @@ function renderRaceLobby(){
         ${board}
         ${recent?`<div class="rrecent">Recent: ${recent}</div>`:""}
       </div>
-      <p class="lead" style="font-size:12px;text-align:center;margin-top:4px">Racing is for bragging rights only — no points, no XP, no car unlocks. The field drives at entry-class pace, so a higher class is a real edge on the track — but a faster car comes only from language mastery.</p>
+      <p class="lead" style="font-size:12px;text-align:center;margin-top:4px">Racing is mostly for bragging rights — it earns a few points (much less than studying) and never unlocks a car. The field drives at entry-class pace, so a higher class is a real edge on the track — but a faster car comes only from language mastery.</p>
     </div>`;
   const pick=(container,kind)=>{
     $(container).querySelectorAll("[data-"+kind+"]").forEach(b=>b.onclick=()=>{
@@ -4827,7 +4912,7 @@ function renderRaceStage(){
       <button type="button" class="racebtn sound" id="soundBtn" aria-label="Toggle engine sound">🔇 Sound</button>
       <button type="button" class="btn secondary" id="raceQuitBtn" aria-label="Quit the race">Quit</button>
     </div>
-    <p class="lead" id="raceHelp" style="font-size:12px;text-align:center;margin-top:6px">Nail the launch at GO (gas / <kbd>W</kbd>), then overtake by steering left/right — <b>swipe or tap the sides of the track</b>, use the <kbd>◀</kbd>/<kbd>▶</kbd> buttons, or the arrow keys — and tuck in behind a rival to slipstream. The field drives at entry-class pace, so a higher class pulls away — racing is just for fun: no points, no XP, and winning never unlocks a car.</p>`;
+    <p class="lead" id="raceHelp" style="font-size:12px;text-align:center;margin-top:6px">Nail the launch at GO (gas / <kbd>W</kbd>), then overtake by steering left/right — <b>swipe or tap the sides of the track</b>, use the <kbd>◀</kbd>/<kbd>▶</kbd> buttons, or the arrow keys — and tuck in behind a rival to slipstream. The field drives at entry-class pace, so a higher class pulls away — a finish earns a few points, but studying earns far more, and winning never unlocks a car.</p>`;
   // per-track scenery tint (self-contained CSS vars, CSP-safe)
   const w=$("raceWorld");
   if(w && race.track){ w.style.setProperty("--rwall", race.track.wall); w.style.setProperty("--rfloor", race.track.floor); w.style.setProperty("--rkerb", race.track.kerb); }
@@ -5167,6 +5252,15 @@ function onRaceFinish(){
   const st=P(), player=race.cars[0], n=race.cars.length, pos=player.place, track=race.track;
   haptic(pos===1 ? [30,50,30,50,80] : [40]);   // Prompt 4: a celebratory buzz on a win, a short one otherwise
   const improved = recordRace(st, race.trackId, race.tier, pos, player.finishMs, player.finished, race.diff);
+  // A small points trickle for a FINISHED race — a fraction of a single lesson
+  // answer (10 for correct), so racing stays a fun side loop, never a
+  // substitute for studying. Mirrors the server's raceXpFor(position) formula
+  // (src/engine/proficiency.ts). A DNF earns nothing (it's never even
+  // submitted server-side). Points only ever fund cosmetics/tuning within the
+  // ALREADY-unlocked class — racing still never unlocks a higher car (D3);
+  // car speed/handling stay a pure proficiency projection either way (D5).
+  const raceXp = player.finished ? Math.max(1, 5-pos) : 0;
+  if(raceXp>0) st.xp += raceXp;
   save();
   const best = bestFor(st, race.trackId, race.tier);
   if(player.finished) syncRaceResult(player.finishMs, pos, race.cars.length-1, race.trackId);   // best-effort; see syncRaceResult()
@@ -5190,8 +5284,9 @@ function onRaceFinish(){
         <div class="racestats">
           <span><b>${player.finished?(player.finishMs/1000).toFixed(2)+"s":"DNF"}</b> your time</span>
           <span><b>${best?medal(best.pos)+(best.ms!=null?" · "+(best.ms/1000).toFixed(2)+"s":""):"—"}</b> best here</span>
+          ${raceXp>0?`<span><b>+${raceXp}</b> points</span>`:""}
         </div>
-        <p class="lead" style="font-size:12px;text-align:center">The field drives at entry-class pace — climb the classes to leave them behind, or win a City Hatch fight on clean driving alone. Racing grants no points, XP, or unlocks; a faster car comes only from language mastery.</p>
+        <p class="lead" style="font-size:12px;text-align:center">The field drives at entry-class pace — climb the classes to leave them behind, or win a City Hatch fight on clean driving alone. Racing earns a few points, but nowhere near what studying does — a faster car comes only from language mastery.</p>
         <div class="row" style="justify-content:center">
           <button class="btn" id="raceAgainBtn">Race again</button>
           <button class="btn secondary" id="raceLobbyBtn">Change track</button>
