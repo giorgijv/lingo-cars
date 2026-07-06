@@ -160,24 +160,32 @@
   .shiftfb{min-height:20px;font-weight:800;font-size:14px;text-align:center}
   .racestats{display:flex;gap:16px;justify-content:center;color:var(--muted);font-size:13px;flex-wrap:wrap;margin-top:8px}
   .racestats b{color:var(--ink);font-size:17px}
-  /* real-time sprint race world (Phase 4) — player + AI rivals in depth-lanes */
-  .raceworld{position:relative;height:235px;border-radius:14px;overflow:hidden;margin:10px 0;background:linear-gradient(180deg,#0f141c 0%,var(--rwall,#141b26) 44%,var(--rfloor,#182130) 58%);box-shadow:inset 0 0 0 1px var(--line)}
-  .rlayer{position:absolute;left:0;right:0;pointer-events:none}
-  .rhills{top:46%;height:13%;background:repeating-linear-gradient(90deg,transparent 0 44px,rgba(120,150,190,.10) 44px 48px)}
-  .rroad{top:58%;bottom:0;background:linear-gradient(180deg,#232a34,#12161d);box-shadow:inset 0 4px 12px rgba(0,0,0,.55)}
-  .rkerb{top:58%;height:6px;background:repeating-linear-gradient(90deg,var(--rkerb,#c0392b) 0 22px,#f2f2f2 22px 44px);opacity:.9}
-  .rroadline{top:80%;height:5px;background:repeating-linear-gradient(90deg,#e8c23a 0 34px,transparent 34px 76px);opacity:.75;border-radius:2px}
-  .rfinish{position:absolute;top:58%;bottom:0;width:16px;background:repeating-linear-gradient(180deg,#111 0 8px,#f5f5f5 8px 16px);box-shadow:0 0 0 2px rgba(0,0,0,.4);z-index:2}
-  .rcar{position:absolute;left:0;top:0;width:158px;will-change:transform}
-  .rcarInner{position:relative;transform-origin:center bottom;filter:drop-shadow(0 10px 8px rgba(0,0,0,.45))}
-  .rcar svg{width:100%;height:auto;display:block}
-  .rcar.moving .spokes{animation:rspin .5s linear infinite}
-  .rtag{position:absolute;top:-13px;left:50%;transform:translateX(-50%);font-size:10px;font-weight:800;letter-spacing:.5px;color:#0b1a2e;background:var(--accent);padding:1px 7px;border-radius:5px;white-space:nowrap;box-shadow:0 2px 6px rgba(0,0,0,.45);z-index:5}
-  @keyframes rspin{from{transform:rotate(0)}to{transform:rotate(360deg)}}
-  .rhud{position:absolute;top:10px;left:14px;right:14px;display:flex;align-items:center;justify-content:space-between;gap:12px;font-weight:800;font-size:13px;color:#e5eef8;text-shadow:0 1px 3px rgba(0,0,0,.75);z-index:6}
-  .rhud #rPos{background:rgba(10,16,26,.7);border:1px solid rgba(255,255,255,.18);border-radius:999px;padding:3px 10px}
-  .rprogwrap{flex:1;max-width:200px;height:7px;background:rgba(255,255,255,.16);border-radius:6px;overflow:hidden}
+  /* Vertical / portrait race world (re-orientation) — the road runs bottom→top,
+     the player is fixed near the BOTTOM, the world scrolls DOWN as you advance,
+     and the 3 lanes are LEFT / CENTRE / RIGHT. PHYSICS IS UNCHANGED: this is a
+     pure render/coordinate remap of the same dist+lane simulation. The portrait
+     shape is size-capped so it pillarboxes into a phone-shaped column on desktop
+     and fills the screen height on phones. */
+  .raceworld{position:relative;height:min(680px,78dvh);aspect-ratio:20/33;max-width:100%;margin:8px auto;border-radius:16px;overflow:hidden;background:var(--rfloor,#182130);box-shadow:inset 0 0 0 1px var(--line)}
+  .rlayer{position:absolute;pointer-events:none}
+  .rhills{inset:0;background:linear-gradient(90deg,var(--rfloor,#182130) 0 9%,#0e1420 12%,#0e1420 88%,var(--rfloor,#182130) 91% 100%)}
+  .rroad{top:0;bottom:0;left:12%;right:12%;background:linear-gradient(90deg,#161c24,#232a34 14%,#232a34 86%,#161c24);box-shadow:inset 0 0 14px rgba(0,0,0,.55)}
+  .rkerb{top:0;bottom:0;width:8px;background:repeating-linear-gradient(180deg,var(--rkerb,#c0392b) 0 22px,#f2f2f2 22px 44px);opacity:.92}
+  .rkerb-l{left:calc(12% - 8px)}
+  .rkerb-r{right:calc(12% - 8px)}
+  .rroadline{top:0;bottom:0;width:5px;background:repeating-linear-gradient(180deg,#e8c23a 0 34px,transparent 34px 78px);opacity:.75;border-radius:2px}
+  .rline-1{left:37%}
+  .rline-2{right:calc(37% - 5px)}
+  .rtop{position:absolute;top:0;left:12%;right:12%;height:22%;background:linear-gradient(180deg,rgba(8,10,15,.8),transparent);pointer-events:none;z-index:3}
+  .rfinish{position:absolute;left:12%;right:12%;height:14px;background:repeating-linear-gradient(90deg,#111 0 8px,#f5f5f5 8px 16px);box-shadow:0 0 0 2px rgba(0,0,0,.4);z-index:2}
+  .rcar{position:absolute;left:0;top:0;width:42px;height:72px;will-change:transform}
+  .rcarInner{position:relative;width:100%;height:100%;filter:drop-shadow(0 5px 5px rgba(0,0,0,.5))}
+  .rcar .topcar{width:100%;height:100%;display:block}
+  .rtag{position:absolute;top:-15px;left:50%;transform:translateX(-50%);font-size:10px;font-weight:800;letter-spacing:.5px;color:#0b1a2e;background:var(--accent);padding:1px 7px;border-radius:5px;white-space:nowrap;box-shadow:0 2px 6px rgba(0,0,0,.45);z-index:5}
+  .rprogtop{position:absolute;top:0;left:0;right:0;height:5px;background:rgba(255,255,255,.14);z-index:7;overflow:hidden}
   .rprog{display:block;height:100%;width:0;background:linear-gradient(90deg,var(--accent),#8fd0ff)}
+  .rhud{position:absolute;top:12px;left:14px;right:14px;display:flex;align-items:center;justify-content:space-between;gap:10px;font-weight:800;font-size:13px;color:#e5eef8;text-shadow:0 1px 3px rgba(0,0,0,.75);z-index:6}
+  .rhud #rPos{background:rgba(10,16,26,.7);border:1px solid rgba(255,255,255,.18);border-radius:999px;padding:3px 10px}
   .racecontrols{display:flex;gap:8px;justify-content:center;align-items:center;margin-top:6px;flex-wrap:wrap}
   .racebtn{flex:0 0 auto;min-width:104px;padding:15px 20px;font-size:16px;font-weight:800;border:none;border-radius:12px;background:var(--good);color:#06210f;cursor:pointer;font-family:inherit;touch-action:none;user-select:none;-webkit-user-select:none}
   .racebtn.brake{background:#e0654f;color:#2a0a04}
@@ -190,7 +198,7 @@
   /* Step 3 game-feel layers */
   .rscene{position:absolute;inset:0;will-change:transform}
   .rfx{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;z-index:14}
-  .rstreaks{position:absolute;left:0;right:0;top:60%;bottom:0;pointer-events:none;z-index:5;opacity:0;background:repeating-linear-gradient(90deg,rgba(255,255,255,.30) 0 2px,transparent 2px 130px)}
+  .rstreaks{position:absolute;left:12%;right:12%;top:0;bottom:0;pointer-events:none;z-index:5;opacity:0;background:repeating-linear-gradient(180deg,rgba(255,255,255,.30) 0 2px,transparent 2px 130px)}
   .rvignette{position:absolute;inset:0;pointer-events:none;z-index:6;opacity:0;background:radial-gradient(125% 85% at 50% 54%,transparent 52%,rgba(0,0,0,.6) 100%)}
   .rlights{position:absolute;top:16%;left:0;right:0;display:flex;flex-direction:column;align-items:center;gap:8px;pointer-events:none;z-index:20;transition:opacity .2s}
   .rlights.hide{opacity:0}
@@ -224,7 +232,8 @@
   .rbrow .rbval{color:var(--muted);font-variant-numeric:tabular-nums}
   .rrecent{font-size:12px;color:var(--muted);text-align:center;margin-top:6px;line-height:1.6}
   @media (max-width:560px){
-    .raceworld{height:200px}
+    /* Portrait fills the available height on phones (full-bleed-ish column). */
+    .raceworld{height:min(680px,72dvh)}
     .racecontrols{gap:6px}
     .racebtn{min-width:0;flex:1 1 40%;padding:14px 8px;font-size:15px}
     .racebtn.sound,.racecontrols .btn.secondary{flex:1 1 40%}
@@ -3470,6 +3479,43 @@ function exhaustSVG(c, tier){
   return `<g data-perf="exhaust">${out}</g>`;
 }
 
+/* Top-down car sprite for the VERTICAL race (nose points UP). Deliberately
+   simple in this first pass — a detailed realism pass comes in a later prompt.
+   Reuses the same CARS[] paint + cosmetic (custom paint / gold wheels) inputs
+   as the side-view carSVG so a car's class colour still reads at a glance. This
+   is purely a render sprite — it touches no physics or race state. The Garage's
+   side-view carSVG() is intentionally left untouched. */
+function topCarSVG(tier, cos={}){
+  const car = CARS[Math.max(0, Math.min(CARS.length-1, tier))];
+  const paint = cos.paint || {};
+  const c1 = paint.c1 || car.c1, c2 = paint.c2 || car.c2, ac = paint.ac || car.ac;
+  const glass = darken(c2, 0.35);
+  const wheel = cos.goldWheels ? "#caa53a" : "#1a1d22";
+  const wheelHi = cos.goldWheels ? "#f0d477" : "#33383f";
+  const gid = "tc"+tier+"_"+Math.random().toString(36).slice(2,7);
+  return `<svg class="topcar" viewBox="0 0 42 72" preserveAspectRatio="xMidYMid meet" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+    <defs><linearGradient id="${gid}" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="${darken(c1,0.18)}"/>
+      <stop offset="0.5" stop-color="${lighten(c1,0.10)}"/>
+      <stop offset="1" stop-color="${darken(c1,0.22)}"/>
+    </linearGradient></defs>
+    <g fill="${wheel}">
+      <rect x="1.5" y="14" width="7" height="15" rx="2.5"/><rect x="33.5" y="14" width="7" height="15" rx="2.5"/>
+      <rect x="1.5" y="44" width="7" height="15" rx="2.5"/><rect x="33.5" y="44" width="7" height="15" rx="2.5"/>
+    </g>
+    <g fill="${wheelHi}" opacity="0.5">
+      <rect x="2.5" y="15" width="2" height="13" rx="1"/><rect x="37.5" y="15" width="2" height="13" rx="1"/>
+      <rect x="2.5" y="45" width="2" height="13" rx="1"/><rect x="37.5" y="45" width="2" height="13" rx="1"/>
+    </g>
+    <path d="M21 2 C29 2 34 8 35 18 L35 58 C35 66 30 70 21 70 C12 70 7 66 7 58 L7 18 C8 8 13 2 21 2 Z" fill="url(#${gid})" stroke="${darken(c2,0.2)}" stroke-width="1"/>
+    <path d="M13 20 C16 17 26 17 29 20 L27 33 L15 33 Z" fill="${glass}" opacity="0.92"/>
+    <rect x="13" y="36" width="16" height="15" rx="3" fill="${glass}" opacity="0.85"/>
+    <path d="M15 54 L27 54 L28 60 C25 62 17 62 14 60 Z" fill="${glass}" opacity="0.8"/>
+    <rect x="20" y="6" width="2" height="60" fill="${ac}" opacity="0.28"/>
+    <circle cx="14" cy="8" r="1.8" fill="${lighten(ac,0.2)}"/><circle cx="28" cy="8" r="1.8" fill="${lighten(ac,0.2)}"/>
+  </svg>`;
+}
+
 function carSVG(tier, p, cos={}){
   const base = CARS[tier];
   const c = cos.paint ? Object.assign({}, base, cos.paint) : base;
@@ -4394,13 +4440,14 @@ const DIFFICULTIES = [
 function curTrack(){ return TRACKS.find(t=>t.id===S.raceTrack) || TRACKS[0]; }
 function curDiff(){ return DIFFICULTIES.find(d=>d.id===S.raceDiff) || DIFFICULTIES[1]; }
 
-/* Field / lane constants. Lane 0 = near (bottom, largest), 2 = far (top,
-   smallest) — a side-view "depth" road. Same-lane cars block/overtake; a
-   lane change (a change of depth) is how you pass. */
+/* Field / lane constants. VERTICAL layout: lanes are LEFT/CENTRE/RIGHT columns
+   (lane 0 = left, 2 = right); distance maps to screen-Y (ahead = up); the world
+   scrolls DOWNWARD past a player fixed near the bottom. Same-lane cars
+   block/overtake; a lane change (left/right) is how you pass. */
 const RACE_LANES=3, RIVAL_COUNT=3;
-const LANE_TOP=[168,150,134];      // px top of the car element per lane (near→far)
-const LANE_SCALE=[1.0,0.9,0.82];
-const LANE_Z=[13,12,11];
+const LANE_XS=[0.235,0.5,0.765];   // lane centre X as a fraction of world width (L→R)
+const PLAYER_Y_FRAC=0.74;          // player's fixed vertical anchor (fraction from top)
+const CAR_W=42, CAR_H=72;          // top-down car element size (px)
 const LANE_MIN_GAP=52;             // world units: closer than this in-lane = blocked
 const LANE_CD=0.8;                 // AI lane-change cooldown (s)
 const RACE_TIMEOUT=120;            // absolute safety cap (s)
@@ -4423,7 +4470,8 @@ function reduceMotion(){ try{ return !!(window.matchMedia && matchMedia("(prefer
 function fxSpawn(kind, x, y, n){
   if(reduceMotion() || !race || !race.fx) return;
   for(let i=0;i<n && race.fx.length<FX_MAX;i++){
-    if(kind==="smoke") race.fx.push({ k:"smoke", x:x+(Math.random()-0.5)*10, y:y+(Math.random()-0.5)*6, vx:-46-Math.random()*44, vy:-8-Math.random()*14, r:5+Math.random()*5, life:1, max:0.55+Math.random()*0.5 });
+    // VERTICAL layout: smoke trails DOWNWARD (backward) behind the up-pointing car.
+    if(kind==="smoke") race.fx.push({ k:"smoke", x:x+(Math.random()-0.5)*10, y:y+(Math.random()-0.5)*6, vx:(Math.random()-0.5)*40, vy:48+Math.random()*44, r:5+Math.random()*5, life:1, max:0.55+Math.random()*0.5 });
   }
 }
 function fxUpdateDraw(dt, canvas){
@@ -4566,7 +4614,7 @@ function startRace(seedArg){
       cruise, artTier:artTiers[i], lane:lanes0[i], dist:Math.max(20,dist0[i]+(rng()-0.5)*10),
       reactT:0.08+rng()*0.34 }));   // rivals' launch reaction time after GO
   }
-  cars.forEach(c=>{ c.vy=LANE_TOP[c.lane]; c.vs=LANE_SCALE[c.lane]; });
+  cars.forEach(c=>{ c.laneF=c.lane; });   // laneF = tweened float lane index (for smooth L/R glide)
   race = {
     raf:0, lastT:0, _rt:0, acc:0, autoStep:true, finishShown:false,
     input:{ throttle:false, brake:false },
@@ -4589,7 +4637,7 @@ function closeRace(){
 function renderRaceStage(){
   const st=P(), cos=cosmeticsOf(st);
   const carsHtml = race.cars.map(c=>{
-    const svg = c.isPlayer ? carSVG(c.artTier, inTierProgress(st.tier), cos) : carSVG(c.artTier, 0.5, {});
+    const svg = c.isPlayer ? topCarSVG(c.artTier, cos) : topCarSVG(c.artTier, {});
     const tag = c.isPlayer ? `<div class="rtag">YOU</div>` : "";
     return `<div class="rcar" id="rcar${c.id}"><div class="rcarInner">${tag}${svg}</div></div>`;
   }).join("");
@@ -4598,33 +4646,36 @@ function renderRaceStage(){
       <div class="rscene" id="rScene">
         <div class="rlayer rhills" id="rHills"></div>
         <div class="rlayer rroad"></div>
-        <div class="rlayer rkerb" id="rKerb"></div>
-        <div class="rlayer rroadline" id="rRoadline"></div>
+        <div class="rlayer rkerb rkerb-l" id="rKerbL"></div>
+        <div class="rlayer rkerb rkerb-r" id="rKerbR"></div>
+        <div class="rlayer rroadline rline-1" id="rRoadline1"></div>
+        <div class="rlayer rroadline rline-2" id="rRoadline2"></div>
         <div class="rfinish" id="rFinish"></div>
         ${carsHtml}
         <canvas class="rfx" id="rFx"></canvas>
       </div>
+      <div class="rtop"></div>
       <div class="rstreaks" id="rStreaks"></div>
       <div class="rvignette" id="rVig"></div>
       <div class="rlights" id="rLights"><div class="rlrow" id="rLrow"></div><div class="rlbig" id="rLbig"></div></div>
       <div class="rlaunch" id="rLaunch"></div>
       <div class="rdraft" id="rDraft">DRAFT</div>
+      <div class="rprogtop"><span class="rprog" id="rProg"></span></div>
       <div class="rhud">
         <span id="rPos">P1/${race.cars.length}</span>
         <span><span id="rSpeed">0</span> km/h</span>
-        <span class="rprogwrap"><span class="rprog" id="rProg"></span></span>
         <span id="rTime">0.00s</span>
       </div>
     </div>
     <div class="racecontrols" id="raceControls">
-      <button type="button" class="racebtn lane" id="laneUpBtn" aria-label="Move up a lane">▲ Lane</button>
-      <button type="button" class="racebtn lane" id="laneDownBtn" aria-label="Move down a lane">▼ Lane</button>
+      <button type="button" class="racebtn lane" id="laneLeftBtn" aria-label="Move left a lane">◀</button>
       <button type="button" class="racebtn" id="gasBtn" aria-label="Accelerate">GAS ⛽</button>
       <button type="button" class="racebtn brake" id="brakeBtn" aria-label="Brake">BRAKE</button>
+      <button type="button" class="racebtn lane" id="laneRightBtn" aria-label="Move right a lane">▶</button>
       <button type="button" class="racebtn sound" id="soundBtn" aria-label="Toggle engine sound">🔇 Sound</button>
       <button type="button" class="btn secondary" id="raceQuitBtn" aria-label="Quit the race">Quit</button>
     </div>
-    <p class="lead" style="font-size:12px;text-align:center;margin-top:6px">Nail the launch at GO (gas / <kbd>W</kbd>), weave to overtake (<kbd>↑</kbd>/<kbd>↓</kbd> or the lane buttons), and tuck in behind a rival to slipstream. Rivals are cars from your own class — racing is just for fun: no points, no XP, and winning never unlocks a car.</p>`;
+    <p class="lead" style="font-size:12px;text-align:center;margin-top:6px">Nail the launch at GO (gas / <kbd>W</kbd>), steer left/right to overtake (<kbd>◀</kbd>/<kbd>▶</kbd> or the lane buttons), and tuck in behind a rival to slipstream. Rivals are cars from your own class — racing is just for fun: no points, no XP, and winning never unlocks a car.</p>`;
   // per-track scenery tint (self-contained CSS vars, CSP-safe)
   const w=$("raceWorld");
   if(w && race.track){ w.style.setProperty("--rwall", race.track.wall); w.style.setProperty("--rfloor", race.track.floor); w.style.setProperty("--rkerb", race.track.kerb); }
@@ -4644,8 +4695,8 @@ function bindRaceControls(){
   hold("gasBtn","throttle");
   hold("brakeBtn","brake");
   const tap=(id,d)=>{ const b=$(id); if(b) b.addEventListener("pointerdown", e=>{ e.preventDefault(); changeLane(d); }); };
-  tap("laneUpBtn", 1);
-  tap("laneDownBtn", -1);
+  tap("laneLeftBtn", -1);
+  tap("laneRightBtn", 1);
   const sb=$("soundBtn"); if(sb) sb.onclick=raceAudioToggle;
   $("raceQuitBtn").onclick=closeRace;
 }
@@ -4718,8 +4769,7 @@ function raceStep(dt){
     if(c.v > c.env.vMax) c.v = c.env.vMax;   // ← per-car hard cap (player's = D5 ceiling); boosts NEVER exceed it
     if(c.v < 0) c.v = 0;
     c.dist += c.v*dt;
-    c.vy += (LANE_TOP[c.lane]-c.vy)*Math.min(1,dt*9);       // smooth depth-lane tween
-    c.vs += (LANE_SCALE[c.lane]-c.vs)*Math.min(1,dt*9);
+    c.laneF += (c.lane-c.laneF)*Math.min(1,dt*9);           // smooth L/R lane tween (render-only)
   }
   // AI lane decisions: change adjacent lane if stuck behind a slower car
   for(const c of cars){
@@ -4794,24 +4844,35 @@ function raceLoop(now){
   if(race.state.finished){ onRaceFinish(); return; }
   race.raf = requestAnimationFrame(raceLoop);
 }
+/* Lane index (possibly fractional, mid-tween) → centre X as a fraction of the
+   world width, linearly interpolated between the discrete LANE_XS anchors. */
+function laneFrac(lf){
+  const i=Math.max(0, Math.min(RACE_LANES-1, Math.floor(lf)));
+  const j=Math.min(RACE_LANES-1, i+1);
+  const f=Math.max(0, Math.min(1, lf-i));
+  return LANE_XS[i] + (LANE_XS[j]-LANE_XS[i])*f;
+}
 function renderRaceFrame(){
   if(!race) return;
   const world=$("raceWorld"); if(!world) return;
-  const W=world.clientWidth||600, player=race.cars[0];
-  const scroll=player.dist*PX_PER_UNIT, anchor=W*0.30;
+  const W=world.clientWidth||360, H=world.clientHeight||600, player=race.cars[0];
+  // VERTICAL mapping: distance → screen-Y (ahead = up), lane → screen-X. The
+  // player is fixed near the bottom (PLAYER_Y_FRAC); the world scrolls DOWN.
+  const scroll=player.dist*PX_PER_UNIT, anchorY=H*PLAYER_Y_FRAC;
   const run=race.phase==="run", rm=reduceMotion();
   const si=Math.min(1, player.v/player.env.vMax);      // 0..1 speed vs the cap
   const trackLen=race.trackLen||TRACK_LEN;
-  const bg=(id,f)=>{ const el=$(id); if(el) el.style.backgroundPositionX=f+"px"; };
-  bg("rHills", -scroll*0.35); bg("rKerb", -scroll); bg("rRoadline", -scroll);
-  const fin=$("rFinish"); if(fin) fin.style.left=(anchor+150 + (trackLen-player.dist)*PX_PER_UNIT)+"px";
+  const bgY=(id,f)=>{ const el=$(id); if(el) el.style.backgroundPositionY=f+"px"; };
+  bgY("rKerbL", scroll); bgY("rKerbR", scroll); bgY("rRoadline1", scroll); bgY("rRoadline2", scroll);
+  const fin=$("rFinish"); if(fin) fin.style.top=(anchorY - (trackLen-player.dist)*PX_PER_UNIT)+"px";
   for(const c of race.cars){
     if(!c.el) continue;
-    const x = anchor + (c.dist-player.dist)*PX_PER_UNIT;
-    c.el.style.transform = `translateX(${x.toFixed(1)}px)`;
-    c.el.style.zIndex = LANE_Z[c.lane]+(c.isPlayer?1:0);
+    const cx = W*laneFrac(c.laneF);
+    const cy = anchorY - (c.dist-player.dist)*PX_PER_UNIT;
+    c.el.style.transform = `translate(${(cx-CAR_W/2).toFixed(1)}px,${(cy-CAR_H/2).toFixed(1)}px)`;
+    c.el.style.zIndex = (c.isPlayer?13:11);
     c.el.classList.toggle("moving", c.v>2);
-    if(c.inner){ c.inner.style.transform=`translateY(${c.vy.toFixed(1)}px) scale(${c.vs.toFixed(3)})`; c.inner.style.opacity=c.finished?"0.5":"1"; }
+    if(c.inner) c.inner.style.opacity=c.finished?"0.5":"1";
   }
   // camera shake + speed vignette + motion streaks, all scaled by speed
   const sc=$("rScene");
@@ -4821,7 +4882,7 @@ function renderRaceFrame(){
     } else sc.style.transform="none";
   }
   const vg=$("rVig"); if(vg) vg.style.opacity = rm?"0.08":(run?(0.08+si*0.34).toFixed(2):"0.05");
-  const stk=$("rStreaks"); if(stk){ stk.style.opacity = (rm||!run)?"0":(si*0.5).toFixed(2); stk.style.backgroundPositionX=(-scroll*1.8)+"px"; }
+  const stk=$("rStreaks"); if(stk){ stk.style.opacity = (rm||!run)?"0":(si*0.5).toFixed(2); stk.style.backgroundPositionY=(scroll*1.8)+"px"; }
   // start lights (3-2-1-GO)
   const big=$("rLbig"), row=$("rLrow"), lights=$("rLights");
   if(lights){
@@ -4846,7 +4907,7 @@ function renderRaceFrame(){
   // particles (tyre smoke) + engine audio pitch
   const now=performance.now(); const rdt=Math.min(0.05,(now-(race._rt||now))/1000); race._rt=now;
   if(run && !rm){
-    const rwx=anchor+34*player.vs, rwy=player.vy+54*player.vs;
+    const rwx=W*laneFrac(player.laneF), rwy=anchorY+CAR_H*0.34;   // rear of the player car
     if(player.boostT>0 && player.v<player.env.vMax*0.85) fxSpawn("smoke", rwx, rwy, 1);
     if(race.input.brake && player.v>26) fxSpawn("smoke", rwx, rwy, 2);
   }
@@ -4945,20 +5006,21 @@ function runCelebration(){
   celebRaf=requestAnimationFrame(tick);
 }
 /* Global keyboard controls — active only while a live race is running. Gas/brake
-   are held; Up/Down change depth-lane (one step per press, ignoring auto-repeat). */
+   are held (W/Up/Space throttle, S/Down brake); Left/Right (or A/D) steer between
+   lanes (one step per press, ignoring auto-repeat). */
 window.addEventListener("keydown", e=>{
   if(!race || race.state.finished) return;
   const k=e.key.toLowerCase();
-  if(k==="w"||k===" "){ race.input.throttle=true; e.preventDefault(); }
-  else if(k==="s"){ race.input.brake=true; e.preventDefault(); }
-  else if(k==="arrowup"){ if(!e.repeat) changeLane(1); e.preventDefault(); }
-  else if(k==="arrowdown"){ if(!e.repeat) changeLane(-1); e.preventDefault(); }
+  if(k==="w"||k===" "||k==="arrowup"){ race.input.throttle=true; e.preventDefault(); }
+  else if(k==="s"||k==="arrowdown"){ race.input.brake=true; e.preventDefault(); }
+  else if(k==="arrowleft"||k==="a"){ if(!e.repeat) changeLane(-1); e.preventDefault(); }
+  else if(k==="arrowright"||k==="d"){ if(!e.repeat) changeLane(1); e.preventDefault(); }
 });
 window.addEventListener("keyup", e=>{
   if(!race) return;
   const k=e.key.toLowerCase();
-  if(k==="w"||k===" ") race.input.throttle=false;
-  else if(k==="s") race.input.brake=false;
+  if(k==="w"||k===" "||k==="arrowup") race.input.throttle=false;
+  else if(k==="s"||k==="arrowdown") race.input.brake=false;
 });
 
 /* ============================ Pair switching & wiring ============================ */
