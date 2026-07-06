@@ -178,9 +178,13 @@
   .rline-2{right:calc(37% - 5px)}
   .rtop{position:absolute;top:0;left:12%;right:12%;height:22%;background:linear-gradient(180deg,rgba(8,10,15,.8),transparent);pointer-events:none;z-index:3}
   .rfinish{position:absolute;left:12%;right:12%;height:14px;background:repeating-linear-gradient(90deg,#111 0 8px,#f5f5f5 8px 16px);box-shadow:0 0 0 2px rgba(0,0,0,.4);z-index:2}
-  .rcar{position:absolute;left:0;top:0;width:42px;height:72px;will-change:transform}
+  .rcar{position:absolute;left:0;top:0;width:42px;height:72px;will-change:transform;transform-origin:50% 50%}
   .rcarInner{position:relative;width:100%;height:100%;filter:drop-shadow(0 5px 5px rgba(0,0,0,.5))}
   .rcar .topcar{width:100%;height:100%;display:block}
+  /* Braking cue (Race Prompt 3): the tail light brightens/glows — driven by
+     the player's brake input, or a rival's blockedBy state (a visible tell
+     that the car ahead is stuck and a lane change will pass it). */
+  .rcar.braking .rtail{fill:#ff6a52;filter:drop-shadow(0 0 4px rgba(255,70,50,.9))}
   .rtag{position:absolute;top:-15px;left:50%;transform:translateX(-50%);font-size:10px;font-weight:800;letter-spacing:.5px;color:#0b1a2e;background:var(--accent);padding:1px 7px;border-radius:5px;white-space:nowrap;box-shadow:0 2px 6px rgba(0,0,0,.45);z-index:5}
   .rprogtop{position:absolute;top:0;left:0;right:0;height:5px;background:rgba(255,255,255,.14);z-index:7;overflow:hidden}
   .rprog{display:block;height:100%;width:0;background:linear-gradient(90deg,var(--accent),#8fd0ff)}
@@ -3564,7 +3568,7 @@ function topCarSVG(tier, cos={}){
   const spW=hw[0]*2*split+4;
   const splitter=`<rect x="${(cx-spW/2).toFixed(1)}" y="${(spec.ny-0.5).toFixed(1)}" width="${spW.toFixed(1)}" height="2.4" rx="1.2" fill="${darken(c2,0.35)}"/>`;
   const head=`<ellipse cx="${cx-hw[0]-2.2}" cy="${spec.ny+3.5}" rx="1.7" ry="1.2" fill="#eaf2ff"/><ellipse cx="${cx+hw[0]+2.2}" cy="${spec.ny+3.5}" rx="1.7" ry="1.2" fill="#eaf2ff"/>`;
-  const tail=`<rect x="${(cx-hw[5]*0.72).toFixed(1)}" y="${(spec.ty-3).toFixed(1)}" width="${(hw[5]*1.44).toFixed(1)}" height="2.2" rx="1" fill="#e5473a"/>`;
+  const tail=`<rect class="rtail" x="${(cx-hw[5]*0.72).toFixed(1)}" y="${(spec.ty-3).toFixed(1)}" width="${(hw[5]*1.44).toFixed(1)}" height="2.2" rx="1" fill="#e5473a"/>`;
   const mir=`<rect x="${(cx-hw[1]-1.6).toFixed(1)}" y="${ys[1]-0.5}" width="2.2" height="2.6" rx="1" fill="${darken(c1,0.2)}"/><rect x="${(cx+hw[1]-0.6).toFixed(1)}" y="${ys[1]-0.5}" width="2.2" height="2.6" rx="1" fill="${darken(c1,0.2)}"/>`;
   // rear wing / ducktail / diffuser
   let rear="";
@@ -4531,6 +4535,7 @@ const RACE_LANES=3, RIVAL_COUNT=3;
 const LANE_XS=[0.235,0.5,0.765];   // lane centre X as a fraction of world width (L→R)
 const PLAYER_Y_FRAC=0.74;          // player's fixed vertical anchor (fraction from top)
 const CAR_W=42, CAR_H=72;          // top-down car element size (px)
+const LANE_LEAN_DEG=10;            // render-only Prompt-3 polish: max cornering lean (deg)
 const LANE_MIN_GAP=52;             // world units: closer than this in-lane = blocked
 const LANE_CD=0.8;                 // AI lane-change cooldown (s)
 const RACE_TIMEOUT=120;            // absolute safety cap (s)
@@ -4694,13 +4699,19 @@ function startRace(seedArg){
   const refEnv=raceEnvelope(1.0,1.0), refV=refEnv.vMax;   // fixed A1 reference (spd=1,hnd=1)
   const fracs=diff.fracs, dist0=[190,120,60], lanes0=[0,2,1];
   const artTiers=[0,1,0];   // City / Hot / City Hatch — the fixed reference field
+  // Rivals 0 and 2 share a class (both City Hatch) and would otherwise be
+  // pixel-identical; a fixed, distinct decal per rival index (no rng draw, so
+  // seed reproducibility is unaffected) makes the pack tellable apart at a
+  // glance — purely cosmetic, never purchased or owned (D3: no economy tie-in).
+  const rivalDecals=["pinstripe","stripes","checkered"];
   for(let i=0;i<RIVAL_COUNT;i++){
     const f=Math.max(0.45, Math.min(0.88, fracs[i]+(rng()-0.5)*0.03));
     const cruise=refV*f, vMax=cruise/0.96, accel=refEnv.accel*(0.88+0.24*f);
     cars.push(mk({ id:i+1, isPlayer:false,
       env:{ vMax, accel, brakeDecel:accel*2.4, coastDrag:accel*0.28 },
       cruise, artTier:artTiers[i], lane:lanes0[i], dist:Math.max(20,dist0[i]+(rng()-0.5)*10),
-      reactT:0.08+rng()*0.34 }));   // rivals' launch reaction time after GO
+      reactT:0.08+rng()*0.34,   // rivals' launch reaction time after GO
+      cos:{ decalEquip: rivalDecals[i] } }));
   }
   cars.forEach(c=>{ c.laneF=c.lane; });   // laneF = tweened float lane index (for smooth L/R glide)
   race = {
@@ -4725,7 +4736,7 @@ function closeRace(){
 function renderRaceStage(){
   const st=P(), cos=cosmeticsOf(st);
   const carsHtml = race.cars.map(c=>{
-    const svg = c.isPlayer ? topCarSVG(c.artTier, cos) : topCarSVG(c.artTier, {});
+    const svg = c.isPlayer ? topCarSVG(c.artTier, cos) : topCarSVG(c.artTier, c.cos||{});
     const tag = c.isPlayer ? `<div class="rtag">YOU</div>` : "";
     return `<div class="rcar" id="rcar${c.id}"><div class="rcarInner">${tag}${svg}</div></div>`;
   }).join("");
@@ -4957,9 +4968,20 @@ function renderRaceFrame(){
     if(!c.el) continue;
     const cx = W*laneFrac(c.laneF);
     const cy = anchorY - (c.dist-player.dist)*PX_PER_UNIT;
-    c.el.style.transform = `translate(${(cx-CAR_W/2).toFixed(1)}px,${(cy-CAR_H/2).toFixed(1)}px)`;
-    c.el.style.zIndex = (c.isPlayer?13:11);
+    // Cornering lean (Prompt 3 polish, render-only): tilt toward the target
+    // lane while the tween is in flight — derived purely from existing
+    // lane/laneF state, so it naturally eases to 0deg as the glide settles.
+    const lean = rm ? 0 : Math.max(-LANE_LEAN_DEG, Math.min(LANE_LEAN_DEG, (c.lane-c.laneF)*LANE_LEAN_DEG));
+    c.el.style.transform = `translate(${(cx-CAR_W/2).toFixed(1)}px,${(cy-CAR_H/2).toFixed(1)}px) rotate(${lean.toFixed(1)}deg)`;
+    // Depth stacking by screen position (closer to the bottom = visually
+    // nearer = on top), so overlapping cars during an overtake stack the way
+    // they actually would; the player gets a flat bias to stay legible.
+    c.el.style.zIndex = Math.round(cy) + (c.isPlayer?500:0);
     c.el.classList.toggle("moving", c.v>2);
+    // Brake-light tell: the player's brake input, or — for rivals — being
+    // held up behind a slower leader (c.blockedBy), so a stuck rival visibly
+    // signals "pass me now" rather than just quietly capping their speed.
+    c.el.classList.toggle("braking", c.isPlayer ? (run && race.input.brake) : c.blockedBy!=null);
     if(c.inner) c.inner.style.opacity=c.finished?"0.5":"1";
   }
   // camera shake + speed vignette + motion streaks, all scaled by speed
@@ -4998,6 +5020,15 @@ function renderRaceFrame(){
     const rwx=W*laneFrac(player.laneF), rwy=anchorY+CAR_H*0.34;   // rear of the player car
     if(player.boostT>0 && player.v<player.env.vMax*0.85) fxSpawn("smoke", rwx, rwy, 1);
     if(race.input.brake && player.v>26) fxSpawn("smoke", rwx, rwy, 2);
+    // Sparse tyre-scrub wisp for a rival held up behind a slower leader — a
+    // subtle visual echo of its brake-light tell, not a constant stream.
+    for(const c of race.cars){
+      if(c.isPlayer || c.finished || c.blockedBy==null) continue;
+      if(Math.random()<0.35){
+        const cx=W*laneFrac(c.laneF), cy=anchorY-(c.dist-player.dist)*PX_PER_UNIT;
+        fxSpawn("smoke", cx, cy+CAR_H*0.34, 1);
+      }
+    }
   }
   fxUpdateDraw(rdt, $("rFx"));
   try{ if(race.audio && race.audio.on) race.audio.osc.frequency.value = 62 + si*258; }catch(e){}
