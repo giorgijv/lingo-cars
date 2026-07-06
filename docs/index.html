@@ -348,7 +348,7 @@
 <body>
 <div class="toast" id="toast"></div>
 <div class="wrap">
-  <div class="topCopyright">&copy; 2026 Giorgi Jvarsheishvili. All rights reserved.</div>
+  <div class="topCopyright">&copy; 2026 Giorgi Jvarsheishvili. <span data-i18n="footer.rights">All rights reserved.</span></div>
   <header>
     <div class="brand"><span class="dot">●</span> Lingo&nbsp;Cars</div>
     <div class="row" style="margin-top:0;gap:8px">
@@ -358,12 +358,12 @@
           <span class="pairPickerCaret">▾</span>
         </button>
         <div class="pairPickerPanel hide" id="pairPickerPanel" role="listbox" aria-label="Language pair">
-          <input type="text" id="pairPickerSearch" class="pairPickerSearch" placeholder="Search a language…" autocomplete="off">
+          <input type="text" id="pairPickerSearch" class="pairPickerSearch" placeholder="Search a language…" data-i18n-ph="pair.search" autocomplete="off">
           <div id="pairPickerGroups"></div>
         </div>
       </div>
       <select id="pairSel" aria-label="Language pair" class="visually-hidden" tabindex="-1"></select>
-      <button id="rulesBtn" class="btn secondary" aria-haspopup="dialog" type="button">📜 <span id="rulesBtnLabel">Rules</span></button>
+      <button id="rulesBtn" class="btn secondary" aria-haspopup="dialog" type="button">📜 <span id="rulesBtnLabel" data-i18n="nav.rules">Rules</span></button>
       <button id="accountBtn" aria-haspopup="dialog">👤 Log In or Sign Up</button>
     </div>
   </header>
@@ -384,26 +384,26 @@
       <button class="modalClose" id="accountCloseBtn" aria-label="Close">✕</button>
 
       <div id="accountLoggedOut">
-        <h3>Save your progress</h3>
-        <p class="lead" style="margin-top:0">Sign in to keep your car, points, and study progress in sync across
+        <h3 data-i18n="acct.saveTitle">Save your progress</h3>
+        <p class="lead" style="margin-top:0" data-i18n="acct.saveBlurb">Sign in to keep your car, points, and study progress in sync across
           any device. Without an account, progress stays only in this browser.</p>
-        <label>API server URL
+        <label><span data-i18n="acct.apiUrl">API server URL</span>
           <input id="apiBaseInput" type="url" placeholder="https://your-lingo-cars-api.example.com" autocomplete="off">
         </label>
-        <label>Email <input id="authEmail" type="email" autocomplete="username"></label>
-        <label>Password <input id="authPassword" type="password" autocomplete="current-password"></label>
+        <label><span data-i18n="acct.email">Email</span> <input id="authEmail" type="email" autocomplete="username"></label>
+        <label><span data-i18n="acct.password">Password</span> <input id="authPassword" type="password" autocomplete="current-password"></label>
         <div class="row" style="margin-top:16px">
-          <button class="btn" id="loginBtn">Log in</button>
-          <button class="btn secondary" id="signupBtn">Sign up</button>
+          <button class="btn" id="loginBtn" data-i18n="acct.login">Log in</button>
+          <button class="btn secondary" id="signupBtn" data-i18n="acct.signup">Sign up</button>
         </div>
         <div class="syncState" id="authMsg"></div>
       </div>
 
       <div id="accountLoggedIn" class="hide">
-        <h3>Signed in</h3>
-        <p class="lead" style="margin-top:0">Signed in as <b id="accountEmailLabel"></b>. Progress syncs to this
+        <h3 data-i18n="acct.signedInTitle">Signed in</h3>
+        <p class="lead" style="margin-top:0" id="accountSignedInText">Signed in as <b id="accountEmailLabel"></b>. Progress syncs to this
           account automatically after each answer.</p>
-        <button class="btn secondary" id="logoutBtn">Log out</button>
+        <button class="btn secondary" id="logoutBtn" data-i18n="acct.logout">Log out</button>
         <div class="syncState" id="syncMsg"></div>
       </div>
     </div>
@@ -414,35 +414,35 @@
     <div class="cefr" id="cefrBadge">—</div>
     <div class="carstage" id="carStage"></div>
     <div class="classname" id="className">—</div>
-    <div class="classsub" id="classSub">Answer questions to tune your car.</div>
+    <div class="classsub" id="classSub" data-i18n="garage.tuneSub">Answer questions to tune your car.</div>
 
     <div class="stats">
       <div class="stat">
-        <div class="lbl"><span>Speed</span><span id="speedVal">—</span></div>
+        <div class="lbl"><span data-i18n="garage.speed">Speed</span><span id="speedVal">—</span></div>
         <div class="meter"><i class="fill-speed" id="speedBar" style="width:0%"></i></div>
       </div>
       <div class="stat">
-        <div class="lbl"><span>Handling</span><span id="handlingVal">—</span></div>
+        <div class="lbl"><span data-i18n="garage.handling">Handling</span><span id="handlingVal">—</span></div>
         <div class="meter"><i class="fill-handling" id="handlingBar" style="width:0%"></i></div>
       </div>
     </div>
 
     <div class="progress">
-      <div class="lbl"><span id="progLabel">Progress to next class</span><span id="progPct">0%</span></div>
+      <div class="lbl"><span id="progLabel" data-i18n="garage.progressNext">Progress to next class</span><span id="progPct">0%</span></div>
       <div class="pbar"><i id="progBar" style="width:0%"></i>
         <div class="ticks"><span style="left:25%"></span><span style="left:50%"></span><span style="left:75%"></span></div>
       </div>
       <div class="mstones" id="mstones"></div>
     </div>
     <div class="row" style="justify-content:center;margin-top:14px">
-      <button class="btn secondary" id="raceBtn">🏁 Race this car</button>
+      <button class="btn secondary" id="raceBtn" data-i18n="garage.race">🏁 Race this car</button>
     </div>
   </section>
 
   <!-- RACE (Phase 4 — proficiency is the ceiling) -->
   <section class="card panel hide" id="racePanel">
     <div class="qmeta">
-      <span class="badge">🏁 Time trial</span>
+      <span class="badge" data-i18n="race.timeTrialBadge">🏁 Time trial</span>
       <span id="raceMeta"></span>
     </div>
     <div id="raceStage"></div>
@@ -455,9 +455,9 @@
       to raise your car's speed &amp; handling. Cross a CEFR threshold and you unlock the next class —
       City Hatch all the way to Hypercar. Each language pair has its own garage.</p>
     <div class="row" style="justify-content:center">
-      <button class="btn" id="startBtn">Start placement</button>
+      <button class="btn" id="startBtn" data-i18n="intro.start">Start placement</button>
       <button class="btn secondary" id="skipBtn">Skip &amp; study at A1</button>
-      <button class="btn secondary" id="resetBtn">Reset this pair</button>
+      <button class="btn secondary" id="resetBtn" data-i18n="intro.reset">Reset this pair</button>
     </div>
   </section>
 
@@ -471,7 +471,7 @@
     <div class="opts" id="opts"></div>
     <div class="row">
       <span class="feedback" id="feedback"></span>
-      <button class="btn hide" id="nextBtn" style="margin-left:auto">Next</button>
+      <button class="btn hide" id="nextBtn" style="margin-left:auto" data-i18n="quiz.next">Next</button>
     </div>
     <div class="kpis" id="quizKpis"></div>
   </section>
@@ -479,11 +479,11 @@
   <!-- GARAGE SHOP (Phase 3 economy) -->
   <section class="card panel" id="shopPanel">
     <div class="qmeta">
-      <span class="badge">🛠️ Garage shop</span>
+      <span class="badge" data-i18n="shop.titleBadge">🛠️ Garage shop</span>
       <span id="shopBalance">⭐ 0 points</span>
     </div>
     <div class="shopGroups" id="shopItems"></div>
-    <p class="lead" style="font-size:12px;margin-top:12px">Earn points by answering questions. Spend them, save them, or sell items back at 50%.
+    <p class="lead" style="font-size:12px;margin-top:12px" data-i18n-html="shop.footer">Earn points by answering questions. Spend them, save them, or sell items back at 50%.
       Cosmetics are visual only — <b>new car classes unlock through mastery, never purchases.</b></p>
   </section>
 
@@ -492,17 +492,17 @@
     <div class="stem" id="resultTitle">Placement complete</div>
     <p class="lead" id="resultText"></p>
     <div class="row" style="justify-content:center">
-      <button class="btn" id="beginStudyBtn">Start driving 🏁</button>
+      <button class="btn" id="beginStudyBtn" data-i18n="result.beginStudy">Start driving 🏁</button>
     </div>
   </section>
 
   <footer>
-    Demo of the <b>Lingo&nbsp;Cars</b> concept — works fully offline in your browser; sign in (👤, top right)
+    <span data-i18n-html="footer.demo">Demo of the <b>Lingo&nbsp;Cars</b> concept — works fully offline in your browser; sign in (👤, top right)
     to sync progress across devices via a <a href="https://github.com/giorgijv/lingo-cars" target="_blank" rel="noopener">Lingo Cars API</a>
     server you point it at. The API also serves the full learning engine + car projection; this page is a
-    visual illustration of it.<br>
-    Car designs are original and brand-agnostic. Georgian and Russian demo content is illustrative.<br>
-    &copy; <span id="copyYear"></span> Giorgi Jvarsheishvili. All rights reserved.
+    visual illustration of it.</span><br>
+    <span data-i18n="footer.original">Car designs are original and brand-agnostic. Georgian and Russian demo content is illustrative.</span><br>
+    &copy; <span id="copyYear"></span> Giorgi Jvarsheishvili. <span data-i18n="footer.rights">All rights reserved.</span>
   </footer>
 </div>
 
@@ -512,7 +512,7 @@ const $ = id => document.getElementById(id);
 $("copyYear").textContent = new Date().getFullYear();
 const LANGS = { de:{name:"German",flag:"🇩🇪"}, en:{name:"English",flag:"🇬🇧"}, es:{name:"Spanish",flag:"🇪🇸"}, ka:{name:"Georgian",flag:"🇬🇪"}, ru:{name:"Russian",flag:"🇷🇺"} };
 const PAIRS = ["de-es","en-es","de-ka","en-ka","de-ru","en-ru","es-de","ka-de","ru-de","es-en","ka-en","ru-en"];
-const pairLabel = id => { const [s,t]=id.split("-"); return `${LANGS[s].flag} ${LANGS[s].name} → ${LANGS[t].flag} ${LANGS[t].name}`; };
+const pairLabel = id => { const [s,t]=id.split("-"); return `${LANGS[s].flag} ${langName(s)} → ${LANGS[t].flag} ${langName(t)}`; };
 
 /* Game rules, localized to the current pair's SOURCE language (the language
    the learner already knows, used as the vehicle to learn the target one) —
@@ -580,6 +580,623 @@ function openRulesModal(){
   $("rulesOverlay").classList.remove("hide");
 }
 function closeRulesModal(){ $("rulesOverlay").classList.add("hide"); }
+
+/* ============================ UI localization (i18n) ============================ */
+/* The whole app chrome renders in the current pair's SOURCE language
+   (currentUiLang() — the language the learner already knows, e.g. a German
+   speaker learning Spanish sees the UI in German). Every string falls back to
+   English when a key or language is missing, so nothing ever renders blank.
+   Car CLASS names (City Hatch … Hypercar), CEFR level codes and the "Lingo
+   Cars" brand are product identifiers and stay as-is in every language,
+   matching the Rules panel above. Values use {name}-style placeholders filled
+   in by t(). */
+const I18N = {
+  en: {
+    "lang.de":"German", "lang.en":"English", "lang.es":"Spanish", "lang.ka":"Georgian", "lang.ru":"Russian",
+    "meta.title":"Lingo Cars — learn a language, tune your car",
+    "meta.desc":"A gamified language-learning demo: your proficiency is a car that levels up as you learn. Spanish, Georgian & Russian, from German or English.",
+    "nav.rules":"Rules", "nav.account":"Log In or Sign Up",
+    "pair.search":"Search a language…", "pair.from":"from {lang}", "pair.learn":"Learn {lang}",
+    "acct.saveTitle":"Save your progress",
+    "acct.saveBlurb":"Sign in to keep your car, points, and study progress in sync across any device. Without an account, progress stays only in this browser.",
+    "acct.apiUrl":"API server URL", "acct.email":"Email", "acct.password":"Password",
+    "acct.login":"Log in", "acct.signup":"Sign up",
+    "acct.signedInTitle":"Signed in",
+    "acct.signedInAs":"Signed in as <b id=\"accountEmailLabel\">{email}</b>. Progress syncs to this account automatically after each answer.",
+    "acct.logout":"Log out",
+    "acct.needUrl":"Enter your API server URL first.",
+    "acct.needCreds":"Email and password are required.",
+    "acct.creating":"Creating account…", "acct.signingIn":"Signing in…",
+    "acct.dupEmail":"An account with that email already exists — try logging in instead.",
+    "acct.wrongCreds":"Wrong email or password.", "acct.genericErr":"Something went wrong.",
+    "acct.unreachable":"Couldn't reach the server — check the URL and that it's running.",
+    "acct.signedInToast":"Signed in as {email}",
+    "acct.signedOutToast":"Signed out — this device keeps its last-synced progress.",
+    "sync.now":"Synced just now ✓", "sync.failed":"Sync failed — will retry.",
+    "sync.offline":"Offline — will retry when reconnected.",
+    "garage.tuneSub":"Answer questions to tune your car.",
+    "garage.speed":"Speed", "garage.handling":"Handling",
+    "garage.progressNext":"Progress to next class", "garage.topReached":"Top class reached",
+    "garage.c2checkpoint":"C1 · C2 unlocks via a checkpoint", "garage.progressTo":"Progress to {class}",
+    "garage.race":"🏁 Race this car",
+    "race.timeTrialBadge":"🏁 Time trial",
+    "intro.welcome":"Welcome 👋", "intro.welcomeBack":"Welcome back 👋",
+    "intro.leadNew":"Take a 15-question adaptive placement test for {pair} to find your starting level, then keep answering to tune your car. Each language pair has its own garage.",
+    "intro.leadReturning":"Your {pair} garage is saved. Keep driving, retake placement, or reset this pair.",
+    "intro.start":"Start placement", "intro.skip":"Skip & study at A1",
+    "intro.continue":"Continue studying", "intro.reset":"Reset this pair",
+    "quiz.placement":"Placement", "quiz.study":"Study", "quiz.next":"Next",
+    "quiz.question":"Question {i} / {n}",
+    "quiz.correct":"Correct! 🎉", "quiz.closeEnough":"Close enough! 👍",
+    "quiz.correctAnswer":"Correct answer: {answer}",
+    "quiz.youHeard":"You heard: \"{text}\"", "quiz.target":"Target: {text}",
+    "quiz.targetHeard":"Target: {text} — heard: \"{heard}\"",
+    "quiz.check":"Check", "quiz.fillPlaceholder":"Type your answer…",
+    "quiz.fillHint":"Press Enter or click Check — small typos and missing accents are forgiven.",
+    "quiz.kpiXp":"XP", "quiz.kpiCorrect":"correct", "quiz.kpiToNext":"to next class",
+    "quiz.playAudio":"Play audio",
+    "quiz.listenTap":"Tap to listen (uses your browser's text-to-speech — voice quality, especially Georgian, depends on your device).",
+    "quiz.hearAria":"Hear a model pronunciation",
+    "quiz.hearMeta":"Hear a model pronunciation, then read it aloud.",
+    "quiz.micAria":"Start recording",
+    "quiz.micHint":"Tap the mic and read the sentence above. Your speech is sent to your browser's speech-recognition service (e.g. Google, on Chrome) to be transcribed — nothing is recorded or stored.",
+    "quiz.speakFillPlaceholder":"Type what you'd say…",
+    "quiz.noSR":"Your browser doesn't support speech recognition — type the sentence instead.",
+    "quiz.listening":"Listening… speak now.", "quiz.heard":"Heard: \"{text}\"",
+    "quiz.srFailed":"Couldn't hear you — recognition failed. Try again or type it below.",
+    "quiz.noSpeech":"No speech detected.",
+    "quiz.micUnavailable":"Microphone unavailable — type your answer instead.",
+    "shop.titleBadge":"🛠️ Garage shop", "shop.points":"⭐ {n} points",
+    "shop.wheels":"🛞 Wheels", "shop.paint":"🎨 Paint", "shop.decals":"🏁 Decals", "shop.aero":"🪽 Aero",
+    "shop.goldFinish":"Gold finish", "shop.customStudio":"Custom colour studio", "shop.customHex":"Custom hex:",
+    "shop.footer":"Earn points by answering questions. Spend them, save them, or sell items back at 50%. Cosmetics are visual only — <b>new car classes unlock through mastery, never purchases.</b>",
+    "shop.installed":"{icon} {name} installed!", "shop.sold":"Sold {name} (+{n} ⭐)", "shop.sellAria":"Sell {label}",
+    "cat.wheelstyle.label":"🛞 Wheel style", "cat.wheelstyle.default":"Standard / milestone",
+    "cat.finish.label":"✨ Paint finish", "cat.finish.default":"Gloss",
+    "cat.decal.label":"🏁 Decal", "cat.decal.default":"None / milestone stripe",
+    "cat.aero.label":"🪽 Aero", "cat.aero.default":"None / milestone kit",
+    "item.paint-custom":"Custom Paint Studio", "item.wheels-gold":"Gold wheels",
+    "item.wheels-mesh":"Mesh wheels", "item.wheels-deepdish":"Deep-dish wheels", "item.wheels-multispoke":"Multi-spoke wheels",
+    "item.finish-matte":"Matte finish", "item.finish-metallic":"Metallic pearl",
+    "item.decal-stripes":"Twin stripes", "item.decal-pinstripe":"Pinstripe", "item.decal-checkered":"Checkered accent",
+    "item.decal-flames":"Flame decal", "item.decal-roundel":"Number roundel",
+    "item.aero-lip":"Lip spoiler", "item.spoiler-carbon":"Carbon wing", "item.aero-diffuser":"Rear diffuser", "item.aero-bigwing":"GT wing",
+    "swatch.crimson":"Crimson", "swatch.ocean":"Ocean", "swatch.sunburst":"Sunburst", "swatch.midnight":"Midnight",
+    "swatch.racing":"Racing Green", "swatch.ultra":"Ultraviolet", "swatch.flamingo":"Flamingo", "swatch.carbon":"Carbon Black",
+    "swatch.pearl":"Pearl White", "swatch.champagne":"Champagne Gold", "swatch.teal":"Deep Teal", "swatch.sunset":"Sunset Orange",
+    "swatch.fire":"Duotone Fire", "swatch.shift":"Pearl Shift",
+    "mstone.wheels":"🛞 Sport wheels", "mstone.decal":"🏁 Racing stripe", "mstone.spoiler":"🪽 Aero kit",
+    "mstone.unlocked":"🔧 {name} unlocked!",
+    "car.sub.0":"A1 · where every driver starts", "car.sub.1":"A2 · quicker, sharper",
+    "car.sub.2":"B1 · long, composed, fast", "car.sub.3":"B2 · sleek fastback",
+    "car.sub.4":"C1 · low, wide, winged", "car.sub.5":"C2 · the summit",
+    "result.startingAt":"You're starting at {cefr}",
+    "result.text":"Estimated level <b>{cefr}</b> for <b>{pair}</b> → your ride is the <b>{car}</b>. Keep answering correctly to tune it and climb toward the next class.",
+    "result.beginStudy":"Start driving 🏁", "result.complete":"Placement complete",
+    "study.newCar":"🏁 New car unlocked — {car}!",
+    "race.pickMeta":"Pick a track and a class, then race", "race.liveMeta":"{car} · {track} · {diff}",
+    "race.track":"Track", "race.rivalClass":"Rival class",
+    "race.yourCar":"Your car:", "race.bestOn":"Best on {track}:", "race.notRaced":"— not raced yet",
+    "race.start":"🏁 Start race", "race.backToStudy":"Back to studying",
+    "race.personalBests":"Personal bests · {car}", "race.recent":"Recent: {list}",
+    "race.lobbyBlurb":"Racing is mostly for bragging rights — it earns a few points (much less than studying) and never unlocks a car. Rivals are real cars of their own class, some slower and some faster, and that spread never changes — so climbing YOUR class is what makes the field easier to beat, but a faster car still comes only from language mastery.",
+    "track.sprint.name":"City Sprint", "track.sprint.sub":"Short & punchy",
+    "track.coast.name":"Coastal Run", "track.coast.sub":"A longer haul",
+    "track.night.name":"Night Circuit", "track.night.sub":"Endurance test",
+    "diff.rookie.name":"Rookie", "diff.rookie.sub":"Relaxed rivals",
+    "diff.pro.name":"Pro", "diff.pro.sub":"A real race",
+    "diff.ace.name":"Ace", "diff.ace.sub":"Only clean wins",
+    "race.you":"YOU", "race.sound":"Sound", "race.muted":"Muted", "race.quit":"Quit",
+    "race.soundAria":"Toggle engine sound", "race.quitAria":"Quit the race",
+    "race.laneAria":"Change lane", "race.brakeAria":"Brake", "race.gasAria":"Accelerate",
+    "race.brakeBtn":"BRAKE", "race.gasBtn":"GAS ⛽",
+    "race.lane.left":"Left lane", "race.lane.center":"Center lane", "race.lane.right":"Right lane", "race.lane.n":"Lane {n}",
+    "race.help":"Nail the launch at GO (gas / <kbd>W</kbd>), then overtake by steering left/right — <b>swipe or tap the sides of the track</b>, drag the lane slider, or use the arrow keys — and tuck in behind a rival to slipstream. Rivals span a mix of classes that never changes — climbing your own class is how you pull away — a finish earns a few points, but studying earns far more, and winning never unlocks a car.",
+    "race.jumpStart":"Jump start 😬", "race.cleanLaunch":"Clean launch 🔥", "race.go":"GO!",
+    "race.draft":"DRAFT", "race.slipstream":"SLIPSTREAM!",
+    "finish.headline":"{place} of {n}!", "finish.subline":"{track} · {diff}", "finish.photo":" · 📸 Photo finish!",
+    "finish.yourTime":"your time", "finish.bestHere":"best here", "finish.points":"points",
+    "finish.dnf":"DNF", "finish.you":"You",
+    "finish.blurb":"Rivals are real cars of their own class — some slower, some faster — and that spread never changes, so climbing your own class is how you leave the tougher ones behind. Racing earns a few points, but nowhere near what studying does — a faster car comes only from language mastery.",
+    "finish.raceAgain":"Race again", "finish.changeTrack":"Change track",
+    "ord.1":"1st", "ord.2":"2nd", "ord.3":"3rd", "ord.4":"4th", "ord.5":"5th", "ord.n":"{n}th",
+    "reset.toast":"Progress for {pair} reset.",
+    "footer.demo":"Demo of the <b>Lingo&nbsp;Cars</b> concept — works fully offline in your browser; sign in (👤, top right) to sync progress across devices via a <a href=\"https://github.com/giorgijv/lingo-cars\" target=\"_blank\" rel=\"noopener\">Lingo Cars API</a> server you point it at. The API also serves the full learning engine + car projection; this page is a visual illustration of it.",
+    "footer.original":"Car designs are original and brand-agnostic. Georgian and Russian demo content is illustrative.",
+    "footer.rights":"All rights reserved.",
+  },
+  de: {
+    "lang.de":"Deutsch", "lang.en":"Englisch", "lang.es":"Spanisch", "lang.ka":"Georgisch", "lang.ru":"Russisch",
+    "meta.title":"Lingo Cars — lerne eine Sprache, tune dein Auto",
+    "meta.desc":"Eine spielerische Sprachlern-Demo: Deine Sprachkenntnisse sind ein Auto, das mit dir aufsteigt. Spanisch, Georgisch & Russisch, aus dem Deutschen oder Englischen.",
+    "nav.rules":"Regeln", "nav.account":"Anmelden oder registrieren",
+    "pair.search":"Sprache suchen…", "pair.from":"aus dem {lang}en", "pair.learn":"{lang} lernen",
+    "acct.saveTitle":"Fortschritt speichern",
+    "acct.saveBlurb":"Melde dich an, um dein Auto, deine Punkte und deinen Lernfortschritt geräteübergreifend zu synchronisieren. Ohne Konto bleibt der Fortschritt nur in diesem Browser.",
+    "acct.apiUrl":"API-Server-URL", "acct.email":"E-Mail", "acct.password":"Passwort",
+    "acct.login":"Anmelden", "acct.signup":"Registrieren",
+    "acct.signedInTitle":"Angemeldet",
+    "acct.signedInAs":"Angemeldet als <b id=\"accountEmailLabel\">{email}</b>. Der Fortschritt wird nach jeder Antwort automatisch mit diesem Konto synchronisiert.",
+    "acct.logout":"Abmelden",
+    "acct.needUrl":"Gib zuerst deine API-Server-URL ein.",
+    "acct.needCreds":"E-Mail und Passwort sind erforderlich.",
+    "acct.creating":"Konto wird erstellt…", "acct.signingIn":"Anmeldung läuft…",
+    "acct.dupEmail":"Ein Konto mit dieser E-Mail existiert bereits — melde dich stattdessen an.",
+    "acct.wrongCreds":"Falsche E-Mail oder falsches Passwort.", "acct.genericErr":"Etwas ist schiefgelaufen.",
+    "acct.unreachable":"Server nicht erreichbar — prüfe die URL und ob er läuft.",
+    "acct.signedInToast":"Angemeldet als {email}",
+    "acct.signedOutToast":"Abgemeldet — dieses Gerät behält den zuletzt synchronisierten Fortschritt.",
+    "sync.now":"Gerade synchronisiert ✓", "sync.failed":"Synchronisierung fehlgeschlagen — wird wiederholt.",
+    "sync.offline":"Offline — wird bei erneuter Verbindung wiederholt.",
+    "garage.tuneSub":"Beantworte Fragen, um dein Auto zu tunen.",
+    "garage.speed":"Geschwindigkeit", "garage.handling":"Handling",
+    "garage.progressNext":"Fortschritt zur nächsten Klasse", "garage.topReached":"Höchste Klasse erreicht",
+    "garage.c2checkpoint":"C1 · C2 wird über einen Checkpoint freigeschaltet", "garage.progressTo":"Fortschritt zu {class}",
+    "garage.race":"🏁 Mit diesem Auto fahren",
+    "race.timeTrialBadge":"🏁 Zeitfahren",
+    "intro.welcome":"Willkommen 👋", "intro.welcomeBack":"Willkommen zurück 👋",
+    "intro.leadNew":"Mach einen adaptiven Einstufungstest mit 15 Fragen für {pair}, um dein Startniveau zu finden, und beantworte dann weiter Fragen, um dein Auto zu tunen. Jedes Sprachpaar hat seine eigene Garage.",
+    "intro.leadReturning":"Deine Garage für {pair} ist gespeichert. Fahr weiter, wiederhole die Einstufung oder setze dieses Paar zurück.",
+    "intro.start":"Einstufung starten", "intro.skip":"Überspringen & bei A1 lernen",
+    "intro.continue":"Weiterlernen", "intro.reset":"Dieses Paar zurücksetzen",
+    "quiz.placement":"Einstufung", "quiz.study":"Lernen", "quiz.next":"Weiter",
+    "quiz.question":"Frage {i} / {n}",
+    "quiz.correct":"Richtig! 🎉", "quiz.closeEnough":"Fast richtig! 👍",
+    "quiz.correctAnswer":"Richtige Antwort: {answer}",
+    "quiz.youHeard":"Du hast gehört: „{text}“", "quiz.target":"Ziel: {text}",
+    "quiz.targetHeard":"Ziel: {text} — gehört: „{heard}“",
+    "quiz.check":"Prüfen", "quiz.fillPlaceholder":"Antwort eingeben…",
+    "quiz.fillHint":"Drücke Enter oder klicke auf Prüfen — kleine Tippfehler und fehlende Akzente werden verziehen.",
+    "quiz.kpiXp":"XP", "quiz.kpiCorrect":"richtig", "quiz.kpiToNext":"bis zur nächsten Klasse",
+    "quiz.playAudio":"Audio abspielen",
+    "quiz.listenTap":"Zum Anhören tippen (nutzt die Sprachausgabe deines Browsers — die Sprachqualität, besonders bei Georgisch, hängt von deinem Gerät ab).",
+    "quiz.hearAria":"Musteraussprache anhören",
+    "quiz.hearMeta":"Hör dir die Musteraussprache an und lies sie dann laut vor.",
+    "quiz.micAria":"Aufnahme starten",
+    "quiz.micHint":"Tippe auf das Mikrofon und lies den Satz oben vor. Deine Sprache wird zur Transkription an den Spracherkennungsdienst deines Browsers gesendet (z. B. Google in Chrome) — es wird nichts aufgezeichnet oder gespeichert.",
+    "quiz.speakFillPlaceholder":"Tippe, was du sagen würdest…",
+    "quiz.noSR":"Dein Browser unterstützt keine Spracherkennung — tippe den Satz stattdessen.",
+    "quiz.listening":"Ich höre zu… sprich jetzt.", "quiz.heard":"Gehört: „{text}“",
+    "quiz.srFailed":"Ich konnte dich nicht hören — Erkennung fehlgeschlagen. Versuch es erneut oder tippe es unten.",
+    "quiz.noSpeech":"Keine Sprache erkannt.",
+    "quiz.micUnavailable":"Mikrofon nicht verfügbar — tippe deine Antwort stattdessen.",
+    "shop.titleBadge":"🛠️ Garagen-Shop", "shop.points":"⭐ {n} Punkte",
+    "shop.wheels":"🛞 Felgen", "shop.paint":"🎨 Lack", "shop.decals":"🏁 Aufkleber", "shop.aero":"🪽 Aero",
+    "shop.goldFinish":"Goldfinish", "shop.customStudio":"Eigenes Farbstudio", "shop.customHex":"Eigener Hex-Wert:",
+    "shop.footer":"Verdiene Punkte, indem du Fragen beantwortest. Gib sie aus, spare sie oder verkaufe Teile zu 50 % zurück. Kosmetik ist rein optisch — <b>neue Autoklassen werden nur durch Können freigeschaltet, nie durch Käufe.</b>",
+    "shop.installed":"{icon} {name} eingebaut!", "shop.sold":"{name} verkauft (+{n} ⭐)", "shop.sellAria":"{label} verkaufen",
+    "cat.wheelstyle.label":"🛞 Felgendesign", "cat.wheelstyle.default":"Standard / Meilenstein",
+    "cat.finish.label":"✨ Lackfinish", "cat.finish.default":"Glanz",
+    "cat.decal.label":"🏁 Aufkleber", "cat.decal.default":"Keiner / Meilenstein-Streifen",
+    "cat.aero.label":"🪽 Aero", "cat.aero.default":"Keins / Meilenstein-Kit",
+    "item.paint-custom":"Eigenes Lackstudio", "item.wheels-gold":"Goldfelgen",
+    "item.wheels-mesh":"Netzfelgen", "item.wheels-deepdish":"Tiefbett-Felgen", "item.wheels-multispoke":"Vielspeichen-Felgen",
+    "item.finish-matte":"Matt-Finish", "item.finish-metallic":"Metallic-Perlmutt",
+    "item.decal-stripes":"Doppelstreifen", "item.decal-pinstripe":"Zierstreifen", "item.decal-checkered":"Karo-Akzent",
+    "item.decal-flames":"Flammen-Aufkleber", "item.decal-roundel":"Startnummer-Kreis",
+    "item.aero-lip":"Frontlippe", "item.spoiler-carbon":"Carbon-Heckflügel", "item.aero-diffuser":"Heckdiffusor", "item.aero-bigwing":"GT-Heckflügel",
+    "swatch.crimson":"Purpurrot", "swatch.ocean":"Ozeanblau", "swatch.sunburst":"Sonnengelb", "swatch.midnight":"Mitternacht",
+    "swatch.racing":"Racing-Grün", "swatch.ultra":"Ultraviolett", "swatch.flamingo":"Flamingo", "swatch.carbon":"Carbonschwarz",
+    "swatch.pearl":"Perlweiß", "swatch.champagne":"Champagnergold", "swatch.teal":"Tiefes Petrol", "swatch.sunset":"Sonnenuntergangsorange",
+    "swatch.fire":"Zweifarbig Feuer", "swatch.shift":"Perlschimmer",
+    "mstone.wheels":"🛞 Sportfelgen", "mstone.decal":"🏁 Rennstreifen", "mstone.spoiler":"🪽 Aero-Kit",
+    "mstone.unlocked":"🔧 {name} freigeschaltet!",
+    "car.sub.0":"A1 · wo jeder Fahrer anfängt", "car.sub.1":"A2 · schneller, schärfer",
+    "car.sub.2":"B1 · lang, souverän, schnell", "car.sub.3":"B2 · elegantes Fastback",
+    "car.sub.4":"C1 · tief, breit, beflügelt", "car.sub.5":"C2 · der Gipfel",
+    "result.startingAt":"Du startest bei {cefr}",
+    "result.text":"Geschätztes Niveau <b>{cefr}</b> für <b>{pair}</b> → dein Fahrzeug ist der <b>{car}</b>. Beantworte weiter richtig, um ihn zu tunen und zur nächsten Klasse aufzusteigen.",
+    "result.beginStudy":"Losfahren 🏁", "result.complete":"Einstufung abgeschlossen",
+    "study.newCar":"🏁 Neues Auto freigeschaltet — {car}!",
+    "race.pickMeta":"Wähle Strecke und Klasse, dann los", "race.liveMeta":"{car} · {track} · {diff}",
+    "race.track":"Strecke", "race.rivalClass":"Gegnerklasse",
+    "race.yourCar":"Dein Auto:", "race.bestOn":"Bestzeit auf {track}:", "race.notRaced":"— noch nicht gefahren",
+    "race.start":"🏁 Rennen starten", "race.backToStudy":"Zurück zum Lernen",
+    "race.personalBests":"Persönliche Bestwerte · {car}", "race.recent":"Zuletzt: {list}",
+    "race.lobbyBlurb":"Rennen sind vor allem für den Stolz — sie bringen ein paar Punkte (viel weniger als Lernen) und schalten nie ein Auto frei. Die Gegner sind echte Autos ihrer eigenen Klasse, mal langsamer, mal schneller, und dieser Bereich ändert sich nie — deine EIGENE Klasse zu steigern macht das Feld leichter zu schlagen, aber ein schnelleres Auto kommt nur durch Sprachkönnen.",
+    "track.sprint.name":"City-Sprint", "track.sprint.sub":"Kurz & knackig",
+    "track.coast.name":"Küstenfahrt", "track.coast.sub":"Eine längere Strecke",
+    "track.night.name":"Nachtkurs", "track.night.sub":"Ausdauertest",
+    "diff.rookie.name":"Rookie", "diff.rookie.sub":"Entspannte Gegner",
+    "diff.pro.name":"Pro", "diff.pro.sub":"Ein echtes Rennen",
+    "diff.ace.name":"Ass", "diff.ace.sub":"Nur saubere Siege",
+    "race.you":"DU", "race.sound":"Ton", "race.muted":"Stumm", "race.quit":"Beenden",
+    "race.soundAria":"Motorsound umschalten", "race.quitAria":"Rennen beenden",
+    "race.laneAria":"Spur wechseln", "race.brakeAria":"Bremse", "race.gasAria":"Gas geben",
+    "race.brakeBtn":"BREMSE", "race.gasBtn":"GAS ⛽",
+    "race.lane.left":"Linke Spur", "race.lane.center":"Mittlere Spur", "race.lane.right":"Rechte Spur", "race.lane.n":"Spur {n}",
+    "race.help":"Erwische den Start bei GO (Gas / <kbd>W</kbd>), überhole dann durch Lenken nach links/rechts — <b>wische oder tippe an die Seiten der Strecke</b>, zieh den Spur-Regler oder nutze die Pfeiltasten — und häng dich hinter einen Gegner, um den Windschatten zu nutzen. Die Gegner umfassen einen festen Mix aus Klassen — deine eigene Klasse zu steigern ist, wie du dich absetzt — ein Zieleinlauf bringt ein paar Punkte, aber Lernen bringt viel mehr, und Siegen schaltet nie ein Auto frei.",
+    "race.jumpStart":"Frühstart 😬", "race.cleanLaunch":"Sauberer Start 🔥", "race.go":"GO!",
+    "race.draft":"WINDSCHATTEN", "race.slipstream":"SLINGSHOT!",
+    "finish.headline":"{place} von {n}!", "finish.subline":"{track} · {diff}", "finish.photo":" · 📸 Fotofinish!",
+    "finish.yourTime":"deine Zeit", "finish.bestHere":"Bestzeit hier", "finish.points":"Punkte",
+    "finish.dnf":"DNF", "finish.you":"Du",
+    "finish.blurb":"Die Gegner sind echte Autos ihrer eigenen Klasse — mal langsamer, mal schneller — und dieser Bereich ändert sich nie, deine eigene Klasse zu steigern ist also, wie du die stärkeren hinter dir lässt. Rennen bringen ein paar Punkte, aber längst nicht so viele wie Lernen — ein schnelleres Auto kommt nur durch Sprachkönnen.",
+    "finish.raceAgain":"Nochmal fahren", "finish.changeTrack":"Strecke wechseln",
+    "ord.1":"1.", "ord.2":"2.", "ord.3":"3.", "ord.4":"4.", "ord.5":"5.", "ord.n":"{n}.",
+    "reset.toast":"Fortschritt für {pair} zurückgesetzt.",
+    "footer.demo":"Demo des <b>Lingo&nbsp;Cars</b>-Konzepts — funktioniert vollständig offline in deinem Browser; melde dich an (👤, oben rechts), um den Fortschritt geräteübergreifend über einen <a href=\"https://github.com/giorgijv/lingo-cars\" target=\"_blank\" rel=\"noopener\">Lingo Cars API</a>-Server deiner Wahl zu synchronisieren. Die API liefert auch die komplette Lern-Engine + Auto-Projektion; diese Seite ist eine visuelle Illustration davon.",
+    "footer.original":"Die Auto-Designs sind original und markenneutral. Die georgischen und russischen Demo-Inhalte sind illustrativ.",
+    "footer.rights":"Alle Rechte vorbehalten.",
+  },
+  es: {
+    "lang.de":"alemán", "lang.en":"inglés", "lang.es":"español", "lang.ka":"georgiano", "lang.ru":"ruso",
+    "meta.title":"Lingo Cars — aprende un idioma, tunea tu coche",
+    "meta.desc":"Una demo gamificada de aprendizaje de idiomas: tu dominio es un coche que sube de nivel a medida que aprendes. Español, georgiano y ruso, desde el alemán o el inglés.",
+    "nav.rules":"Reglas", "nav.account":"Iniciar sesión o registrarse",
+    "pair.search":"Buscar un idioma…", "pair.from":"desde {lang}", "pair.learn":"Aprender {lang}",
+    "acct.saveTitle":"Guarda tu progreso",
+    "acct.saveBlurb":"Inicia sesión para mantener tu coche, tus puntos y tu progreso de estudio sincronizados en cualquier dispositivo. Sin una cuenta, el progreso queda solo en este navegador.",
+    "acct.apiUrl":"URL del servidor API", "acct.email":"Correo", "acct.password":"Contraseña",
+    "acct.login":"Iniciar sesión", "acct.signup":"Registrarse",
+    "acct.signedInTitle":"Sesión iniciada",
+    "acct.signedInAs":"Sesión iniciada como <b id=\"accountEmailLabel\">{email}</b>. El progreso se sincroniza con esta cuenta automáticamente tras cada respuesta.",
+    "acct.logout":"Cerrar sesión",
+    "acct.needUrl":"Introduce primero la URL de tu servidor API.",
+    "acct.needCreds":"El correo y la contraseña son obligatorios.",
+    "acct.creating":"Creando cuenta…", "acct.signingIn":"Iniciando sesión…",
+    "acct.dupEmail":"Ya existe una cuenta con ese correo — inicia sesión en su lugar.",
+    "acct.wrongCreds":"Correo o contraseña incorrectos.", "acct.genericErr":"Algo salió mal.",
+    "acct.unreachable":"No se pudo contactar con el servidor — comprueba la URL y que esté en marcha.",
+    "acct.signedInToast":"Sesión iniciada como {email}",
+    "acct.signedOutToast":"Sesión cerrada — este dispositivo conserva el último progreso sincronizado.",
+    "sync.now":"Sincronizado ahora mismo ✓", "sync.failed":"Error de sincronización — se reintentará.",
+    "sync.offline":"Sin conexión — se reintentará al reconectar.",
+    "garage.tuneSub":"Responde preguntas para tunear tu coche.",
+    "garage.speed":"Velocidad", "garage.handling":"Manejo",
+    "garage.progressNext":"Progreso a la siguiente clase", "garage.topReached":"Clase máxima alcanzada",
+    "garage.c2checkpoint":"C1 · C2 se desbloquea con un control", "garage.progressTo":"Progreso a {class}",
+    "garage.race":"🏁 Correr con este coche",
+    "race.timeTrialBadge":"🏁 Contrarreloj",
+    "intro.welcome":"Bienvenido 👋", "intro.welcomeBack":"Bienvenido de nuevo 👋",
+    "intro.leadNew":"Haz una prueba de nivel adaptativa de 15 preguntas para {pair} y descubre tu punto de partida; luego sigue respondiendo para tunear tu coche. Cada par de idiomas tiene su propio garaje.",
+    "intro.leadReturning":"Tu garaje de {pair} está guardado. Sigue conduciendo, repite la prueba de nivel o reinicia este par.",
+    "intro.start":"Empezar la prueba", "intro.skip":"Saltar y estudiar en A1",
+    "intro.continue":"Seguir estudiando", "intro.reset":"Reiniciar este par",
+    "quiz.placement":"Nivel", "quiz.study":"Estudio", "quiz.next":"Siguiente",
+    "quiz.question":"Pregunta {i} / {n}",
+    "quiz.correct":"¡Correcto! 🎉", "quiz.closeEnough":"¡Casi! 👍",
+    "quiz.correctAnswer":"Respuesta correcta: {answer}",
+    "quiz.youHeard":"Escuchaste: «{text}»", "quiz.target":"Objetivo: {text}",
+    "quiz.targetHeard":"Objetivo: {text} — se escuchó: «{heard}»",
+    "quiz.check":"Comprobar", "quiz.fillPlaceholder":"Escribe tu respuesta…",
+    "quiz.fillHint":"Pulsa Enter o haz clic en Comprobar — se perdonan pequeñas erratas y acentos que falten.",
+    "quiz.kpiXp":"XP", "quiz.kpiCorrect":"aciertos", "quiz.kpiToNext":"a la siguiente clase",
+    "quiz.playAudio":"Reproducir audio",
+    "quiz.listenTap":"Toca para escuchar (usa la síntesis de voz de tu navegador — la calidad de la voz, sobre todo en georgiano, depende de tu dispositivo).",
+    "quiz.hearAria":"Escuchar una pronunciación modelo",
+    "quiz.hearMeta":"Escucha una pronunciación modelo y luego léela en voz alta.",
+    "quiz.micAria":"Empezar a grabar",
+    "quiz.micHint":"Toca el micrófono y lee la frase de arriba. Tu voz se envía al servicio de reconocimiento de voz de tu navegador (p. ej. Google, en Chrome) para transcribirla — no se graba ni se almacena nada.",
+    "quiz.speakFillPlaceholder":"Escribe lo que dirías…",
+    "quiz.noSR":"Tu navegador no admite reconocimiento de voz — escribe la frase en su lugar.",
+    "quiz.listening":"Escuchando… habla ahora.", "quiz.heard":"Se escuchó: «{text}»",
+    "quiz.srFailed":"No te oí — falló el reconocimiento. Inténtalo de nuevo o escríbelo abajo.",
+    "quiz.noSpeech":"No se detectó voz.",
+    "quiz.micUnavailable":"Micrófono no disponible — escribe tu respuesta en su lugar.",
+    "shop.titleBadge":"🛠️ Tienda del garaje", "shop.points":"⭐ {n} puntos",
+    "shop.wheels":"🛞 Llantas", "shop.paint":"🎨 Pintura", "shop.decals":"🏁 Calcomanías", "shop.aero":"🪽 Aero",
+    "shop.goldFinish":"Acabado dorado", "shop.customStudio":"Estudio de color propio", "shop.customHex":"Hex personalizado:",
+    "shop.footer":"Gana puntos respondiendo preguntas. Gástalos, ahórralos o revende objetos al 50 %. Los cosméticos son solo visuales — <b>las nuevas clases de coche se desbloquean con dominio, nunca con compras.</b>",
+    "shop.installed":"¡{icon} {name} instalado!", "shop.sold":"{name} vendido (+{n} ⭐)", "shop.sellAria":"Vender {label}",
+    "cat.wheelstyle.label":"🛞 Estilo de llanta", "cat.wheelstyle.default":"Estándar / hito",
+    "cat.finish.label":"✨ Acabado de pintura", "cat.finish.default":"Brillo",
+    "cat.decal.label":"🏁 Calcomanía", "cat.decal.default":"Ninguna / franja de hito",
+    "cat.aero.label":"🪽 Aero", "cat.aero.default":"Ninguno / kit de hito",
+    "item.paint-custom":"Estudio de pintura propio", "item.wheels-gold":"Llantas doradas",
+    "item.wheels-mesh":"Llantas de malla", "item.wheels-deepdish":"Llantas de canal profundo", "item.wheels-multispoke":"Llantas multirradio",
+    "item.finish-matte":"Acabado mate", "item.finish-metallic":"Perla metalizada",
+    "item.decal-stripes":"Franjas gemelas", "item.decal-pinstripe":"Filete", "item.decal-checkered":"Detalle a cuadros",
+    "item.decal-flames":"Calcomanía de llamas", "item.decal-roundel":"Círculo de número",
+    "item.aero-lip":"Alerón de labio", "item.spoiler-carbon":"Alerón de carbono", "item.aero-diffuser":"Difusor trasero", "item.aero-bigwing":"Alerón GT",
+    "swatch.crimson":"Carmesí", "swatch.ocean":"Océano", "swatch.sunburst":"Rayo de sol", "swatch.midnight":"Medianoche",
+    "swatch.racing":"Verde carreras", "swatch.ultra":"Ultravioleta", "swatch.flamingo":"Flamenco", "swatch.carbon":"Negro carbón",
+    "swatch.pearl":"Blanco perla", "swatch.champagne":"Oro champán", "swatch.teal":"Verde azulado profundo", "swatch.sunset":"Naranja atardecer",
+    "swatch.fire":"Bicolor fuego", "swatch.shift":"Perla tornasol",
+    "mstone.wheels":"🛞 Llantas deportivas", "mstone.decal":"🏁 Franja de carreras", "mstone.spoiler":"🪽 Kit aero",
+    "mstone.unlocked":"🔧 ¡{name} desbloqueado!",
+    "car.sub.0":"A1 · donde empieza cada conductor", "car.sub.1":"A2 · más rápido, más afilado",
+    "car.sub.2":"B1 · largo, sereno, veloz", "car.sub.3":"B2 · fastback elegante",
+    "car.sub.4":"C1 · bajo, ancho, con alerón", "car.sub.5":"C2 · la cima",
+    "result.startingAt":"Empiezas en {cefr}",
+    "result.text":"Nivel estimado <b>{cefr}</b> para <b>{pair}</b> → tu vehículo es el <b>{car}</b>. Sigue respondiendo bien para tunearlo y subir hacia la siguiente clase.",
+    "result.beginStudy":"Empezar a conducir 🏁", "result.complete":"Prueba de nivel completada",
+    "study.newCar":"🏁 ¡Nuevo coche desbloqueado — {car}!",
+    "race.pickMeta":"Elige una pista y una clase, luego corre", "race.liveMeta":"{car} · {track} · {diff}",
+    "race.track":"Pista", "race.rivalClass":"Clase rival",
+    "race.yourCar":"Tu coche:", "race.bestOn":"Mejor en {track}:", "race.notRaced":"— sin correr aún",
+    "race.start":"🏁 Empezar carrera", "race.backToStudy":"Volver a estudiar",
+    "race.personalBests":"Mejores marcas · {car}", "race.recent":"Recientes: {list}",
+    "race.lobbyBlurb":"Correr es sobre todo por presumir — da unos pocos puntos (muchos menos que estudiar) y nunca desbloquea un coche. Los rivales son coches reales de su propia clase, unos más lentos y otros más rápidos, y ese rango nunca cambia — así que subir TU clase es lo que facilita ganar al grupo, pero un coche más rápido solo llega con el dominio del idioma.",
+    "track.sprint.name":"Sprint urbano", "track.sprint.sub":"Corto y contundente",
+    "track.coast.name":"Ruta costera", "track.coast.sub":"Un trecho más largo",
+    "track.night.name":"Circuito nocturno", "track.night.sub":"Prueba de resistencia",
+    "diff.rookie.name":"Novato", "diff.rookie.sub":"Rivales relajados",
+    "diff.pro.name":"Pro", "diff.pro.sub":"Una carrera de verdad",
+    "diff.ace.name":"As", "diff.ace.sub":"Solo victorias limpias",
+    "race.you":"TÚ", "race.sound":"Sonido", "race.muted":"Silencio", "race.quit":"Salir",
+    "race.soundAria":"Alternar sonido del motor", "race.quitAria":"Salir de la carrera",
+    "race.laneAria":"Cambiar de carril", "race.brakeAria":"Freno", "race.gasAria":"Acelerar",
+    "race.brakeBtn":"FRENO", "race.gasBtn":"GAS ⛽",
+    "race.lane.left":"Carril izquierdo", "race.lane.center":"Carril central", "race.lane.right":"Carril derecho", "race.lane.n":"Carril {n}",
+    "race.help":"Clava la salida en GO (acelerador / <kbd>W</kbd>) y luego adelanta girando a izquierda/derecha — <b>desliza o toca los lados de la pista</b>, arrastra el control de carril o usa las flechas — y ponte detrás de un rival para ir a rebufo. Los rivales abarcan una mezcla de clases que nunca cambia — subir tu propia clase es como te distancias — llegar a meta da unos pocos puntos, pero estudiar da mucho más, y ganar nunca desbloquea un coche.",
+    "race.jumpStart":"Salida en falso 😬", "race.cleanLaunch":"¡Salida limpia! 🔥", "race.go":"¡YA!",
+    "race.draft":"REBUFO", "race.slipstream":"¡SLINGSHOT!",
+    "finish.headline":"¡{place} de {n}!", "finish.subline":"{track} · {diff}", "finish.photo":" · 📸 ¡Final de foto!",
+    "finish.yourTime":"tu tiempo", "finish.bestHere":"mejor aquí", "finish.points":"puntos",
+    "finish.dnf":"NT", "finish.you":"Tú",
+    "finish.blurb":"Los rivales son coches reales de su propia clase — unos más lentos, otros más rápidos — y ese rango nunca cambia, así que subir tu propia clase es como dejas atrás a los más duros. Correr da unos pocos puntos, pero ni de lejos lo que da estudiar — un coche más rápido solo llega con el dominio del idioma.",
+    "finish.raceAgain":"Correr de nuevo", "finish.changeTrack":"Cambiar de pista",
+    "ord.1":"1.º", "ord.2":"2.º", "ord.3":"3.º", "ord.4":"4.º", "ord.5":"5.º", "ord.n":"{n}.º",
+    "reset.toast":"Progreso de {pair} reiniciado.",
+    "footer.demo":"Demo del concepto <b>Lingo&nbsp;Cars</b> — funciona totalmente sin conexión en tu navegador; inicia sesión (👤, arriba a la derecha) para sincronizar el progreso entre dispositivos mediante un servidor <a href=\"https://github.com/giorgijv/lingo-cars\" target=\"_blank\" rel=\"noopener\">Lingo Cars API</a> que tú elijas. La API también sirve el motor de aprendizaje completo + la proyección del coche; esta página es una ilustración visual de ello.",
+    "footer.original":"Los diseños de los coches son originales y sin marca. El contenido de demo en georgiano y ruso es ilustrativo.",
+    "footer.rights":"Todos los derechos reservados.",
+  },
+  ru: {
+    "lang.de":"немецкий", "lang.en":"английский", "lang.es":"испанский", "lang.ka":"грузинский", "lang.ru":"русский",
+    "meta.title":"Lingo Cars — учи язык, прокачивай машину",
+    "meta.desc":"Геймифицированная демоверсия изучения языков: твой уровень — это машина, которая растёт вместе с тобой. Испанский, грузинский и русский, с немецкого или английского.",
+    "nav.rules":"Правила", "nav.account":"Войти или зарегистрироваться",
+    "pair.search":"Поиск языка…", "pair.from":"источник: {lang}", "pair.learn":"Учить {lang}",
+    "acct.saveTitle":"Сохрани свой прогресс",
+    "acct.saveBlurb":"Войди, чтобы синхронизировать машину, очки и прогресс обучения на любом устройстве. Без аккаунта прогресс останется только в этом браузере.",
+    "acct.apiUrl":"URL сервера API", "acct.email":"Эл. почта", "acct.password":"Пароль",
+    "acct.login":"Войти", "acct.signup":"Зарегистрироваться",
+    "acct.signedInTitle":"Вход выполнен",
+    "acct.signedInAs":"Вход выполнен как <b id=\"accountEmailLabel\">{email}</b>. Прогресс синхронизируется с этим аккаунтом автоматически после каждого ответа.",
+    "acct.logout":"Выйти",
+    "acct.needUrl":"Сначала введи URL сервера API.",
+    "acct.needCreds":"Требуются эл. почта и пароль.",
+    "acct.creating":"Создание аккаунта…", "acct.signingIn":"Вход…",
+    "acct.dupEmail":"Аккаунт с такой почтой уже существует — попробуй войти.",
+    "acct.wrongCreds":"Неверная почта или пароль.", "acct.genericErr":"Что-то пошло не так.",
+    "acct.unreachable":"Не удалось связаться с сервером — проверь URL и что он запущен.",
+    "acct.signedInToast":"Вход выполнен как {email}",
+    "acct.signedOutToast":"Выход выполнен — на этом устройстве сохранён последний синхронизированный прогресс.",
+    "sync.now":"Синхронизировано только что ✓", "sync.failed":"Ошибка синхронизации — повторим.",
+    "sync.offline":"Нет сети — повторим при подключении.",
+    "garage.tuneSub":"Отвечай на вопросы, чтобы прокачать машину.",
+    "garage.speed":"Скорость", "garage.handling":"Управляемость",
+    "garage.progressNext":"Прогресс до следующего класса", "garage.topReached":"Достигнут высший класс",
+    "garage.c2checkpoint":"C1 · C2 открывается через контрольную проверку", "garage.progressTo":"Прогресс до {class}",
+    "garage.race":"🏁 Гонка на этой машине",
+    "race.timeTrialBadge":"🏁 Заезд на время",
+    "intro.welcome":"Добро пожаловать 👋", "intro.welcomeBack":"С возвращением 👋",
+    "intro.leadNew":"Пройди адаптивный тест на уровень из 15 вопросов для {pair}, чтобы узнать стартовый уровень, а затем продолжай отвечать, чтобы прокачивать машину. У каждой языковой пары свой гараж.",
+    "intro.leadReturning":"Твой гараж для {pair} сохранён. Продолжай ездить, пройди тест заново или сбрось эту пару.",
+    "intro.start":"Начать тест", "intro.skip":"Пропустить и учить на A1",
+    "intro.continue":"Продолжить обучение", "intro.reset":"Сбросить эту пару",
+    "quiz.placement":"Тест", "quiz.study":"Учёба", "quiz.next":"Далее",
+    "quiz.question":"Вопрос {i} / {n}",
+    "quiz.correct":"Верно! 🎉", "quiz.closeEnough":"Почти! 👍",
+    "quiz.correctAnswer":"Правильный ответ: {answer}",
+    "quiz.youHeard":"Ты услышал: «{text}»", "quiz.target":"Цель: {text}",
+    "quiz.targetHeard":"Цель: {text} — услышано: «{heard}»",
+    "quiz.check":"Проверить", "quiz.fillPlaceholder":"Введи ответ…",
+    "quiz.fillHint":"Нажми Enter или «Проверить» — мелкие опечатки и пропущенные акценты прощаются.",
+    "quiz.kpiXp":"XP", "quiz.kpiCorrect":"верных", "quiz.kpiToNext":"до следующего класса",
+    "quiz.playAudio":"Воспроизвести аудио",
+    "quiz.listenTap":"Нажми, чтобы прослушать (используется синтез речи браузера — качество голоса, особенно для грузинского, зависит от устройства).",
+    "quiz.hearAria":"Прослушать образец произношения",
+    "quiz.hearMeta":"Послушай образец произношения, затем прочитай вслух.",
+    "quiz.micAria":"Начать запись",
+    "quiz.micHint":"Нажми на микрофон и прочитай фразу выше. Твоя речь отправляется в службу распознавания речи браузера (например, Google в Chrome) для расшифровки — ничего не записывается и не хранится.",
+    "quiz.speakFillPlaceholder":"Напиши, что бы ты сказал…",
+    "quiz.noSR":"Твой браузер не поддерживает распознавание речи — введи фразу вместо этого.",
+    "quiz.listening":"Слушаю… говори.", "quiz.heard":"Услышано: «{text}»",
+    "quiz.srFailed":"Не расслышал — распознавание не удалось. Попробуй снова или введи ниже.",
+    "quiz.noSpeech":"Речь не обнаружена.",
+    "quiz.micUnavailable":"Микрофон недоступен — введи ответ вместо этого.",
+    "shop.titleBadge":"🛠️ Гаражный магазин", "shop.points":"⭐ {n} очков",
+    "shop.wheels":"🛞 Колёса", "shop.paint":"🎨 Покраска", "shop.decals":"🏁 Наклейки", "shop.aero":"🪽 Аэро",
+    "shop.goldFinish":"Золотое покрытие", "shop.customStudio":"Своя цветовая студия", "shop.customHex":"Свой hex:",
+    "shop.footer":"Зарабатывай очки, отвечая на вопросы. Трать их, копи или продавай предметы обратно за 50 %. Косметика — только внешний вид: <b>новые классы машин открываются мастерством, а не покупками.</b>",
+    "shop.installed":"{icon} {name} установлено!", "shop.sold":"Продано: {name} (+{n} ⭐)", "shop.sellAria":"Продать {label}",
+    "cat.wheelstyle.label":"🛞 Стиль дисков", "cat.wheelstyle.default":"Стандарт / веха",
+    "cat.finish.label":"✨ Тип покраски", "cat.finish.default":"Глянец",
+    "cat.decal.label":"🏁 Наклейка", "cat.decal.default":"Нет / полоса-веха",
+    "cat.aero.label":"🪽 Аэро", "cat.aero.default":"Нет / комплект-веха",
+    "item.paint-custom":"Своя студия покраски", "item.wheels-gold":"Золотые диски",
+    "item.wheels-mesh":"Сетчатые диски", "item.wheels-deepdish":"Глубокие диски", "item.wheels-multispoke":"Многоспицевые диски",
+    "item.finish-matte":"Матовое покрытие", "item.finish-metallic":"Металлик-перламутр",
+    "item.decal-stripes":"Двойные полосы", "item.decal-pinstripe":"Тонкая полоса", "item.decal-checkered":"Клетчатый акцент",
+    "item.decal-flames":"Наклейка «пламя»", "item.decal-roundel":"Круг с номером",
+    "item.aero-lip":"Губа-спойлер", "item.spoiler-carbon":"Карбоновое крыло", "item.aero-diffuser":"Задний диффузор", "item.aero-bigwing":"GT-крыло",
+    "swatch.crimson":"Багровый", "swatch.ocean":"Океан", "swatch.sunburst":"Солнечный", "swatch.midnight":"Полночь",
+    "swatch.racing":"Гоночный зелёный", "swatch.ultra":"Ультрафиолет", "swatch.flamingo":"Фламинго", "swatch.carbon":"Угольно-чёрный",
+    "swatch.pearl":"Жемчужно-белый", "swatch.champagne":"Шампань-золото", "swatch.teal":"Глубокий бирюзовый", "swatch.sunset":"Оранжевый закат",
+    "swatch.fire":"Двухцветный «огонь»", "swatch.shift":"Жемчужный перелив",
+    "mstone.wheels":"🛞 Спортивные диски", "mstone.decal":"🏁 Гоночная полоса", "mstone.spoiler":"🪽 Аэрокомплект",
+    "mstone.unlocked":"🔧 {name} открыто!",
+    "car.sub.0":"A1 · с чего начинает каждый", "car.sub.1":"A2 · быстрее, острее",
+    "car.sub.2":"B1 · длинный, собранный, быстрый", "car.sub.3":"B2 · изящный фастбэк",
+    "car.sub.4":"C1 · низкий, широкий, с крылом", "car.sub.5":"C2 · вершина",
+    "result.startingAt":"Ты начинаешь с {cefr}",
+    "result.text":"Оценка уровня <b>{cefr}</b> для <b>{pair}</b> → твоя машина — <b>{car}</b>. Продолжай отвечать верно, чтобы прокачать её и подняться к следующему классу.",
+    "result.beginStudy":"Поехали 🏁", "result.complete":"Тест завершён",
+    "study.newCar":"🏁 Открыта новая машина — {car}!",
+    "race.pickMeta":"Выбери трассу и класс, затем гонка", "race.liveMeta":"{car} · {track} · {diff}",
+    "race.track":"Трасса", "race.rivalClass":"Класс соперников",
+    "race.yourCar":"Твоя машина:", "race.bestOn":"Лучшее на {track}:", "race.notRaced":"— ещё не было заездов",
+    "race.start":"🏁 Старт гонки", "race.backToStudy":"Назад к учёбе",
+    "race.personalBests":"Личные рекорды · {car}", "race.recent":"Недавно: {list}",
+    "race.lobbyBlurb":"Гонки — это в основном ради хвастовства: они дают немного очков (гораздо меньше, чем учёба) и никогда не открывают машину. Соперники — реальные машины своего класса, кто-то медленнее, кто-то быстрее, и этот разброс не меняется — поэтому именно рост ТВОЕГО класса облегчает победу над полем, но более быстрая машина приходит только с владением языком.",
+    "track.sprint.name":"Городской спринт", "track.sprint.sub":"Коротко и резко",
+    "track.coast.name":"Прибрежный заезд", "track.coast.sub":"Дистанция подлиннее",
+    "track.night.name":"Ночная трасса", "track.night.sub":"Испытание на выносливость",
+    "diff.rookie.name":"Новичок", "diff.rookie.sub":"Спокойные соперники",
+    "diff.pro.name":"Про", "diff.pro.sub":"Настоящая гонка",
+    "diff.ace.name":"Ас", "diff.ace.sub":"Только чистые победы",
+    "race.you":"ТЫ", "race.sound":"Звук", "race.muted":"Без звука", "race.quit":"Выйти",
+    "race.soundAria":"Переключить звук двигателя", "race.quitAria":"Выйти из гонки",
+    "race.laneAria":"Сменить полосу", "race.brakeAria":"Тормоз", "race.gasAria":"Газ",
+    "race.brakeBtn":"ТОРМОЗ", "race.gasBtn":"ГАЗ ⛽",
+    "race.lane.left":"Левая полоса", "race.lane.center":"Центральная полоса", "race.lane.right":"Правая полоса", "race.lane.n":"Полоса {n}",
+    "race.help":"Поймай старт на GO (газ / <kbd>W</kbd>), затем обгоняй, уходя влево/вправо — <b>смахивай или касайся краёв трассы</b>, тяни ползунок полосы или используй стрелки — и пристройся за соперником, чтобы поймать поток. Соперники — постоянный набор из разных классов, и именно рост собственного класса позволяет оторваться — финиш даёт немного очков, но учёба даёт куда больше, а победа никогда не открывает машину.",
+    "race.jumpStart":"Фальстарт 😬", "race.cleanLaunch":"Чистый старт 🔥", "race.go":"GO!",
+    "race.draft":"ПОТОК", "race.slipstream":"РЫВОК!",
+    "finish.headline":"{place} из {n}!", "finish.subline":"{track} · {diff}", "finish.photo":" · 📸 Фотофиниш!",
+    "finish.yourTime":"твоё время", "finish.bestHere":"лучшее здесь", "finish.points":"очка",
+    "finish.dnf":"DNF", "finish.you":"Ты",
+    "finish.blurb":"Соперники — реальные машины своего класса: кто-то медленнее, кто-то быстрее — и этот разброс не меняется, поэтому именно рост собственного класса позволяет оставить более сильных позади. Гонки дают немного очков, но и близко не столько, сколько учёба — более быстрая машина приходит только с владением языком.",
+    "finish.raceAgain":"Ещё гонка", "finish.changeTrack":"Сменить трассу",
+    "ord.1":"1-е", "ord.2":"2-е", "ord.3":"3-е", "ord.4":"4-е", "ord.5":"5-е", "ord.n":"{n}-е",
+    "reset.toast":"Прогресс для {pair} сброшен.",
+    "footer.demo":"Демо концепции <b>Lingo&nbsp;Cars</b> — полностью работает офлайн в браузере; войди (👤, справа вверху), чтобы синхронизировать прогресс между устройствами через выбранный тобой сервер <a href=\"https://github.com/giorgijv/lingo-cars\" target=\"_blank\" rel=\"noopener\">Lingo Cars API</a>. API также предоставляет полный движок обучения + проекцию машины; эта страница — визуальная иллюстрация.",
+    "footer.original":"Дизайны машин оригинальны и без брендов. Грузинский и русский демо-контент носит иллюстративный характер.",
+    "footer.rights":"Все права защищены.",
+  },
+  ka: {
+    "lang.de":"გერმანული", "lang.en":"ინგლისური", "lang.es":"ესპანური", "lang.ka":"ქართული", "lang.ru":"რუსული",
+    "meta.title":"Lingo Cars — ისწავლე ენა, გაატიუნინგე მანქანა",
+    "meta.desc":"ენის სწავლის გეიმიფიცირებული დემო: შენი ცოდნა არის მანქანა, რომელიც შენთან ერთად იზრდება. ესპანური, ქართული და რუსული — გერმანულიდან ან ინგლისურიდან.",
+    "nav.rules":"წესები", "nav.account":"შესვლა ან რეგისტრაცია",
+    "pair.search":"მოძებნე ენა…", "pair.from":"{lang}დან", "pair.learn":"ისწავლე {lang}",
+    "acct.saveTitle":"შეინახე შენი პროგრესი",
+    "acct.saveBlurb":"შედი, რომ შენი მანქანა, ქულები და სწავლის პროგრესი ნებისმიერ მოწყობილობაზე დასინქრონდეს. ანგარიშის გარეშე პროგრესი მხოლოდ ამ ბრაუზერში დარჩება.",
+    "acct.apiUrl":"API სერვერის URL", "acct.email":"ელფოსტა", "acct.password":"პაროლი",
+    "acct.login":"შესვლა", "acct.signup":"რეგისტრაცია",
+    "acct.signedInTitle":"შესული ხარ",
+    "acct.signedInAs":"შესული ხარ როგორც <b id=\"accountEmailLabel\">{email}</b>. პროგრესი ამ ანგარიშთან ავტომატურად სინქრონდება ყოველი პასუხის შემდეგ.",
+    "acct.logout":"გამოსვლა",
+    "acct.needUrl":"ჯერ შეიყვანე შენი API სერვერის URL.",
+    "acct.needCreds":"ელფოსტა და პაროლი აუცილებელია.",
+    "acct.creating":"ანგარიში იქმნება…", "acct.signingIn":"შესვლა…",
+    "acct.dupEmail":"ამ ელფოსტით ანგარიში უკვე არსებობს — სცადე შესვლა.",
+    "acct.wrongCreds":"არასწორი ელფოსტა ან პაროლი.", "acct.genericErr":"რაღაც ვერ გამოვიდა.",
+    "acct.unreachable":"სერვერს ვერ დავუკავშირდი — შეამოწმე URL და რომ ის მუშაობს.",
+    "acct.signedInToast":"შესული ხარ როგორც {email}",
+    "acct.signedOutToast":"გამოსვლა შესრულდა — ამ მოწყობილობაზე ბოლო დასინქრონებული პროგრესი რჩება.",
+    "sync.now":"ახლახან დასინქრონდა ✓", "sync.failed":"სინქრონიზაცია ვერ მოხერხდა — თავიდან ვცდი.",
+    "sync.offline":"ხაზგარეშე — ხელახლა დაკავშირებისას ვცდი.",
+    "garage.tuneSub":"უპასუხე კითხვებს, რომ მანქანა გაატიუნინგო.",
+    "garage.speed":"სიჩქარე", "garage.handling":"მართვადობა",
+    "garage.progressNext":"პროგრესი შემდეგ კლასამდე", "garage.topReached":"უმაღლესი კლასი მიღწეულია",
+    "garage.c2checkpoint":"C1 · C2 იხსნება საკონტროლო შემოწმებით", "garage.progressTo":"პროგრესი {class}-მდე",
+    "garage.race":"🏁 ამ მანქანით რბოლა",
+    "race.timeTrialBadge":"🏁 დროზე რბოლა",
+    "intro.welcome":"მოგესალმები 👋", "intro.welcomeBack":"კეთილი იყოს დაბრუნება 👋",
+    "intro.leadNew":"გაიარე 15-კითხვიანი ადაპტიური განმსაზღვრელი ტესტი {pair}-სთვის, რომ იპოვო შენი საწყისი დონე, შემდეგ კი განაგრძე პასუხების გაცემა მანქანის გასატიუნინგებლად. თითოეულ ენობრივ წყვილს თავისი გარაჟი აქვს.",
+    "intro.leadReturning":"შენი გარაჟი {pair}-სთვის შენახულია. განაგრძე ტარება, თავიდან გაიარე ტესტი ან დააბრუნე ეს წყვილი.",
+    "intro.start":"ტესტის დაწყება", "intro.skip":"გამოტოვება და A1-ზე სწავლა",
+    "intro.continue":"სწავლის გაგრძელება", "intro.reset":"ამ წყვილის განულება",
+    "quiz.placement":"ტესტი", "quiz.study":"სწავლა", "quiz.next":"შემდეგი",
+    "quiz.question":"კითხვა {i} / {n}",
+    "quiz.correct":"სწორია! 🎉", "quiz.closeEnough":"თითქმის! 👍",
+    "quiz.correctAnswer":"სწორი პასუხი: {answer}",
+    "quiz.youHeard":"შენ გაიგონე: „{text}“", "quiz.target":"სამიზნე: {text}",
+    "quiz.targetHeard":"სამიზნე: {text} — გაგონილი: „{heard}“",
+    "quiz.check":"შემოწმება", "quiz.fillPlaceholder":"შეიყვანე პასუხი…",
+    "quiz.fillHint":"დააჭირე Enter-ს ან „შემოწმებას“ — მცირე შეცდომები და გამოტოვებული აქცენტები ითვლება.",
+    "quiz.kpiXp":"XP", "quiz.kpiCorrect":"სწორი", "quiz.kpiToNext":"შემდეგ კლასამდე",
+    "quiz.playAudio":"აუდიოს დაკვრა",
+    "quiz.listenTap":"დააჭირე მოსასმენად (იყენებს ბრაუზერის ტექსტ-მეტყველებას — ხმის ხარისხი, განსაკუთრებით ქართულის, დამოკიდებულია შენს მოწყობილობაზე).",
+    "quiz.hearAria":"სანიმუშო გამოთქმის მოსმენა",
+    "quiz.hearMeta":"მოისმინე სანიმუშო გამოთქმა, შემდეგ ხმამაღლა წაიკითხე.",
+    "quiz.micAria":"ჩაწერის დაწყება",
+    "quiz.micHint":"დააჭირე მიკროფონს და ხმამაღლა წაიკითხე ზემოთ მოცემული წინადადება. შენი მეტყველება იგზავნება ბრაუზერის მეტყველების ამოცნობის სერვისში (მაგ. Google, Chrome-ში) გასაშიფრად — არაფერი იწერება ან ინახება.",
+    "quiz.speakFillPlaceholder":"აკრიფე, რასაც იტყოდი…",
+    "quiz.noSR":"შენი ბრაუზერი მეტყველების ამოცნობას არ უჭერს მხარს — ამის ნაცვლად აკრიფე წინადადება.",
+    "quiz.listening":"ვისმენ… ილაპარაკე ახლა.", "quiz.heard":"გაგონილი: „{text}“",
+    "quiz.srFailed":"ვერ გაგიგონე — ამოცნობა ვერ მოხერხდა. სცადე თავიდან ან ქვემოთ აკრიფე.",
+    "quiz.noSpeech":"მეტყველება ვერ აღმოვაჩინე.",
+    "quiz.micUnavailable":"მიკროფონი მიუწვდომელია — ამის ნაცვლად აკრიფე პასუხი.",
+    "shop.titleBadge":"🛠️ გარაჟის მაღაზია", "shop.points":"⭐ {n} ქულა",
+    "shop.wheels":"🛞 დისკები", "shop.paint":"🎨 საღებავი", "shop.decals":"🏁 სტიკერები", "shop.aero":"🪽 აერო",
+    "shop.goldFinish":"ოქროსფერი დაფარვა", "shop.customStudio":"ფერის საკუთარი სტუდია", "shop.customHex":"საკუთარი hex:",
+    "shop.footer":"მოიპოვე ქულები კითხვებზე პასუხით. დახარჯე, დააგროვე ან გაყიდე ნივთები 50%-ად. კოსმეტიკა მხოლოდ ვიზუალურია — <b>მანქანის ახალი კლასები იხსნება ცოდნით, არასდროს ყიდვით.</b>",
+    "shop.installed":"{icon} {name} დამონტაჟდა!", "shop.sold":"გაიყიდა: {name} (+{n} ⭐)", "shop.sellAria":"{label}-ის გაყიდვა",
+    "cat.wheelstyle.label":"🛞 დისკის სტილი", "cat.wheelstyle.default":"სტანდარტული / ეტაპი",
+    "cat.finish.label":"✨ საღებავის დაფარვა", "cat.finish.default":"პრიალა",
+    "cat.decal.label":"🏁 სტიკერი", "cat.decal.default":"არცერთი / ეტაპის ზოლი",
+    "cat.aero.label":"🪽 აერო", "cat.aero.default":"არცერთი / ეტაპის ნაკრები",
+    "item.paint-custom":"საკუთარი საღებავის სტუდია", "item.wheels-gold":"ოქროსფერი დისკები",
+    "item.wheels-mesh":"ბადისებრი დისკები", "item.wheels-deepdish":"ღრმა დისკები", "item.wheels-multispoke":"მრავალღერძიანი დისკები",
+    "item.finish-matte":"მქრქალი დაფარვა", "item.finish-metallic":"მეტალიკ-სადაფი",
+    "item.decal-stripes":"ორმაგი ზოლები", "item.decal-pinstripe":"წვრილი ზოლი", "item.decal-checkered":"ჭადრაკული აქცენტი",
+    "item.decal-flames":"ალის სტიკერი", "item.decal-roundel":"ნომრის წრე",
+    "item.aero-lip":"წინა ტუჩი", "item.spoiler-carbon":"კარბონის ფრთა", "item.aero-diffuser":"უკანა დიფუზორი", "item.aero-bigwing":"GT ფრთა",
+    "swatch.crimson":"ჟოლოსფერი", "swatch.ocean":"ოკეანე", "swatch.sunburst":"მზისფერი", "swatch.midnight":"შუაღამე",
+    "swatch.racing":"სარბოლო მწვანე", "swatch.ultra":"ულტრაიისფერი", "swatch.flamingo":"ფლამინგო", "swatch.carbon":"ნახშირისფერი შავი",
+    "swatch.pearl":"მარგალიტისფერი თეთრი", "swatch.champagne":"შამპანურ-ოქროსფერი", "swatch.teal":"ღრმა ფირუზისფერი", "swatch.sunset":"ჩასვენების ნარინჯისფერი",
+    "swatch.fire":"ორფერა ცეცხლი", "swatch.shift":"მარგალიტის ციალი",
+    "mstone.wheels":"🛞 სპორტული დისკები", "mstone.decal":"🏁 სარბოლო ზოლი", "mstone.spoiler":"🪽 აერო-ნაკრები",
+    "mstone.unlocked":"🔧 {name} განიბლოკა!",
+    "car.sub.0":"A1 · საიდანაც ყველა მძღოლი იწყებს", "car.sub.1":"A2 · უფრო სწრაფი, უფრო მკვეთრი",
+    "car.sub.2":"B1 · გრძელი, აწონასწორებული, სწრაფი", "car.sub.3":"B2 · მოხდენილი ფასტბექი",
+    "car.sub.4":"C1 · დაბალი, განიერი, ფრთიანი", "car.sub.5":"C2 · მწვერვალი",
+    "result.startingAt":"შენ იწყებ {cefr}-დან",
+    "result.text":"შეფასებული დონე <b>{cefr}</b> {pair}-სთვის → შენი მანქანაა <b>{car}</b>. განაგრძე სწორად პასუხის გაცემა, რომ გაატიუნინგო და შემდეგ კლასამდე ახვიდე.",
+    "result.beginStudy":"დაიძარი 🏁", "result.complete":"ტესტი დასრულდა",
+    "study.newCar":"🏁 ახალი მანქანა განიბლოკა — {car}!",
+    "race.pickMeta":"აირჩიე ტრასა და კლასი, შემდეგ რბოლა", "race.liveMeta":"{car} · {track} · {diff}",
+    "race.track":"ტრასა", "race.rivalClass":"მეტოქეთა კლასი",
+    "race.yourCar":"შენი მანქანა:", "race.bestOn":"საუკეთესო {track}-ზე:", "race.notRaced":"— ჯერ არ გირბენია",
+    "race.start":"🏁 რბოლის დაწყება", "race.backToStudy":"სწავლას დაბრუნება",
+    "race.personalBests":"პირადი რეკორდები · {car}", "race.recent":"ბოლო: {list}",
+    "race.lobbyBlurb":"რბოლა ძირითადად ტრაბახისთვისაა — ის ცოტა ქულას იძლევა (ბევრად ნაკლებს, ვიდრე სწავლა) და მანქანას არასდროს ხსნის. მეტოქეები საკუთარი კლასის ნამდვილი მანქანებია, ზოგი უფრო ნელი, ზოგი უფრო სწრაფი, და ეს დიაპაზონი არასდროს იცვლება — ამიტომ სწორედ შენი კლასის ზრდა აადვილებს ველის დამარცხებას, მაგრამ უფრო სწრაფი მანქანა მხოლოდ ენის ცოდნით მოდის.",
+    "track.sprint.name":"ქალაქის სპრინტი", "track.sprint.sub":"მოკლე და მკვეთრი",
+    "track.coast.name":"სანაპირო რბოლა", "track.coast.sub":"უფრო გრძელი მონაკვეთი",
+    "track.night.name":"ღამის ტრასა", "track.night.sub":"გამძლეობის ტესტი",
+    "diff.rookie.name":"დამწყები", "diff.rookie.sub":"მშვიდი მეტოქეები",
+    "diff.pro.name":"პრო", "diff.pro.sub":"ნამდვილი რბოლა",
+    "diff.ace.name":"ოსტატი", "diff.ace.sub":"მხოლოდ სუფთა გამარჯვება",
+    "race.you":"შენ", "race.sound":"ხმა", "race.muted":"დადუმებული", "race.quit":"გასვლა",
+    "race.soundAria":"ძრავის ხმის გადართვა", "race.quitAria":"რბოლიდან გასვლა",
+    "race.laneAria":"ზოლის შეცვლა", "race.brakeAria":"მუხრუჭი", "race.gasAria":"გაზი",
+    "race.brakeBtn":"მუხრუჭი", "race.gasBtn":"გაზი ⛽",
+    "race.lane.left":"მარცხენა ზოლი", "race.lane.center":"შუა ზოლი", "race.lane.right":"მარჯვენა ზოლი", "race.lane.n":"ზოლი {n}",
+    "race.help":"დაიჭირე სტარტი GO-ზე (გაზი / <kbd>W</kbd>), შემდეგ გაასწარი მარცხნივ/მარჯვნივ მიმართვით — <b>გადაუსვი ან შეეხე ტრასის კიდეებს</b>, გადაწიე ზოლის სლაიდერი ან გამოიყენე ისრები — და ჩაუდექი მეტოქეს ნაკვალევში. მეტოქეები სხვადასხვა კლასის მუდმივ ნაზავს წარმოადგენენ — სწორედ საკუთარი კლასის ზრდით უსწრებ — ფინიში ცოტა ქულას იძლევა, მაგრამ სწავლა ბევრად მეტს, და გამარჯვება არასდროს ხსნის მანქანას.",
+    "race.jumpStart":"ნაადრევი სტარტი 😬", "race.cleanLaunch":"სუფთა სტარტი 🔥", "race.go":"GO!",
+    "race.draft":"ნაკვალევი", "race.slipstream":"რბოლა წინ!",
+    "finish.headline":"{place} {n}-დან!", "finish.subline":"{track} · {diff}", "finish.photo":" · 📸 ფოტოფინიში!",
+    "finish.yourTime":"შენი დრო", "finish.bestHere":"საუკეთესო აქ", "finish.points":"ქულა",
+    "finish.dnf":"DNF", "finish.you":"შენ",
+    "finish.blurb":"მეტოქეები საკუთარი კლასის ნამდვილი მანქანებია — ზოგი ნელი, ზოგი სწრაფი — და ეს დიაპაზონი არასდროს იცვლება, ამიტომ სწორედ საკუთარი კლასის ზრდით ტოვებ უფრო ძლიერებს უკან. რბოლა ცოტა ქულას იძლევა, მაგრამ ვერაფრით შეედრება სწავლას — უფრო სწრაფი მანქანა მხოლოდ ენის ცოდნით მოდის.",
+    "finish.raceAgain":"ისევ რბოლა", "finish.changeTrack":"ტრასის შეცვლა",
+    "ord.1":"1-ლი", "ord.2":"მე-2", "ord.3":"მე-3", "ord.4":"მე-4", "ord.5":"მე-5", "ord.n":"მე-{n}",
+    "reset.toast":"{pair}-ის პროგრესი განულდა.",
+    "footer.demo":"<b>Lingo&nbsp;Cars</b>-ის კონცეფციის დემო — სრულად მუშაობს ხაზგარეშე შენს ბრაუზერში; შედი (👤, ზედა მარჯვნივ), რომ პროგრესი მოწყობილობებს შორის დაასინქრონო შენ მიერ არჩეული <a href=\"https://github.com/giorgijv/lingo-cars\" target=\"_blank\" rel=\"noopener\">Lingo Cars API</a> სერვერით. API ასევე უზრუნველყოფს სრულ სასწავლო ძრავას + მანქანის პროექციას; ეს გვერდი მისი ვიზუალური ილუსტრაციაა.",
+    "footer.original":"მანქანების დიზაინი ორიგინალური და უბრენდოა. ქართული და რუსული დემო-შიგთავსი საჩვენებელია.",
+    "footer.rights":"ყველა უფლება დაცულია.",
+  },
+};
+function t(key, vars){
+  const lang = currentUiLang();
+  let s = (I18N[lang] && I18N[lang][key] != null) ? I18N[lang][key] : I18N.en[key];
+  if(s == null) return key;
+  if(vars) for(const k in vars) s = s.split("{"+k+"}").join(vars[k]);
+  return s;
+}
+/* Localized display-name accessors for the static catalog data (the data
+   objects keep their English `name`/`sub`/`label` fields as stable internal
+   defaults + English fallback; these read the translated string instead). */
+function langName(code){ return t("lang."+code); }
+function carSub(tier){ return t("car.sub."+tier); }
+function shopName(id){ return t("item."+id); }
+function swatchName(id){ return t("swatch."+id); }
+function trackName(id){ return t("track."+id+".name"); }
+function trackSub(id){ return t("track."+id+".sub"); }
+function diffName(id){ return t("diff."+id+".name"); }
+function diffSub(id){ return t("diff."+id+".sub"); }
+function catLabel(key){ return t("cat."+key+".label"); }
+function catDefault(key){ return t("cat."+key+".default"); }
+/* Localized ordinal for a race finishing position, with a medal for the top 3. */
+function placeMedal(pos){ return pos===1?"🥇":pos===2?"🥈":pos===3?"🥉":""; }
+function ordinal(n){ return t(n>=1&&n<=5 ? "ord."+n : "ord.n", {n}); }
+function placeLabel(pos){ const m=placeMedal(pos); return (m?m+" ":"")+ordinal(pos); }
+/* Apply every static [data-i18n*] attribute in the DOM to the current UI
+   language. Render functions overwrite their own dynamic nodes afterwards. */
+function applyI18n(){
+  document.documentElement.lang = currentUiLang();
+  document.querySelectorAll("[data-i18n]").forEach(el=>{ el.textContent = t(el.getAttribute("data-i18n")); });
+  document.querySelectorAll("[data-i18n-html]").forEach(el=>{ el.innerHTML = t(el.getAttribute("data-i18n-html")); });
+  document.querySelectorAll("[data-i18n-ph]").forEach(el=>{ el.setAttribute("placeholder", t(el.getAttribute("data-i18n-ph"))); });
+  document.querySelectorAll("[data-i18n-aria]").forEach(el=>{ el.setAttribute("aria-label", t(el.getAttribute("data-i18n-aria"))); });
+  const md=document.querySelector('meta[name="description"]'); if(md) md.setAttribute("content", t("meta.desc"));
+  document.title = t("meta.title");
+}
 
 /* ============================ Content banks ============================ */
 /* Per TARGET language. s = stem per source language; o = options in the target
@@ -3984,10 +4601,10 @@ function apiFetch(path, opts){
 }
 
 function renderAccountUI(){
-  $("accountBtn").textContent = account ? "👤 "+account.email : "👤 Log In or Sign Up";
+  $("accountBtn").textContent = account ? "👤 "+account.email : "👤 "+t("nav.account");
   $("accountLoggedOut").classList.toggle("hide", !!account);
   $("accountLoggedIn").classList.toggle("hide", !account);
-  if(account) $("accountEmailLabel").textContent = account.email;
+  if(account) $("accountSignedInText").innerHTML = t("acct.signedInAs", {email: account.email});
 }
 function openAccountModal(){
   $("authMsg").textContent=""; $("syncMsg").textContent="";
@@ -4001,20 +4618,20 @@ async function doAuth(kind){
   const email = $("authEmail").value.trim();
   const password = $("authPassword").value;
   const msg = $("authMsg");
-  if(!apiBase){ msg.textContent = "Enter your API server URL first."; return; }
-  if(!email || !password){ msg.textContent = "Email and password are required."; return; }
+  if(!apiBase){ msg.textContent = t("acct.needUrl"); return; }
+  if(!email || !password){ msg.textContent = t("acct.needCreds"); return; }
   localStorage.setItem("lingocars.apiBase", apiBase);
-  msg.textContent = kind==="signup" ? "Creating account…" : "Signing in…";
+  msg.textContent = kind==="signup" ? t("acct.creating") : t("acct.signingIn");
   try{
     const res = await fetch(apiBase + (kind==="signup" ? "/auth/signup" : "/auth/login"), {
       method:"POST", headers:{"Content-Type":"application/json"}, body: JSON.stringify({email,password}),
     });
     const body = await res.json().catch(()=>({}));
     if(!res.ok){
-      msg.textContent = res.status===409 ? "An account with that email already exists — try logging in instead."
-        : body.error==="invalid_credentials" ? "Wrong email or password."
+      msg.textContent = res.status===409 ? t("acct.dupEmail")
+        : body.error==="invalid_credentials" ? t("acct.wrongCreds")
         : body.issues && body.issues[0] ? body.issues[0].message
-        : (body.error || "Something went wrong.");
+        : (body.error || t("acct.genericErr"));
       return;
     }
     account = { apiBase, token: body.token, email: body.user.email, id: body.user.id };
@@ -4022,9 +4639,9 @@ async function doAuth(kind){
     await syncAfterLogin();
     renderAccountUI();
     closeAccountModal();
-    toast("Signed in as "+account.email);
+    toast(t("acct.signedInToast", {email: account.email}));
   }catch(e){
-    msg.textContent = "Couldn't reach the server — check the URL and that it's running.";
+    msg.textContent = t("acct.unreachable");
   }
 }
 
@@ -4054,9 +4671,9 @@ async function pushSync(){
   if(!account) return;
   try{
     const res = await apiFetch("/me/demo-state", { method:"PUT", body: JSON.stringify({ state: S }) });
-    const el = $("syncMsg"); if(el) el.textContent = res.ok ? "Synced just now ✓" : "Sync failed — will retry.";
+    const el = $("syncMsg"); if(el) el.textContent = res.ok ? t("sync.now") : t("sync.failed");
   }catch(e){
-    const el = $("syncMsg"); if(el) el.textContent = "Offline — will retry when reconnected.";
+    const el = $("syncMsg"); if(el) el.textContent = t("sync.offline");
   }
 }
 function scheduleSync(){
@@ -4094,7 +4711,7 @@ $("signupBtn").onclick = ()=>doAuth("signup");
 $("logoutBtn").onclick = async ()=>{
   try{ await apiFetch("/auth/logout", {method:"POST"}); }catch(e){}
   account = null; persistAccount(); renderAccountUI();
-  toast("Signed out — this device keeps its last-synced progress.");
+  toast(t("acct.signedOutToast"));
 };
 renderAccountUI();
 
@@ -4160,7 +4777,7 @@ function buyItem(id){
   st.owned.push(id); st.spent += item.cost;
   if(item.category) st.equipped[item.category] = id;   // auto-equip on purchase
   save();
-  toast(`${KIND_ICON[item.kind]} ${item.name} installed!`);
+  toast(t("shop.installed", {icon: KIND_ICON[item.kind], name: shopName(item.id)}));
   renderGarage(false); if(!$("quizPanel").classList.contains("hide")) updateQuizKpis();
 }
 function sellItem(id){
@@ -4170,7 +4787,7 @@ function sellItem(id){
   if(id==="paint-custom") st.customPaint = null;   // studio locked again → drop the pick
   if(item.category && st.equipped[item.category]===id) st.equipped[item.category] = null;
   save();
-  toast(`Sold ${item.name} (+${Math.floor(item.cost/2)} ⭐)`);
+  toast(t("shop.sold", {name: shopName(item.id), n: Math.floor(item.cost/2)}));
   renderGarage(false);
 }
 function equipItem(cat, id){
@@ -4195,7 +4812,7 @@ function applyCustomHex(hex){
    attached "✕ sell" button — this is the shared building block for every
    row in every aggregated shop group below. */
 function chipHtml({label, sub, stateCls, mainAttrs, sellId}){
-  const sell = sellId ? `<button type="button" class="chipSell" data-sell="${sellId}" aria-label="Sell ${label}">✕</button>` : "";
+  const sell = sellId ? `<button type="button" class="chipSell" data-sell="${sellId}" aria-label="${t("shop.sellAria",{label})}">✕</button>` : "";
   return `<span class="chipWrap"><button type="button" class="equipChip ${stateCls||""}" ${mainAttrs}>${label}${sub?` <small>${sub}</small>`:""}</button>${sell}</span>`;
 }
 /* A single-select category row (wheelstyle/finish/decal/aero): a "default/
@@ -4206,16 +4823,16 @@ function categoryRow(cat, st, bal){
   const items = SHOP.filter(s=>s.category===cat.key);
   const activeId = st.equipped[cat.key];
   const chips = [chipHtml({
-    label: cat.defaultLabel, stateCls: !activeId?"active":"",
+    label: catDefault(cat.key), stateCls: !activeId?"active":"",
     mainAttrs: `data-equip-cat="${cat.key}" data-equip-id=""`,
   })].concat(items.map(item=>{
     const owned = st.owned.includes(item.id);
     const locked = st.tier < item.tier;
-    if(locked) return chipHtml({ label:item.name, sub:`🔒 ${CARS[item.tier].name}`, stateCls:"locked", mainAttrs:"disabled" });
-    if(!owned) return chipHtml({ label:item.name, sub:`${item.cost}⭐`, stateCls:"buyable", mainAttrs:`data-buy="${item.id}" ${bal<item.cost?"disabled":""}` });
-    return chipHtml({ label:item.name, stateCls: activeId===item.id?"active":"", mainAttrs:`data-equip-cat="${cat.key}" data-equip-id="${item.id}"`, sellId:item.id });
+    if(locked) return chipHtml({ label:shopName(item.id), sub:`🔒 ${CARS[item.tier].name}`, stateCls:"locked", mainAttrs:"disabled" });
+    if(!owned) return chipHtml({ label:shopName(item.id), sub:`${item.cost}⭐`, stateCls:"buyable", mainAttrs:`data-buy="${item.id}" ${bal<item.cost?"disabled":""}` });
+    return chipHtml({ label:shopName(item.id), stateCls: activeId===item.id?"active":"", mainAttrs:`data-equip-cat="${cat.key}" data-equip-id="${item.id}"`, sellId:item.id });
   })).join("");
-  return `<div class="equipGroup"><div class="equipLabel">${cat.label}</div><div class="equipChips">${chips}</div></div>`;
+  return `<div class="equipGroup"><div class="equipLabel">${catLabel(cat.key)}</div><div class="equipChips">${chips}</div></div>`;
 }
 /* A simple owned/not-owned toggle (wheels-gold, paint-custom) — no
    "unequip" state, since there's nothing else to switch to; owning it
@@ -4224,10 +4841,10 @@ function toggleRow(label, item, st, bal){
   const owned = st.owned.includes(item.id);
   const locked = st.tier < item.tier;
   const chip = locked
-    ? chipHtml({ label:item.name, sub:`🔒 ${CARS[item.tier].name}`, stateCls:"locked", mainAttrs:"disabled" })
+    ? chipHtml({ label:shopName(item.id), sub:`🔒 ${CARS[item.tier].name}`, stateCls:"locked", mainAttrs:"disabled" })
     : owned
-      ? chipHtml({ label:item.name, stateCls:"active", mainAttrs:"disabled", sellId:item.id })
-      : chipHtml({ label:item.name, sub:`${item.cost}⭐`, stateCls:"buyable", mainAttrs:`data-buy="${item.id}" ${bal<item.cost?"disabled":""}` });
+      ? chipHtml({ label:shopName(item.id), stateCls:"active", mainAttrs:"disabled", sellId:item.id })
+      : chipHtml({ label:shopName(item.id), sub:`${item.cost}⭐`, stateCls:"buyable", mainAttrs:`data-buy="${item.id}" ${bal<item.cost?"disabled":""}` });
   return `<div class="equipGroup"><div class="equipLabel">${label}</div><div class="equipChips">${chip}</div></div>`;
 }
 function paintStudioHtml(st){
@@ -4236,10 +4853,10 @@ function paintStudioHtml(st){
   return `<div class="paintStudioInline">
     <div class="paintSwatches">${PAINT_SWATCHES.map(sw=>{
       const bg = sw.duotone ? `linear-gradient(135deg, ${sw.paint.c1}, ${sw.paint.c2})` : sw.hex;
-      return `<button type="button" class="swatch${active(sw)?" active":""}" data-swatch="${sw.id}" style="background:${bg}" title="${sw.name}" aria-label="${sw.name}"></button>`;
+      return `<button type="button" class="swatch${active(sw)?" active":""}" data-swatch="${sw.id}" style="background:${bg}" title="${swatchName(sw.id)}" aria-label="${swatchName(sw.id)}"></button>`;
     }).join("")}</div>
     <div class="row" style="margin-top:8px;align-items:center;gap:10px">
-      <label class="lead" style="font-size:12px" for="customHexInput">Custom hex:</label>
+      <label class="lead" style="font-size:12px" for="customHexInput">${t("shop.customHex")}</label>
       <input type="color" id="customHexInput" value="${cur ? cur.c1 : "#d9534f"}">
     </div>
   </div>`;
@@ -4252,20 +4869,20 @@ function paintStudioHtml(st){
    orthogonal effects that can be worn together (see cosmeticsOf/carSVG). */
 function renderShop(){
   const st=P(), bal=balance();
-  $("shopBalance").textContent = `⭐ ${bal} points`;
+  $("shopBalance").textContent = t("shop.points", {n: bal});
   const cat = key => EQUIP_CATS.find(c=>c.key===key);
-  const wheelsGroup = `<div class="shopGroup"><div class="shopGroupHead">🛞 Wheels</div>
-    ${toggleRow("Gold finish", shopItem("wheels-gold"), st, bal)}
+  const wheelsGroup = `<div class="shopGroup"><div class="shopGroupHead">${t("shop.wheels")}</div>
+    ${toggleRow(t("shop.goldFinish"), shopItem("wheels-gold"), st, bal)}
     ${categoryRow(cat("wheelstyle"), st, bal)}
   </div>`;
   const paintOwned = st.owned.includes("paint-custom");
-  const paintGroup = `<div class="shopGroup"><div class="shopGroupHead">🎨 Paint</div>
-    ${toggleRow("Custom colour studio", shopItem("paint-custom"), st, bal)}
+  const paintGroup = `<div class="shopGroup"><div class="shopGroupHead">${t("shop.paint")}</div>
+    ${toggleRow(t("shop.customStudio"), shopItem("paint-custom"), st, bal)}
     ${paintOwned ? paintStudioHtml(st) : ""}
     ${categoryRow(cat("finish"), st, bal)}
   </div>`;
-  const decalGroup = `<div class="shopGroup"><div class="shopGroupHead">🏁 Decals</div>${categoryRow(cat("decal"), st, bal)}</div>`;
-  const aeroGroup = `<div class="shopGroup"><div class="shopGroupHead">🪽 Aero</div>${categoryRow(cat("aero"), st, bal)}</div>`;
+  const decalGroup = `<div class="shopGroup"><div class="shopGroupHead">${t("shop.decals")}</div>${categoryRow(cat("decal"), st, bal)}</div>`;
+  const aeroGroup = `<div class="shopGroup"><div class="shopGroupHead">${t("shop.aero")}</div>${categoryRow(cat("aero"), st, bal)}</div>`;
   $("shopItems").innerHTML = wheelsGroup + paintGroup + decalGroup + aeroGroup;
 
   $("shopItems").querySelectorAll("[data-buy]").forEach(b=>b.onclick=()=>buyItem(b.dataset.buy));
@@ -4278,23 +4895,23 @@ function renderShop(){
 }
 
 function renderGarage(animate){
-  const st = P(); const t = st.tier, p = inTierProgress(t);
-  const c = CARS[t], next = CARS[Math.min(t+1,CARS.length-1)];
+  const st = P(); const tr = st.tier, p = inTierProgress(tr);
+  const c = CARS[tr], next = CARS[Math.min(tr+1,CARS.length-1)];
   const cos = cosmeticsOf(st);
   const stage=$("carStage");
   // Tint the garage floor light-pool with the car's current paint colour (Step 5).
   stage.style.setProperty("--car-glow", (cos.paint && cos.paint.c1) || c.c1);
-  stage.innerHTML = carSVG(t, p, cos);
+  stage.innerHTML = carSVG(tr, p, cos);
   if(animate){
     stage.classList.remove("drive","settle"); void stage.offsetWidth;
-    if(t>=3) stage.classList.add("settle");   // heavier performance classes get the weight-transfer settle
+    if(tr>=3) stage.classList.add("settle");   // heavier performance classes get the weight-transfer settle
     stage.classList.add("drive");
     stage.addEventListener("animationend",()=>stage.classList.remove("drive","settle"),{once:true});
   }
   $("className").textContent = c.name;
-  $("classSub").textContent = c.sub;
+  $("classSub").textContent = carSub(tr);
   $("cefrBadge").textContent = c.cefr;
-  const topT = t===CARS.length-1;
+  const topT = tr===CARS.length-1;
   const spd = topT ? c.spd : lerp(c.spd, next.spd, p);
   const hnd = topT ? c.hnd : lerp(c.hnd, next.hnd, p);
   $("speedVal").textContent = spd.toFixed(2)+"×";
@@ -4304,10 +4921,10 @@ function renderGarage(animate){
   const pct = Math.round(p*100);
   $("progBar").style.width = pct+"%";
   $("progPct").textContent = pct+"%";
-  $("progLabel").textContent = topT ? "Top class reached" :
-    (t===4 ? "C1 · C2 unlocks via a checkpoint" : "Progress to "+CARS[t+1].name);
+  $("progLabel").textContent = topT ? t("garage.topReached") :
+    (tr===4 ? t("garage.c2checkpoint") : t("garage.progressTo", {class: CARS[tr+1].name}));
   $("mstones").innerHTML = MILESTONES.map(m=>
-    `<span class="chip ${p>=m.p?"on":""}">${m.label}</span>`).join("");
+    `<span class="chip ${p>=m.p?"on":""}">${t("mstone."+m.kind)}</span>`).join("");
   renderShop();
 }
 
@@ -4318,7 +4935,7 @@ function toast(msg){
 function checkMilestoneToast(){
   const n = MILESTONES.filter(m=>inTierProgress(P().tier)>=m.p).length;
   if(lastMilestoneCount>=0 && n>lastMilestoneCount){
-    toast("🔧 "+MILESTONES[n-1].label.replace(/^\S+\s/,"")+" unlocked!");
+    toast(t("mstone.unlocked", {name: t("mstone."+MILESTONES[n-1].kind).replace(/^\S+\s/,"")}));
   }
   lastMilestoneCount = n;
 }
@@ -4332,7 +4949,7 @@ function startPlacement(){
   $("introPanel").classList.add("hide");
   $("resultPanel").classList.add("hide");
   $("quizPanel").classList.remove("hide");
-  $("modeBadge").textContent="Placement";
+  $("modeBadge").textContent=t("quiz.placement");
   nextPlacementItem();
 }
 function pickNear(ability, asked){
@@ -4354,7 +4971,7 @@ function nextPlacementItem(){
   const q = pickNear(placement.ability, placement.asked);
   if(!q){ finishPlacement(); return; }
   placement.asked.add(keyOf(q)); placement.cur=q;
-  $("qcount").textContent = `Question ${placement.i+1} / ${placement.n}`;
+  $("qcount").textContent = t("quiz.question", {i: placement.i+1, n: placement.n});
   renderQuestion(q, (correct)=>{
     const k = Math.max(0.5, 1.6/Math.sqrt(placement.i+1));
     const expected = 1/(1+Math.exp(-(placement.ability-q.c)));
@@ -4368,8 +4985,8 @@ function finishPlacement(){
   P().tier = idx; P().placed=true; save();
   $("quizPanel").classList.add("hide");
   $("resultPanel").classList.remove("hide");
-  $("resultTitle").textContent = `You're starting at ${CARS[idx].cefr}`;
-  $("resultText").innerHTML = `Estimated level <b>${CARS[idx].cefr}</b> for <b>${pairLabel(S.pair)}</b> → your ride is the <b>${CARS[idx].name}</b>. Keep answering correctly to tune it and climb toward the next class.`;
+  $("resultTitle").textContent = t("result.startingAt", {cefr: CARS[idx].cefr});
+  $("resultText").innerHTML = t("result.text", {cefr: CARS[idx].cefr, pair: pairLabel(S.pair), car: CARS[idx].name});
   lastMilestoneCount = -1;
   renderGarage(true);
 }
@@ -4381,7 +4998,7 @@ function startStudy(){
   $("introPanel").classList.add("hide");
   $("resultPanel").classList.add("hide");
   $("quizPanel").classList.remove("hide");
-  $("modeBadge").textContent="Study";
+  $("modeBadge").textContent=t("quiz.study");
   nextStudyItem();
 }
 function nextStudyItem(){
@@ -4404,16 +5021,16 @@ function nextStudyItem(){
     save();
     checkMilestoneToast();
     renderGarage(promoted); updateQuizKpis();
-    if(promoted){ lastMilestoneCount = 0; toast(`🏁 New car unlocked — ${CARS[P().tier].name}!`); }
+    if(promoted){ lastMilestoneCount = 0; toast(t("study.newCar", {car: CARS[P().tier].name})); }
     showNext(()=>nextStudyItem());
   });
 }
 function updateQuizKpis(){
   const st=P();
   $("quizKpis").innerHTML =
-    `<span><b>${st.xp}</b> XP</span>
-     <span><b>${st.correct}/${st.answered}</b> correct</span>
-     <span><b>${Math.round(inTierProgress(st.tier)*100)}%</b> to next class</span>`;
+    `<span><b>${st.xp}</b> ${t("quiz.kpiXp")}</span>
+     <span><b>${st.correct}/${st.answered}</b> ${t("quiz.kpiCorrect")}</span>
+     <span><b>${Math.round(inTierProgress(st.tier)*100)}%</b> ${t("quiz.kpiToNext")}</span>`;
 }
 
 /* ============================ Fill grading (client-side port) ============================ */
@@ -4495,17 +5112,17 @@ function renderSpeakQuestion(q, box, onAnswered){
   const SR = getSpeechRecognition();
   box.innerHTML = `<div class="speakText">${q.text}</div>
     <div class="playRow">
-      <button class="playBtn" id="hearBtn" aria-label="Hear a model pronunciation">🔊</button>
-      <span class="playMeta">Hear a model pronunciation, then read it aloud.</span>
+      <button class="playBtn" id="hearBtn" aria-label="${t("quiz.hearAria")}">🔊</button>
+      <span class="playMeta">${t("quiz.hearMeta")}</span>
     </div>
     ${SR
-      ? `<button class="micBtn" id="micBtn" aria-label="Start recording">🎙️</button>
-         <div class="micState" id="micState">Tap the mic and read the sentence above. Your speech is sent to your browser's speech-recognition service (e.g. Google, on Chrome) to be transcribed — nothing is recorded or stored.</div>`
+      ? `<button class="micBtn" id="micBtn" aria-label="${t("quiz.micAria")}">🎙️</button>
+         <div class="micState" id="micState">${t("quiz.micHint")}</div>`
       : `<div class="fillWrap">
-           <input type="text" id="fillInput" class="fillInput" placeholder="Type what you'd say…" autocomplete="off" autocapitalize="off" spellcheck="false">
-           <button class="btn" id="fillCheckBtn">Check</button>
+           <input type="text" id="fillInput" class="fillInput" placeholder="${t("quiz.speakFillPlaceholder")}" autocomplete="off" autocapitalize="off" spellcheck="false">
+           <button class="btn" id="fillCheckBtn">${t("quiz.check")}</button>
          </div>
-         <div class="fillHint">Your browser doesn't support speech recognition — type the sentence instead.</div>`}
+         <div class="fillHint">${t("quiz.noSR")}</div>`}
   `;
   const hearBtn = $("hearBtn");
   const hearIt = () => { hearBtn.classList.add("playing"); speak(q.text, S.pair, () => hearBtn.classList.remove("playing")); };
@@ -4513,7 +5130,7 @@ function renderSpeakQuestion(q, box, onAnswered){
 
   const finish = (transcript) => {
     const g = gradeFill(transcript, [q.text], q.tolerance);
-    const mainText = g.correct ? (g.score >= 1 ? "Correct! 🎉" : "Close enough! 👍") : `Target: ${q.text}${transcript ? ` — heard: "${transcript}"` : ""}`;
+    const mainText = g.correct ? (g.score >= 1 ? t("quiz.correct") : t("quiz.closeEnough")) : (transcript ? t("quiz.targetHeard", {text:q.text, heard:transcript}) : t("quiz.target", {text:q.text}));
     setFeedback(mainText, g.correct, q);
     onAnswered(g.correct);
     $("nextBtn").classList.remove("hide");
@@ -4540,29 +5157,29 @@ function renderSpeakQuestion(q, box, onAnswered){
   recognition.interimResults = false;
   recognition.maxAlternatives = 1;
 
-  recognition.onstart = () => { recognizing = true; micBtn.classList.add("recording"); micState.textContent = "Listening… speak now."; };
+  recognition.onstart = () => { recognizing = true; micBtn.classList.add("recording"); micState.textContent = t("quiz.listening"); };
   recognition.onresult = (e) => {
     if(done) return; done = true;
     const transcript = e.results[0][0].transcript;
-    micState.textContent = `Heard: "${transcript}"`;
+    micState.textContent = t("quiz.heard", {text: transcript});
     micBtn.disabled = true;
     finish(transcript);
   };
   recognition.onerror = () => {
     if(done) return; done = true;
-    micState.textContent = "Couldn't hear you — recognition failed. Try again or type it below.";
+    micState.textContent = t("quiz.srFailed");
     micBtn.disabled = true;
     finish(""); // graceful: grade as a miss rather than leaving the item stuck
   };
   recognition.onend = () => {
     recognizing = false; micBtn.classList.remove("recording");
-    if(!done){ done = true; micState.textContent = "No speech detected."; finish(""); }
+    if(!done){ done = true; micState.textContent = t("quiz.noSpeech"); finish(""); }
   };
 
   micBtn.onclick = () => {
     if(recognizing || micBtn.disabled) return;
     try { recognition.start(); }
-    catch(e){ micState.textContent = "Microphone unavailable — type your answer instead."; }
+    catch(e){ micState.textContent = t("quiz.micUnavailable"); }
   };
 }
 
@@ -4588,8 +5205,8 @@ function renderQuestion(q, onAnswered){
 
   if(q.type==="listen"){
     box.innerHTML = `<div class="playRow">
-        <button class="playBtn" id="playBtn" aria-label="Play audio">🔊</button>
-        <span class="playMeta">Tap to listen (uses your browser's text-to-speech — voice quality, especially Georgian, depends on your device).</span>
+        <button class="playBtn" id="playBtn" aria-label="${t("quiz.playAudio")}">🔊</button>
+        <span class="playMeta">${t("quiz.listenTap")}</span>
       </div>
       <div class="opts" id="listenOpts"></div>`;
     const playBtn=$("playBtn");
@@ -4610,7 +5227,7 @@ function renderQuestion(q, onAnswered){
         [...optBox.children].forEach((el,j)=>{ el.disabled=true;
           if(j===listenCorrect) el.classList.add("correct");
           if(j===i && !correct) el.classList.add("wrong"); });
-        const mainText = correct ? "Correct! 🎉" : `You heard: "${q.transcript}"`;
+        const mainText = correct ? t("quiz.correct") : t("quiz.youHeard", {text: q.transcript});
         setFeedback(mainText, correct, q);
         onAnswered(correct);
         $("nextBtn").classList.remove("hide");
@@ -4627,17 +5244,17 @@ function renderQuestion(q, onAnswered){
 
   if(q.type==="fill"){
     box.innerHTML = `<div class="fillWrap">
-        <input type="text" id="fillInput" class="fillInput" placeholder="Type your answer…" autocomplete="off" autocapitalize="off" spellcheck="false">
-        <button class="btn" id="fillCheckBtn">Check</button>
+        <input type="text" id="fillInput" class="fillInput" placeholder="${t("quiz.fillPlaceholder")}" autocomplete="off" autocapitalize="off" spellcheck="false">
+        <button class="btn" id="fillCheckBtn">${t("quiz.check")}</button>
       </div>
-      <div class="fillHint">Press Enter or click Check — small typos and missing accents are forgiven.</div>`;
+      <div class="fillHint">${t("quiz.fillHint")}</div>`;
     const input=$("fillInput"), checkBtn=$("fillCheckBtn");
     const submit=()=>{
       if(input.disabled) return;
       const g = gradeFill(input.value, q.answers, q.tolerance);
       input.disabled=true; checkBtn.disabled=true;
       input.classList.add(g.correct?"correct":"wrong");
-      const mainText = g.correct ? (g.score>=1 ? "Correct! 🎉" : "Close enough! 👍") : `Correct answer: ${q.answers[0]}`;
+      const mainText = g.correct ? (g.score>=1 ? t("quiz.correct") : t("quiz.closeEnough")) : t("quiz.correctAnswer", {answer: q.answers[0]});
       setFeedback(mainText, g.correct, q);
       onAnswered(g.correct);
       $("nextBtn").classList.remove("hide");
@@ -4657,7 +5274,7 @@ function renderQuestion(q, onAnswered){
       [...box.children].forEach((el,j)=>{ el.disabled=true;
         if(j===correctIdx) el.classList.add("correct");
         if(j===i && !correct) el.classList.add("wrong"); });
-      const mainText = correct ? "Correct! 🎉" : `Correct answer: ${opts[correctIdx]}`;
+      const mainText = correct ? t("quiz.correct") : t("quiz.correctAnswer", {answer: opts[correctIdx]});
       setFeedback(mainText, correct, q);
       onAnswered(correct);
       $("nextBtn").classList.remove("hide");
@@ -4776,7 +5393,7 @@ function raceAudioToggle(){
   } else race.audio.on=!race.audio.on;
   const on=!!(race.audio && race.audio.on);
   try{ if(race.audio) race.audio.gain.gain.value = on?0.05:0; }catch(e){}
-  const b=$("soundBtn"); if(b) b.textContent = on?"🔊 Sound":"🔇 Muted";
+  const b=$("soundBtn"); if(b) b.textContent = on?("🔊 "+t("race.sound")):("🔇 "+t("race.muted"));
 }
 function raceAudioStop(){ if(race&&race.audio){ try{ race.audio.osc.stop(); race.audio.ctx.close(); }catch(e){} race.audio=null; } }
 /* Haptic feedback for touch devices (Prompt 4) — light, game-feel-only buzz.
@@ -4838,32 +5455,36 @@ function medal(pos){ return pos===1?"🥇":pos===2?"🥈":pos===3?"🥉":("P"+po
 function bestFor(st, trackId, tier){ return (st.raceBest[trackId]||{})[tier] || null; }
 function renderRaceLobby(){
   const st=P(), track=curTrack(), diff=curDiff(), best=bestFor(st, track.id, st.tier);
-  $("raceMeta").textContent = "Pick a track and a class, then race";
-  const chip=(kind,it,sel)=>`<button type="button" role="radio" aria-checked="${sel}" aria-pressed="${sel}" class="rchip" data-${kind}="${it.id}"><span class="rchipn">${it.name}</span><span class="rchips2">${it.sub}${kind==="track"?" · "+ (it.len/100).toFixed(0)+"00m":""}</span></button>`;
+  $("raceMeta").textContent = t("race.pickMeta");
+  const chip=(kind,it,sel)=>{
+    const nm = kind==="track" ? trackName(it.id) : diffName(it.id);
+    const sb = kind==="track" ? trackSub(it.id)  : diffSub(it.id);
+    return `<button type="button" role="radio" aria-checked="${sel}" aria-pressed="${sel}" class="rchip" data-${kind}="${it.id}"><span class="rchipn">${nm}</span><span class="rchips2">${sb}${kind==="track"?" · "+ (it.len/100).toFixed(0)+"00m":""}</span></button>`;
+  };
   // personal-bests board for the CURRENT car across the three tracks
-  const board = TRACKS.map(t=>{
-    const b=bestFor(st, t.id, st.tier);
+  const board = TRACKS.map(tk=>{
+    const b=bestFor(st, tk.id, st.tier);
     const val = b ? `${medal(b.pos)}${b.ms!=null?" · "+(b.ms/1000).toFixed(2)+"s":""} <span style="opacity:.6">(${b.races})</span>` : "—";
-    return `<div class="rbrow"><span class="rbtrk">${t.name}</span><span class="rbval">${val}</span></div>`;
+    return `<div class="rbrow"><span class="rbtrk">${trackName(tk.id)}</span><span class="rbval">${val}</span></div>`;
   }).join("");
   const recent = (st.raceLog||[]).slice(0,6).map(r=>{
-    const tk=TRACKS.find(t=>t.id===r.track); return `${medal(r.pos)} ${tk?tk.name.split(" ")[0]:r.track}${r.ms!=null?" "+(r.ms/1000).toFixed(1)+"s":""}`;
+    const tk=TRACKS.find(x=>x.id===r.track); return `${medal(r.pos)} ${tk?trackName(tk.id).split(" ")[0]:r.track}${r.ms!=null?" "+(r.ms/1000).toFixed(1)+"s":""}`;
   }).join(" · ");
   $("raceStage").innerHTML = `
     <div class="rlobby">
-      <div class="rlobsec"><div class="rloblabel">Track</div><div class="rchips" id="rTrackChips" role="radiogroup" aria-label="Track">${TRACKS.map(t=>chip("track",t,t.id===S.raceTrack)).join("")}</div></div>
-      <div class="rlobsec"><div class="rloblabel">Rival class</div><div class="rchips" id="rDiffChips" role="radiogroup" aria-label="Difficulty">${DIFFICULTIES.map(d=>chip("diff",d,d.id===S.raceDiff)).join("")}</div></div>
-      <div class="rlobcar">Your car: <b>${CARS[st.tier].name}</b> · Best on ${track.name}: ${best?`${medal(best.pos)}${best.ms!=null?" · "+(best.ms/1000).toFixed(2)+"s":""}`:"— not raced yet"}</div>
+      <div class="rlobsec"><div class="rloblabel">${t("race.track")}</div><div class="rchips" id="rTrackChips" role="radiogroup" aria-label="${t("race.track")}">${TRACKS.map(tk=>chip("track",tk,tk.id===S.raceTrack)).join("")}</div></div>
+      <div class="rlobsec"><div class="rloblabel">${t("race.rivalClass")}</div><div class="rchips" id="rDiffChips" role="radiogroup" aria-label="${t("race.rivalClass")}">${DIFFICULTIES.map(d=>chip("diff",d,d.id===S.raceDiff)).join("")}</div></div>
+      <div class="rlobcar">${t("race.yourCar")} <b>${CARS[st.tier].name}</b> · ${t("race.bestOn",{track:trackName(track.id)})} ${best?`${medal(best.pos)}${best.ms!=null?" · "+(best.ms/1000).toFixed(2)+"s":""}`:t("race.notRaced")}</div>
       <div class="row" style="justify-content:center">
-        <button class="btn" id="raceStartBtn">🏁 Start race</button>
-        <button class="btn secondary" id="raceLobbyCloseBtn">Back to studying</button>
+        <button class="btn" id="raceStartBtn">${t("race.start")}</button>
+        <button class="btn secondary" id="raceLobbyCloseBtn">${t("race.backToStudy")}</button>
       </div>
       <div class="rboard">
-        <div class="rboardh">Personal bests · ${CARS[st.tier].name}</div>
+        <div class="rboardh">${t("race.personalBests",{car:CARS[st.tier].name})}</div>
         ${board}
-        ${recent?`<div class="rrecent">Recent: ${recent}</div>`:""}
+        ${recent?`<div class="rrecent">${t("race.recent",{list:recent})}</div>`:""}
       </div>
-      <p class="lead" style="font-size:12px;text-align:center;margin-top:4px">Racing is mostly for bragging rights — it earns a few points (much less than studying) and never unlocks a car. Rivals are real cars of their own class, some slower and some faster, and that spread never changes — so climbing YOUR class is what makes the field easier to beat, but a faster car still comes only from language mastery.</p>
+      <p class="lead" style="font-size:12px;text-align:center;margin-top:4px">${t("race.lobbyBlurb")}</p>
     </div>`;
   const pick=(container,kind)=>{
     $(container).querySelectorAll("[data-"+kind+"]").forEach(b=>b.onclick=()=>{
@@ -4884,7 +5505,7 @@ function startRace(seedArg){
   const track=curTrack(), diff=curDiff();
   const seed=(typeof seedArg==="number")?(seedArg>>>0):(Date.now()>>>0);
   const rng=mulberry32(seed);
-  $("raceMeta").textContent = `${CARS[st.tier].name} · ${track.name} · ${diff.name}`;
+  $("raceMeta").textContent = t("race.liveMeta", {car: CARS[st.tier].name, track: trackName(track.id), diff: diffName(diff.id)});
   const mk=o=>Object.assign({v:0,dist:0,finished:false,finishMs:0,place:0,blockedBy:null,laneCd:0,
                              boostT:0,boostMul:1,bogT:0,draftCharge:0,draftActive:false,reactT:0},o);
   const cars=[ mk({ id:0, isPlayer:true, env:pEnv, cruise:pV, artTier:st.tier, lane:1 }) ];
@@ -4946,7 +5567,7 @@ function renderRaceStage(){
   const st=P(), cos=cosmeticsOf(st);
   const carsHtml = race.cars.map(c=>{
     const svg = c.isPlayer ? topCarSVG(c.artTier, cos) : topCarSVG(c.artTier, c.cos||{});
-    const tag = c.isPlayer ? `<div class="rtag">YOU</div>` : "";
+    const tag = c.isPlayer ? `<div class="rtag">${t("race.you")}</div>` : "";
     return `<div class="rcar" id="rcar${c.id}"><div class="rcarInner">${tag}${svg}</div></div>`;
   }).join("");
   $("raceStage").innerHTML = `
@@ -4967,7 +5588,7 @@ function renderRaceStage(){
       <div class="rvignette" id="rVig"></div>
       <div class="rlights" id="rLights"><div class="rlrow" id="rLrow"></div><div class="rlbig" id="rLbig"></div></div>
       <div class="rlaunch" id="rLaunch"></div>
-      <div class="rdraft" id="rDraft">DRAFT</div>
+      <div class="rdraft" id="rDraft">${t("race.draft")}</div>
       <div class="rprogtop"><span class="rprog" id="rProg"></span></div>
       <div class="rhud">
         <span id="rPos">P1/${race.cars.length}</span>
@@ -4979,16 +5600,16 @@ function renderRaceStage(){
       <div class="racePrimary">
         <div class="laneSliderWrap">
           <span class="laneIcon" aria-hidden="true">◀</span>
-          <input type="range" id="laneSlider" class="laneSlider" min="0" max="${RACE_LANES-1}" step="1" value="1" aria-label="Change lane" aria-valuetext="Center lane">
+          <input type="range" id="laneSlider" class="laneSlider" min="0" max="${RACE_LANES-1}" step="1" value="1" aria-label="${t("race.laneAria")}" aria-valuetext="${t("race.lane.center")}">
           <span class="laneIcon" aria-hidden="true">▶</span>
         </div>
-        <button type="button" class="pedalBtn brakePedal" id="brakeBtn" aria-label="Brake">BRAKE</button>
-        <button type="button" class="pedalBtn gasPedal" id="gasBtn" aria-label="Accelerate">GAS ⛽</button>
+        <button type="button" class="pedalBtn brakePedal" id="brakeBtn" aria-label="${t("race.brakeAria")}">${t("race.brakeBtn")}</button>
+        <button type="button" class="pedalBtn gasPedal" id="gasBtn" aria-label="${t("race.gasAria")}">${t("race.gasBtn")}</button>
       </div>
-      <button type="button" class="racebtn sound" id="soundBtn" aria-label="Toggle engine sound">🔇 Sound</button>
-      <button type="button" class="btn secondary" id="raceQuitBtn" aria-label="Quit the race">Quit</button>
+      <button type="button" class="racebtn sound" id="soundBtn" aria-label="${t("race.soundAria")}">🔇 ${t("race.sound")}</button>
+      <button type="button" class="btn secondary" id="raceQuitBtn" aria-label="${t("race.quitAria")}">${t("race.quit")}</button>
     </div>
-    <p class="lead" id="raceHelp" style="font-size:12px;text-align:center;margin-top:6px">Nail the launch at GO (gas / <kbd>W</kbd>), then overtake by steering left/right — <b>swipe or tap the sides of the track</b>, drag the lane slider, or use the arrow keys — and tuck in behind a rival to slipstream. Rivals span a mix of classes that never changes — climbing your own class is how you pull away — a finish earns a few points, but studying earns far more, and winning never unlocks a car.</p>`;
+    <p class="lead" id="raceHelp" style="font-size:12px;text-align:center;margin-top:6px">${t("race.help")}</p>`;
   // per-track scenery tint (self-contained CSS vars, CSP-safe)
   const w=$("raceWorld");
   if(w && race.track){ w.style.setProperty("--rwall", race.track.wall); w.style.setProperty("--rfloor", race.track.floor); w.style.setProperty("--rkerb", race.track.kerb); }
@@ -5012,11 +5633,11 @@ function bindRaceControls(){
   // keyboard/swipe/tap-zone) — both funnel through the same setLane() core.
   const lsl=$("laneSlider");
   if(lsl){
-    const laneNames=["Left lane","Center lane","Right lane"];
+    const laneNames=[t("race.lane.left"),t("race.lane.center"),t("race.lane.right")];
     lsl.addEventListener("input", e=>{
       const nl=+e.target.value;
       setLane(nl);
-      e.target.setAttribute("aria-valuetext", laneNames[nl] || ("Lane "+(nl+1)));
+      e.target.setAttribute("aria-valuetext", laneNames[nl] || t("race.lane.n",{n:nl+1}));
     });
   }
   const sb=$("soundBtn"); if(sb) sb.onclick=raceAudioToggle;
@@ -5119,7 +5740,7 @@ function raceStep(dt){
     if(race.input.throttle && race.stageT > 0.10) race.jumpStart=true;   // gas before GO = jump start
     if(race.stageT <= 0){
       race.phase="run";
-      if(race.jumpStart){ player.bogT=JUMP_BOG_S; race.launchMsg="Jump start 😬"; race.launchEval=true; haptic(70); }
+      if(race.jumpStart){ player.bogT=JUMP_BOG_S; race.launchMsg=t("race.jumpStart"); race.launchEval=true; haptic(70); }
     }
     return;
   }
@@ -5129,7 +5750,7 @@ function raceStep(dt){
   if(!race.launchEval){
     if(race.input.throttle){
       race.launchEval=true;
-      if(race.elapsed <= LAUNCH_WINDOW){ player.boostT=LAUNCH_BOOST_S; player.boostMul=LAUNCH_MUL; race.launchMsg="Clean launch 🔥"; haptic([15,25,15]); }
+      if(race.elapsed <= LAUNCH_WINDOW){ player.boostT=LAUNCH_BOOST_S; player.boostMul=LAUNCH_MUL; race.launchMsg=t("race.cleanLaunch"); haptic([15,25,15]); }
     } else if(race.elapsed > LAUNCH_WINDOW){ race.launchEval=true; }
   }
   for(const c of cars){
@@ -5298,7 +5919,7 @@ function renderRaceFrame(){
       if(row) row.innerHTML=[0,1,2].map(i=>`<span class="rlight${(3-n)>=i?" on":""}"></span>`).join("");
       lights.classList.remove("hide");
     } else if(race.elapsed<0.9){
-      if(big){ big.textContent="GO!"; big.className="rlbig go"; }
+      if(big){ big.textContent=t("race.go"); big.className="rlbig go"; }
       if(row) row.innerHTML=[0,1,2].map(()=>`<span class="rlight go"></span>`).join("");
       lights.classList.remove("hide");
     } else lights.classList.add("hide");
@@ -5306,8 +5927,8 @@ function renderRaceFrame(){
   const ln=$("rLaunch"); if(ln){ if(run && race.launchMsg && race.elapsed<1.8){ ln.textContent=race.launchMsg; ln.style.opacity="1"; } else ln.style.opacity="0"; }
   const dr=$("rDraft");
   if(dr){
-    if(race.slingT>0){ dr.textContent="SLIPSTREAM!"; dr.classList.add("slip"); dr.style.opacity="1"; }
-    else if(player.draftActive){ dr.textContent="DRAFT"; dr.classList.remove("slip"); dr.style.opacity="1"; }
+    if(race.slingT>0){ dr.textContent=t("race.slipstream"); dr.classList.add("slip"); dr.style.opacity="1"; }
+    else if(player.draftActive){ dr.textContent=t("race.draft"); dr.classList.remove("slip"); dr.style.opacity="1"; }
     else dr.style.opacity="0";
   }
   // particles (tyre smoke) + engine audio pitch
@@ -5376,33 +5997,32 @@ function onRaceFinish(){
   save();
   const best = bestFor(st, race.trackId, race.tier);
   if(player.finished) syncRaceResult(player.finishMs, pos, race.cars.length-1, race.trackId);   // best-effort; see syncRaceResult()
-  const ord=["🥇 1st","🥈 2nd","🥉 3rd","4th","5th"];
-  const placeLbl=ord[pos-1]||(pos+"th");
+  const placeLbl=placeLabel(pos);
   // photo finish: the top two finishers within 0.30s of each other
   const finers=race.cars.filter(c=>c.finished).sort((a,b)=>a.finishMs-b.finishMs);
   const photo = finers.length>=2 && (finers[1].finishMs-finers[0].finishMs)<=300;
   const rows=race.cars.slice().sort((a,b)=>a.place-b.place).map(c=>{
-    const t = c.finished ? `${(c.finishMs/1000).toFixed(2)}s` : (c.isPlayer?"DNF":"—");
-    const who = c.isPlayer ? "<b>You</b>" : CARS[c.artTier].name;
-    return `<div class="rrow${c.isPlayer?" me":""}${c.place===1?" win":""}"><span>P${c.place}</span><span>${who}</span><span>${t}</span></div>`;
+    const tm = c.finished ? `${(c.finishMs/1000).toFixed(2)}s` : (c.isPlayer?t("finish.dnf"):"—");
+    const who = c.isPlayer ? `<b>${t("finish.you")}</b>` : CARS[c.artTier].name;
+    return `<div class="rrow${c.isPlayer?" me":""}${c.place===1?" win":""}"><span>P${c.place}</span><span>${who}</span><span>${tm}</span></div>`;
   }).join("");
   $("raceStage").innerHTML = `
     <div style="position:relative">
       <canvas class="rcfx" id="rcFx"></canvas>
       <div style="position:relative;z-index:1">
-        <div class="shiftfb" style="font-size:22px">${improved?"🏆 ":""}${placeLbl} of ${n}!</div>
-        <div class="shiftfb" style="font-size:12px;color:var(--muted)">${track.name} · ${curDiff().name}${photo?" · 📸 Photo finish!":""}</div>
+        <div class="shiftfb" style="font-size:22px">${improved?"🏆 ":""}${t("finish.headline",{place:placeLbl, n})}</div>
+        <div class="shiftfb" style="font-size:12px;color:var(--muted)">${t("finish.subline",{track:trackName(track.id), diff:diffName(curDiff().id)})}${photo?t("finish.photo"):""}</div>
         <div class="rtable">${rows}</div>
         <div class="racestats">
-          <span><b>${player.finished?(player.finishMs/1000).toFixed(2)+"s":"DNF"}</b> your time</span>
-          <span><b>${best?medal(best.pos)+(best.ms!=null?" · "+(best.ms/1000).toFixed(2)+"s":""):"—"}</b> best here</span>
-          ${raceXp>0?`<span><b>+${raceXp}</b> points</span>`:""}
+          <span><b>${player.finished?(player.finishMs/1000).toFixed(2)+"s":t("finish.dnf")}</b> ${t("finish.yourTime")}</span>
+          <span><b>${best?medal(best.pos)+(best.ms!=null?" · "+(best.ms/1000).toFixed(2)+"s":""):"—"}</b> ${t("finish.bestHere")}</span>
+          ${raceXp>0?`<span><b>+${raceXp}</b> ${t("finish.points")}</span>`:""}
         </div>
-        <p class="lead" style="font-size:12px;text-align:center">Rivals are real cars of their own class — some slower, some faster — and that spread never changes, so climbing your own class is how you leave the tougher ones behind. Racing earns a few points, but nowhere near what studying does — a faster car comes only from language mastery.</p>
+        <p class="lead" style="font-size:12px;text-align:center">${t("finish.blurb")}</p>
         <div class="row" style="justify-content:center">
-          <button class="btn" id="raceAgainBtn">Race again</button>
-          <button class="btn secondary" id="raceLobbyBtn">Change track</button>
-          <button class="btn secondary" id="raceCloseBtn">Back to studying</button>
+          <button class="btn" id="raceAgainBtn">${t("finish.raceAgain")}</button>
+          <button class="btn secondary" id="raceLobbyBtn">${t("finish.changeTrack")}</button>
+          <button class="btn secondary" id="raceCloseBtn">${t("race.backToStudy")}</button>
         </div>
       </div>
     </div>`;
@@ -5460,11 +6080,11 @@ function showIntro(){
   $("racePanel").classList.add("hide");
   $("quizPanel").classList.add("hide"); $("resultPanel").classList.add("hide");
   $("introPanel").classList.remove("hide");
-  $("introTitle").textContent = P().placed ? "Welcome back 👋" : "Welcome 👋";
+  $("introTitle").textContent = P().placed ? t("intro.welcomeBack") : t("intro.welcome");
   $("introLead").textContent = P().placed
-    ? `Your ${pairLabel(S.pair)} garage is saved. Keep driving, retake placement, or reset this pair.`
-    : `Take a 15-question adaptive placement test for ${pairLabel(S.pair)} to find your starting level, then keep answering to tune your car. Each language pair has its own garage.`;
-  $("skipBtn").textContent = P().placed ? "Continue studying" : "Skip & study at A1";
+    ? t("intro.leadReturning", {pair: pairLabel(S.pair)})
+    : t("intro.leadNew", {pair: pairLabel(S.pair)});
+  $("skipBtn").textContent = P().placed ? t("intro.continue") : t("intro.skip");
 }
 const sel = $("pairSel");
 sel.innerHTML = PAIRS.map(p=>`<option value="${p}">${pairLabel(p)}</option>`).join("");
@@ -5472,6 +6092,7 @@ sel.value = S.pair;
 sel.onchange = ()=>{
   S.pair = sel.value; save();
   placement=null; study=null; nextAction=null; lastMilestoneCount=-1;
+  applyI18n(); buildPairPickerGroups(); renderAccountUI();   // re-localize the whole chrome to the new source language
   showIntro(); renderGarage(true);
   syncPairPickerUI();
 };
@@ -5495,18 +6116,18 @@ function buildPairPickerGroups(){
     const opts = byTarget[tgt].map(({p,src})=>
       `<button type="button" class="pairPickerOption" data-pair="${p}" role="option">
          <span class="ppFlag">${LANGS[src].flag}</span>
-         <span>from ${LANGS[src].name}</span>
+         <span>${t("pair.from",{lang:langName(src)})}</span>
        </button>`
     ).join("");
     return `<div class="pairPickerGroup" data-group="${tgt}">
-        <div class="pairPickerGroupLabel">${LANGS[tgt].flag} Learn ${LANGS[tgt].name}</div>
+        <div class="pairPickerGroupLabel">${LANGS[tgt].flag} ${t("pair.learn",{lang:langName(tgt)})}</div>
         ${opts}
       </div>`;
   }).join("");
 }
 function syncPairPickerUI(){
   const [src,tgt] = sel.value.split("-");
-  $("pairPickerLabel").innerHTML = `${LANGS[src].flag}→${LANGS[tgt].flag} <b>${LANGS[tgt].name}</b> <span class="ppFrom">from ${LANGS[src].name}</span>`;
+  $("pairPickerLabel").innerHTML = `${LANGS[src].flag}→${LANGS[tgt].flag} <b>${langName(tgt)}</b> <span class="ppFrom">${t("pair.from",{lang:langName(src)})}</span>`;
   document.querySelectorAll(".pairPickerOption").forEach(opt=>{
     opt.classList.toggle("active", opt.dataset.pair === sel.value);
   });
@@ -5558,9 +6179,10 @@ $("startBtn").onclick=startPlacement;
 $("skipBtn").onclick=()=>{ if(!P().placed){ P().tier=0; P().placed=true; save(); } startStudy(); };
 $("beginStudyBtn").onclick=startStudy;
 $("resetBtn").onclick=()=>{ S.pairs[S.pair]=mkPairState(); save(); placement=null; study=null; lastMilestoneCount=-1;
-  showIntro(); renderGarage(true); toast(`Progress for ${pairLabel(S.pair)} reset.`); };
+  showIntro(); renderGarage(true); toast(t("reset.toast", {pair: pairLabel(S.pair)})); };
 
 /* boot */
+applyI18n();   // localize all static chrome to the current pair's source language
 lastMilestoneCount = MILESTONES.filter(m=>inTierProgress(P().tier)>=m.p).length;
 showIntro();
 renderGarage(false);
